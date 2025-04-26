@@ -6,6 +6,7 @@
 \usepackage{multicol}         % Tworzenie wielokolumnowego tekstu
 \usepackage{array}            % Ulepszone tabele
 \usepackage{graphicx}         % Dodawanie obrazków
+\usepackage{float}
 \usepackage{color}            % Kolorowanie tekstu
 \usepackage{hyperref}         % Hiperłącza w dokumencie
 \usepackage{listings}         % Wstawianie kodu źródłowego
@@ -16,18 +17,28 @@
 \usepackage{lastpage}         % For total number of pages
 \usepackage{lmodern}          % Better font rendering
 \usepackage{titlesec}         % For adjusting title spacing
+\usepackage{wrapfig}
+\usepackage{centernot}
+\usepackage{enumitem}
+\usepackage[dvipsnames]{xcolor} % Więcej kolorków dla komendy \color
+\usepackage{needspace}
 
 % Line spacing adjustments
-\linespread{0.8}  % Makes lines less tight
+\linespread{0.8}  % Makes lines tighter
 % Header & Footer Setup
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhfoffset[L]{1mm} % left extra length
 \fancyhfoffset[R]{1mm} % right extra length
-\fancyhead[L]{\textbf{\huge Title}}    % Title on the left (bigger)
-\fancyhead[C]{\text{Kacper Poneta \\ Kacper Orszulak \\ Natalia Ignatowicz}} % Author in the middle (bigger)
-\fancyhead[R]{\text{\today}}         % Date on the right (bigger)
 \fancyfoot[R]{\thepage/\pageref{LastPage}} % Page number in format current/total
+
+% Build info or date on the right of the header
+\makeatletter
+\@ifundefined{buildHeader}{
+  \newcommand{\buildHeader}{\today}
+}{}
+\makeatother
+\fancyhead[R]{\buildHeader}
 
 % Add vertical space before the header line (custom space before the rule)
 \renewcommand{\headrulewidth}{0.4pt}    % Header line thickness
@@ -36,3 +47,8 @@
 % Footer setup and add space before the footer line
 \renewcommand{\footrulewidth}{0.4pt}    % Footer line thickness
 \setlength{\headheight}{50pt}
+
+% Break the page if new section would start near the end of the page
+\pretocmd{\section}{%
+  \needspace{60ex}%
+}{}{}
