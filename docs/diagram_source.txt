@@ -1,0 +1,169 @@
+TablePartial metadata {
+  version int [not null, default: 0]
+  created_at timestamp [not null, default: 'now()']
+  updated_at timestamp [not null, default: 'now()']
+  note: '''
+    ## Required triggers
+    - for updating version on updates
+    - for updating updated_at on updates
+  '''
+}
+
+Table product {
+  id_product serial PK
+  id_category int [ref: > category.id_category, not null]
+  id_sizing_type int [ref: > sizing_type.id_sizing_type, not null]
+  sku_code varchar [not null, unique]
+  published bool [not null]
+  short_description text
+  thumbnail_path varchar
+  name varchar [not null]
+  ~metadata
+  // sku_code between 8 and 12 chars cyfry litery
+  // name between 1 and 100 chars
+}
+
+Table product_details {
+  id_product int [ref: - product.id_product, not null]
+  description text [not null, note: "in markdown"]
+  ~metadata
+}
+
+Table product_image {
+  id_product int [ref: > product.id_product, not null]
+  img_path varchar [not null]
+  order int [not null, note: "describes order of photos in gallery"]
+  alt_desc varchar [note: "alternative text"]
+  indexes {
+    (id_product, img_path) [pk]
+  }
+}
+
+
+Table discount_history {
+  id_product int [ref: > product.id_product, not null]
+  discount float [not null, note: "percentage discount"]
+  from timestamp [not null]
+  to timestmap 
+  indexes {
+    (id_product, from, to) [pk]
+  }
+  // discount > 0
+  // from < to lub to == null
+}
+
+Table cart {
+  id_cart uuid PK
+  expiration timestamp [not null, default: `now() + '2 hours'`]
+
+  note: '''
+    - cart is created when user adds something to it
+    - it is updated whenever user permors an action
+    - uuid of cart will be in cookie
+    - empty carts are no longer keept
+    - cronjob for deletion of expired carts
+  '''
+}
+
+Table cart_product_variant {
+  id_cart uuid [ref: > cart.id_cart, not null]
+  id_variant_size int [ref: > variant_size.id_variant_size, not null]
+  quantity int [not null]
+  note: '''
+    does not lock products
+  '''
+  // quantity > 0
+}
+
+
+Table price_history {
+  id_product int [ref: > product.id_product, not null]
+  price float [not null]
+  created_at timestamp [not null, default: `now()`]
+  indexes {
+    (id_product, created_at) [pk]
+  }
+  // price >= 0
+}
+
+Table variant {
+  id_variant serial PK
+  id_product int [ref: > product.id_product, not null]
+  name varchar [not null]
+  color char[3] [not null]
+  ~metadata
+  // name between [1, 100]
+}
+
+Table variant_size {
+  id_variant_size serial PK
+  id_variant int [ref: > variant.id_variant, not null]
+  id_size int [ref: > size.id_size, not null]
+  quantity int [not null]
+  ~metadata
+  // quantity >= 0
+}
+
+Table tag {
+  id_tag serial PK
+  name varchar [not null, unique, note: "e.g. sport"]
+  ~metadata
+  // name between [1, 100]
+}
+
+Table tag_product {
+  id_tag id [ref: > tag.id_tag, not null]
+  id_product id [ref: > product.id_product, not null]
+  indexes {
+    (id_product, id_tag) [unique]
+  }
+}
+
+Table category {
+  id_category serial PK
+  parent_category int [ref: > category.id_category]
+  name varchar [not null, note:"e.g. shoes, trousers"]
+  ~metadata
+  indexes {
+    (parent_category, name) [unique]
+  }
+  // name between [1, 100]
+}
+
+ 
+// dla koszulek
+// dla butow
+// dla spodni etc
+Table sizing_type {
+  id_sizing_type serial PK
+  name varchar [not null, unique, note: "e.g. for tshirts, for boots"]
+  ~metadata
+  // name between [1, 100]
+}
+
+// US, UK
+Table sizing_format {
+  id_sizing_format serial PK
+  value varchar [not null, unique, note:"e.g US, UK"]
+  ~metadata
+  // value between [1, 100]
+}
+
+Table size {
+  id_size serial PK
+  id_sizing_type int [ref: > sizing_type.id_sizing_type, not null]
+  order int [not null, note: "for displaying sizes in order"]
+  ~metadata
+}
+
+// L, M, S, 32, 42 etc 
+Table size_data {
+  id_size int [ref: > size.id_size, not null]
+  id_sizing_format int [ref: > sizing_format.id_sizing_format, not null]
+  value varchar [not null, note: "e.g. L, M, 32, 160-170"]
+  ~metadata
+  // value between [1, 30]
+  indexes {
+    (id_size, id_sizing_format) [unique]
+  }
+}

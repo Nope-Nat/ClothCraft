@@ -7,5 +7,30 @@
 
 Lorem ipsum
 
+\begin{figure}[h] % 'h' means here; you can also use 't' for top, 'b' for bottom, etc.
+    \centering % Center the figure
+    \includegraphics[width=1.0\textwidth]{diagram.png} % Adjust the width as needed
+    \caption{This is a caption for the PNG image.} % Optional caption
+    \label{fig:example} % Optional label for referencing
+\end{figure}
+
+\hfill \break
+\section*{Szczegóły niektórych tabel:}
+
+\subsection*{metadata (partial table):}
+Wymagane wyzwalacze wymagane przy każdej zmianie tabeli:
+\begin{itemize}
+    \item {aktualizowanie version}
+    \item {aktualizowanie updated\_at}
+\end{itemize}
+
+\subsection*{product\_details}
+description będzie przechowywany jako markdown. Będziemy go renderować za pomocą biblioteki js.
+
+\subsection*{cart}
+Początkowo użytkownik nie będzie posiadał własnego koszyka. Stworzony on będzie, gdy doda coś do niego. UUID koszyka przechowywane będzie w bazie danych PostgreSQLużywając odpowiedniego rozszerzenia. Po stronie użytkownika UUID będzie przechowywane w formie ciasteczka. Koszyk jest aktualizowany za każdym razem, gdy użytkownik wykonuje na nim jakąś akcję. Puste koszyki są od razu usuwane. Dodatkowo każdy koszyk nieużywany odpowiednio długo również jest usuwany za pośrednictwem cronjob.
+
+
+
 \end{document}
 
