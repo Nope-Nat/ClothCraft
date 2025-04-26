@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 FRIENDLY_PDF_NAME=opis.pdf
 MAIN_PDF=description.pdf
 MAIN_TEX=description.tex
@@ -17,3 +18,16 @@ $(MAIN_PDF): $(TEXES)
 clean:
 	@rm -r $(OUTPUT_DIR) 2>/dev/null
 	@rm $(MAIN_PDF) 2>/dev/null
+||||||| parent of f6cc242 (added docs related things)
+=======
+TEXES := $(wildcard *.tex)
+FILES := $(TEXES:%.tex=./pdfs/%.pdf)
+./pdfs/%.pdf: %.tex
+	pdflatex -output-directory=aux $<
+	mv ./aux/$(basename $<).pdf ./pdfs/
+
+all: $(FILES)
+
+
+.PHONY: all
+>>>>>>> f6cc242 (added docs related things)
