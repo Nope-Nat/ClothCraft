@@ -1,0 +1,38 @@
+\documentclass[a4paper,12pt]{article}
+
+% Pakiety do różnych funkcji
+\usepackage[a4paper,left=2cm,right=2cm,top=\dimexpr15mm+2.5\baselineskip,bottom=3cm]{geometry}
+\usepackage{amsmath, amssymb} % For mathematical symbols
+\usepackage{multicol}         % Tworzenie wielokolumnowego tekstu
+\usepackage{array}            % Ulepszone tabele
+\usepackage{graphicx}         % Dodawanie obrazków
+\usepackage{color}            % Kolorowanie tekstu
+\usepackage{hyperref}         % Hiperłącza w dokumencie
+\usepackage{listings}         % Wstawianie kodu źródłowego
+\usepackage[utf8]{inputenc}   % Obsługuje kodowanie UTF-8
+\usepackage[T1]{fontenc}      % Obsługuje polskie znaki i inne znaki spoza ASCII
+\usepackage[polish]{babel}    % Ustawienia języka polskiego
+\usepackage{fancyhdr}         % For header and footer
+\usepackage{lastpage}         % For total number of pages
+\usepackage{lmodern}          % Better font rendering
+\usepackage{titlesec}         % For adjusting title spacing
+
+% Line spacing adjustments
+\linespread{0.8}  % Makes lines less tight
+% Header & Footer Setup
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhfoffset[L]{1mm} % left extra length
+\fancyhfoffset[R]{1mm} % right extra length
+\fancyhead[L]{\textbf{\huge Title}}    % Title on the left (bigger)
+\fancyhead[C]{\text{Kacper Poneta \\ Kacper Orszulak \\ Natalia Ignatowicz}} % Author in the middle (bigger)
+\fancyhead[R]{\text{\today}}         % Date on the right (bigger)
+\fancyfoot[R]{\thepage/\pageref{LastPage}} % Page number in format current/total
+
+% Add vertical space before the header line (custom space before the rule)
+\renewcommand{\headrulewidth}{0.4pt}    % Header line thickness
+\renewcommand{\headrule}{\vspace{10pt}\hrule}  % Add 10pt space above the header line
+
+% Footer setup and add space before the footer line
+\renewcommand{\footrulewidth}{0.4pt}    % Footer line thickness
+\setlength{\headheight}{50pt}
