@@ -12,6 +12,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
+
 -- sizing_type
 CREATE TABLE sizing_type (
   id_sizing_type SERIAL PRIMARY KEY,
@@ -111,6 +112,35 @@ CREATE TRIGGER trg_product_metadata
   BEFORE UPDATE ON product
   FOR EACH ROW EXECUTE PROCEDURE update_metadata();
 
+-- variant
+CREATE TABLE variant (
+  id_variant   SERIAL PRIMARY KEY,
+  id_product   INT       NOT NULL REFERENCES product(id_product),
+  name         VARCHAR(100) NOT NULL
+                CHECK (char_length(name) BETWEEN 1 AND 100),
+  color        CHAR(7)   NOT NULL
+                CHECK (color ~ '^#[0-9A-Fa-f]{6}$'),
+  version      INT       NOT NULL DEFAULT 0,
+  created_at   TIMESTAMP NOT NULL DEFAULT now(),
+  updated_at   TIMESTAMP NOT NULL DEFAULT now()
+);
+CREATE TRIGGER trg_variant_metadata
+  BEFORE UPDATE ON variant
+  FOR EACH ROW EXECUTE PROCEDURE update_metadata();
+
+-- variant_size
+CREATE TABLE variant_size (
+  id_variant_size SERIAL PRIMARY KEY,
+  id_variant      INT       NOT NULL REFERENCES variant(id_variant),
+  id_size         INT       NOT NULL REFERENCES size(id_size),
+  quantity        INT       NOT NULL CHECK (quantity >= 0),
+  version         INT       NOT NULL DEFAULT 0,
+  created_at      TIMESTAMP NOT NULL DEFAULT now(),
+  updated_at      TIMESTAMP NOT NULL DEFAULT now()
+);
+CREATE TRIGGER trg_variant_size_metadata
+  BEFORE UPDATE ON variant_size
+  FOR EACH ROW EXECUTE PROCEDURE update_metadata();
 
 -- product_details
 CREATE TABLE product_details (
@@ -143,7 +173,6 @@ CREATE TABLE discount_history (
   discount    FLOAT     NOT NULL CHECK (discount > 0),
   "from"      TIMESTAMP NOT NULL,
   "to"        TIMESTAMP,
-  PRIMARY KEY (id_product, "from", "to"),
   CHECK ("to" IS NULL OR "from" < "to")
 );
 

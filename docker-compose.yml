@@ -1,0 +1,16 @@
+
+services:
+  clothcraft-db:
+    image: postgres:latest
+    hostname: clothcraft/db
+    container_name: clothcraft-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: clothcraft
+    ports:
+      - "5432:5432"
+    volumes:
+      - .pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d
