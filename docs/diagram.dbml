@@ -131,9 +131,6 @@ Table category {
 }
 
  
-// dla koszulek
-// dla butow
-// dla spodni etc
 Table sizing_type {
   id_sizing_type serial PK
   name varchar [not null, unique, note: "e.g. for tshirts, for boots"]
@@ -141,10 +138,9 @@ Table sizing_type {
   // name between [1, 100]
 }
 
-// US, UK
 Table sizing_format {
   id_sizing_format serial PK
-  value varchar [not null, unique, note:"e.g US, UK"]
+  value varchar [not null, unique, note: "e.g US, UK"]
   ~metadata
   // value between [1, 100]
 }
@@ -156,7 +152,6 @@ Table size {
   ~metadata
 }
 
-// L, M, S, 32, 42 etc 
 Table size_data {
   id_size int [ref: > size.id_size, not null]
   id_sizing_format int [ref: > sizing_format.id_sizing_format, not null]

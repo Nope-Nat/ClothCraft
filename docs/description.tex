@@ -1,36 +1,42 @@
 \input{./include/template.tex}
 
-\fancyhead[L]{\textbf{Projekt sklepu}}    % Title on the left (bigger)
+\fancyhead[L]{\text\substack{\textbf{Projekt sklepu \\ internetowego} \\ \textit{Cloth Craft}}}    % Title on the left (bigger)
 
 % Document Body
 \begin{document}
 
-Lorem ipsum
-
 \begin{figure}[h] % 'h' means here; you can also use 't' for top, 'b' for bottom, etc.
     \centering % Center the figure
     \includegraphics[width=1.0\textwidth]{diagram.png} % Adjust the width as needed
-    \caption{This is a caption for the PNG image.} % Optional caption
+    \caption{Diagram bazy danych.} % Optional caption
     \label{fig:example} % Optional label for referencing
 \end{figure}
 
-\hfill \break
-\section*{Szczegóły niektórych tabel:}
+\section*{Szczegóły niektórych tabel}
 
-\subsection*{metadata (partial table):}
-Wymagane wyzwalacze wymagane przy każdej zmianie tabeli:
-\begin{itemize}
-    \item {aktualizowanie version}
-    \item {aktualizowanie updated\_at}
-\end{itemize}
+\subsection*{Logika reprezentacji produktów i wariantów}
+Każde ubranie może występować w wielu wariantach i rozmiarach. Wariant jest charakteryzowany przede wszystkim przez kolor i ewentualne inne cechy szczególne. Każdy wariant jest dostępny w potencjalnie wielu rozmiarach. Zależnie od produktu typ tego rozmiaru (sizing\_type) może być inny: rozmiar butów nie jest porównywalny np. z rozmiarem koszulek, czy spodni. Ponadto każdy rozmiar (size) może być wyrażany w różny sposób (np. za pomocą różnych jednostek). Różne reprezentacje jednego rozmiaru obsługuje tabela size\_data, która ponadto przechowuje informacje o formacie (sizing\_format).
 
 \subsection*{product\_details}
 description będzie przechowywany jako markdown. Będziemy go renderować za pomocą biblioteki js.
 
 \subsection*{cart}
-Początkowo użytkownik nie będzie posiadał własnego koszyka. Stworzony on będzie, gdy doda coś do niego. UUID koszyka przechowywane będzie w bazie danych PostgreSQLużywając odpowiedniego rozszerzenia. Po stronie użytkownika UUID będzie przechowywane w formie ciasteczka. Koszyk jest aktualizowany za każdym razem, gdy użytkownik wykonuje na nim jakąś akcję. Puste koszyki są od razu usuwane. Dodatkowo każdy koszyk nieużywany odpowiednio długo również jest usuwany za pośrednictwem cronjob.
+Początkowo użytkownik nie będzie posiadał własnego koszyka. Stworzony on będzie, gdy doda coś do niego. UUID koszyka przechowywane będzie w bazie danych PostgreSQL używając odpowiedniego rozszerzenia. Po stronie użytkownika UUID będzie przechowywane w formie ciasteczka. Koszyk jest aktualizowany za każdym razem, gdy użytkownik wykonuje na nim jakąś akcję. Puste koszyki są od razu usuwane. Dodatkowo każdy koszyk nieużywany odpowiednio długo również jest usuwany za pośrednictwem cronjob. Dodanie produktu do koszyka nie blokuje innych użytkowników przed dodaniem go również. Kupienie zawartości koszyka natomiast zmniejsza dostępność produktów.
 
+\section*{Widoki}
 
+\section*{Indeksy}
+
+\section*{Funkcje}
+
+\section*{Wyzwalacze}
+\subsection*{Spójność typów rozmiarów}
+Z jednej strony produkt definiuje typ rozmiaru, który go charakteryzuje, ale każdy rozmiar też jest określonego typu. Niezbędna będzie reguła, która będzie weryfikować przed dodaniem rozmiaru konkretnemu wariantowi produktu, czy typ tego rozmiaru się zgadza.
+
+\subsection*{Metadane}
+Większość tabel ma metadane takie jak version, created\_at, updated\_at. Dane te są użyteczne przy synchronizacji, gdy potencjalnie wielu użytkowników będzie wykonywać na bazie danych operacje i trzeba będzie zdecydować jak połączyć konfliktujące modyfikacje. Aby zagwarantować aktualność tych danych, odpowiedni wyzwalacz aktualizuje pola version i updated\_at przy każdej aktualizacji tabel.
+
+\section*{Reguły}
 
 \end{document}
 
