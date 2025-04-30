@@ -5,6 +5,8 @@
 % Document Body
 \begin{document}
 
+\section*{\textit{Cloth Craft}}
+
 \begin{figure}[h] % 'h' means here; you can also use 't' for top, 'b' for bottom, etc.
     \centering % Center the figure
     \includegraphics[width=1.0\textwidth]{diagram.png} % Adjust the width as needed
@@ -15,13 +17,13 @@
 \section*{Szczegóły niektórych tabel}
 
 \subsection*{Logika reprezentacji produktów i wariantów}
-Każde ubranie może występować w wielu wariantach i rozmiarach. Wariant jest charakteryzowany przede wszystkim przez kolor i ewentualne inne cechy szczególne. Każdy wariant jest dostępny w potencjalnie wielu rozmiarach. Zależnie od produktu typ tego rozmiaru (sizing\_type) może być inny: rozmiar butów nie jest porównywalny np. z rozmiarem koszulek, czy spodni. Ponadto każdy rozmiar (size) może być wyrażany w różny sposób (np. za pomocą różnych jednostek). Różne reprezentacje jednego rozmiaru obsługuje tabela size\_data, która ponadto przechowuje informacje o formacie (sizing\_format).
+Każde ubranie może występować w wielu wariantach i rozmiarach. Wariant jest charakteryzowany przede wszystkim przez kolor i ewentualne inne cechy szczególne. Każdy wariant jest dostępny w potencjalnie wielu rozmiarach. Zależnie od produktu typ tego rozmiaru (\texttt{sizing\_type}) może być inny: rozmiar butów nie jest porównywalny np. z rozmiarem koszulek, czy spodni. Ponadto każdy rozmiar (\texttt{size}) może być wyrażany w różny sposób (np. za pomocą różnych jednostek). Różne reprezentacje jednego rozmiaru obsługuje tabela \texttt{size\_data}, która ponadto przechowuje informacje o formacie (\texttt{sizing\_format}).
 
-\subsection*{product\_details}
-description będzie przechowywany jako markdown. Będziemy go renderować za pomocą biblioteki js.
+\subsection*{\texttt{product\_details}}
+\texttt{description} będzie przechowywany jako Markdown. Będziemy go renderować za pomocą biblioteki JavaScript.
 
-\subsection*{cart}
-Początkowo użytkownik nie będzie posiadał własnego koszyka. Stworzony on będzie, gdy doda coś do niego. UUID koszyka przechowywane będzie w bazie danych PostgreSQL używając odpowiedniego rozszerzenia. Po stronie użytkownika UUID będzie przechowywane w formie ciasteczka. Koszyk jest aktualizowany za każdym razem, gdy użytkownik wykonuje na nim jakąś akcję. Puste koszyki są od razu usuwane. Dodatkowo każdy koszyk nieużywany odpowiednio długo również jest usuwany za pośrednictwem cronjob. Dodanie produktu do koszyka nie blokuje innych użytkowników przed dodaniem go również. Kupienie zawartości koszyka natomiast zmniejsza dostępność produktów.
+\subsection*{\texttt{cart}}
+Początkowo użytkownik nie będzie posiadał własnego koszyka. Stworzony on będzie, gdy doda coś do niego. UUID koszyka przechowywane będzie w bazie danych PostgreSQL używając odpowiedniego rozszerzenia (\texttt{uuid-ossp}). Po stronie użytkownika UUID będzie przechowywane w formie ciasteczka. Koszyk jest aktualizowany za każdym razem, gdy użytkownik wykonuje na nim jakąś akcję. Puste koszyki są od razu usuwane. Dodatkowo każdy koszyk nieużywany odpowiednio długo również jest usuwany za pośrednictwem cron job. Dodanie produktu do koszyka nie blokuje innych użytkowników przed dodaniem go również. Kupienie zawartości koszyka natomiast zmniejsza dostępność produktów.
 
 \section*{Indeksy}
 \begin{itemize}
@@ -36,7 +38,7 @@ Początkowo użytkownik nie będzie posiadał własnego koszyka. Stworzony on b�
         \begin{itemize}
             \item W celu optymalizacji krytycznych zapytań.
                     \begin{itemize}
-                        \item Np. variant.product\_id dla wyświetlania wszystkich wariantów wybranego produktu.
+                        \item Np. \texttt{variant.product\_id} dla wyświetlania wszystkich wariantów wybranego produktu.
                     \end{itemize}
         \end{itemize}
 \end{itemize}
@@ -55,7 +57,7 @@ Wstępne pomysły na widoki:
     \item Wyświetl listę nadrzędnych kategorii.
     \item Generowanie wyników wyszukiwania na podstawie filtrów.
     \item Sprawdź zawartość koszyka wraz z dostępnością dodanych produktów.
-    \item Generowanie wyzwalaczy do aktualizacji metadanych (już dostępna w create.sql).
+    \item Generowanie wyzwalaczy do aktualizacji metadanych (już dostępna w \texttt{create.sql}).
 \end{itemize}
 
 \section*{Wyzwalacze}
@@ -63,7 +65,7 @@ Wstępne pomysły na widoki:
 Z jednej strony produkt definiuje typ rozmiaru, który go charakteryzuje, ale każdy rozmiar też jest określonego typu. Niezbędna będzie reguła, która będzie weryfikować przed dodaniem rozmiaru konkretnemu wariantowi produktu, czy typ tego rozmiaru się zgadza.
 
 \subsection*{Metadane}
-Większość tabel ma metadane takie jak version, created\_at, updated\_at. Dane te są użyteczne przy synchronizacji, gdy potencjalnie wielu użytkowników będzie wykonywać na bazie danych operacje i trzeba będzie zdecydować jak połączyć konfliktujące modyfikacje. Aby zagwarantować aktualność tych danych, odpowiedni wyzwalacz aktualizuje pola version i updated\_at przy każdej aktualizacji tabel.
+Większość tabel ma metadane takie jak \texttt{version}, \texttt{created\_at}, \texttt{updated\_at}. Dane te są użyteczne przy synchronizacji, gdy potencjalnie wielu użytkowników będzie wykonywać na bazie danych operacje i trzeba będzie zdecydować jak połączyć konfliktujące modyfikacje. Aby zagwarantować aktualność tych danych, odpowiedni wyzwalacz aktualizuje pola \texttt{version} i \texttt{updated\_at} przy każdej aktualizacji tabel.
 
 \section*{Reguły}
 Na tym etapie projektowania żadne reguły nie wydają się niezbędne.

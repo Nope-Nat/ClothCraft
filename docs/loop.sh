@@ -3,6 +3,6 @@
 while [ true ]; 
 do
    make --quiet
-   sleep 1.5
+   sleep 1
 done;
 
