@@ -1,12 +1,11 @@
+// Everything is immutable by default
+// and cannot be dropped.
+// If something is mutable or
+// can be dropped, then it is
+// stated explicitly.
+
 TablePartial metadata {
-  version int [not null, default: 0]
   created_at timestamp [not null, default: 'now()']
-  updated_at timestamp [not null, default: 'now()']
-  note: '''
-    ## Required triggers
-    - for updating version on updates
-    - for updating updated_at on updates
-  '''
 }
 
 Table product {
@@ -15,7 +14,7 @@ Table product {
   id_sizing_type int [ref: > sizing_type.id_sizing_type, not null]
   id_country int [ref: > country.id_country, not null]
   sku_code varchar [not null, unique]
-  published bool [not null]
+  active bool [not null]
   short_description text
   thumbnail_path varchar
   name varchar [not null]
@@ -24,8 +23,8 @@ Table product {
   // name between 1 and 100 chars
 }
 
-Table product_details {
-  id_product int [ref: - product.id_product, not null]
+Table product_details_history {
+  id_product int [ref: > product.id_product, not null]
   description text [not null, note: "in markdown"]
   ~metadata
 }
@@ -53,8 +52,8 @@ Table discount_history {
   // from < to lub to == null
 }
 
-Table session_product_variant {
-  id_session uuid [ref: > session.id_session, not null]
+Table cart_product_variant {
+  id_user uuid [ref: > user.id_user, not null]
   id_variant_size int [ref: > variant_size.id_variant_size, not null]
   quantity int [not null]
   note: '''
@@ -80,6 +79,7 @@ Table variant {
   id_product int [ref: > product.id_product, not null]
   name varchar(100) [not null]
   color char[3] [not null]
+  active bool [not null]
   ~metadata
 }
 
@@ -94,6 +94,9 @@ Table tag {
   id_tag serial PK
   name varchar(100) [not null, unique, note: "e.g. sport"]
   ~metadata
+  note: '''
+    Is mutable and can be dropped.
+  '''
 }
 
 Table tag_product {
@@ -102,6 +105,9 @@ Table tag_product {
   indexes {
     (id_product, id_tag) [unique]
   }
+  note: '''
+    Is mutable and can be dropped.
+  '''
 }
 
 Table category {
@@ -150,13 +156,13 @@ Table size_data {
   }
 }
 
-Table delivery {
-  id_delivery serial pk
+Table storage_delivery {
+  id_storage_delivery serial pk
   delivered_at timestamp [not null, default: 'now()']
 }
 
-Table delivery_part {
-  id_delivery int [ref: > delivery.id_delivery, not null]
+Table storage_delivery_part {
+  id_delivery int [ref: > storage_delivery.id_storage_delivery, not null]
   id_variant_size int [ref: > variant_size.id_variant_size, not null]
   quantity int [not null]
   // check quantity > 0
@@ -192,26 +198,27 @@ Table material_type {
   weight_per_unit float [not null, note: "grams per cm^3"]
 }
 
-// TODO na pewno wymaga iteracji
 Table order {
   id_order serial pk
-  status enum [note: "e.g., pending, paid, shipped, delivered, cancelled"]
   shipping_price float [not null]
-  total_price float
-  
   id_user int [ref: > user.id_user, not null]
-
-  tracking_number uuid [not null]
-
-  shipped_at timestamp
-  delivered_at timestamp
   payed_at timestamp
   cancelled_at timestamp
+  shippment_tracking_number uuid [not null]
+  return_tracking_number uuid
 }
-
+Table order_history {
+  id_order integer pk [ref: > order.id_order]
+  status enum [note: '''
+    paid, pending, shipped, delivered, cancelled,
+    return_requested, return_rejected, return_pending,
+    return_shipped, return_delivered
+    ''']
+  ~metadata
+}
 Table order_product {
   id_order int [ref: > order.id_order, not null]
-  id_product int [ref: > product.id_product, not null]
+  id_variant_size int [ref: > variant_size.id_variant_size, not null]
   quantity int [not null]
   // quantity > 0
 }
@@ -221,6 +228,9 @@ Table user {
   email varchar(100) [not null]
   password_hash char(256) [not null]
   admin bool [not null]
+  note: '''
+    Is mutable and can be dropped.
+  '''
 }
 
 Table session {
@@ -229,4 +239,7 @@ Table session {
   ip varchar(100) [not null]
   device_details text
   logged_at timestamp [not null]
+  note: '''
+    Is mutable and can be dropped.
+  '''
 }
