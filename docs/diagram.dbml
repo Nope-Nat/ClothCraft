@@ -13,6 +13,7 @@ Table product {
   id_product serial PK
   id_category int [ref: > category.id_category, not null]
   id_sizing_type int [ref: > sizing_type.id_sizing_type, not null]
+  id_country int [ref: > country.id_country, not null]
   sku_code varchar [not null, unique]
   published bool [not null]
   short_description text
@@ -52,24 +53,12 @@ Table discount_history {
   // from < to lub to == null
 }
 
-Table cart {
-  id_cart uuid PK
-  expiration timestamp [not null, default: `now() + '2 hours'`]
-
-  note: '''
-    - cart is created when user adds something to it
-    - it is updated whenever user permors an action
-    - uuid of cart will be in cookie
-    - empty carts are no longer keept
-    - cronjob for deletion of expired carts
-  '''
-}
-
-Table cart_product_variant {
-  id_cart uuid [ref: > cart.id_cart, not null]
+Table session_product_variant {
+  id_session uuid [ref: > session.id_session, not null]
   id_variant_size int [ref: > variant_size.id_variant_size, not null]
   quantity int [not null]
   note: '''
+    # represents cart for sesssion
     does not lock products
   '''
   // quantity > 0
@@ -89,26 +78,22 @@ Table price_history {
 Table variant {
   id_variant serial PK
   id_product int [ref: > product.id_product, not null]
-  name varchar [not null]
+  name varchar(100) [not null]
   color char[3] [not null]
   ~metadata
-  // name between [1, 100]
 }
 
 Table variant_size {
   id_variant_size serial PK
   id_variant int [ref: > variant.id_variant, not null]
   id_size int [ref: > size.id_size, not null]
-  quantity int [not null]
   ~metadata
-  // quantity >= 0
 }
 
 Table tag {
   id_tag serial PK
-  name varchar [not null, unique, note: "e.g. sport"]
+  name varchar(100) [not null, unique, note: "e.g. sport"]
   ~metadata
-  // name between [1, 100]
 }
 
 Table tag_product {
@@ -122,27 +107,28 @@ Table tag_product {
 Table category {
   id_category serial PK
   parent_category int [ref: > category.id_category]
-  name varchar [not null, note:"e.g. shoes, trousers"]
+  name varchar(100) [not null, note:"e.g. shoes, trousers"]
   ~metadata
   indexes {
     (parent_category, name) [unique]
   }
-  // name between [1, 100]
 }
 
  
+// dla koszulek
+// dla butow
+// dla spodni etc
 Table sizing_type {
   id_sizing_type serial PK
-  name varchar [not null, unique, note: "e.g. for tshirts, for boots"]
+  name varchar(100) [not null, unique, note: "e.g. for tshirts, for boots"]
   ~metadata
-  // name between [1, 100]
 }
 
+// US, UK
 Table sizing_format {
   id_sizing_format serial PK
-  value varchar [not null, unique, note: "e.g US, UK"]
+  value varchar(100) [not null, unique, note:"e.g US, UK"]
   ~metadata
-  // value between [1, 100]
 }
 
 Table size {
@@ -152,13 +138,95 @@ Table size {
   ~metadata
 }
 
+// L, M, S, 32, 42 etc 
 Table size_data {
   id_size int [ref: > size.id_size, not null]
   id_sizing_format int [ref: > sizing_format.id_sizing_format, not null]
-  value varchar [not null, note: "e.g. L, M, 32, 160-170"]
+  value varchar(30) [not null, note: "e.g. L, M, 32, 160-170"]
   ~metadata
-  // value between [1, 30]
+
   indexes {
     (id_size, id_sizing_format) [unique]
   }
+}
+
+Table delivery {
+  id_delivery serial pk
+  delivered_at timestamp [not null, default: 'now()']
+}
+
+Table delivery_part {
+  id_delivery int [ref: > delivery.id_delivery, not null]
+  id_variant_size int [ref: > variant_size.id_variant_size, not null]
+  quantity int [not null]
+  // check quantity > 0
+}
+
+Table country {
+  id_country serial pk
+  name varchar(100) [not null]
+  short_code char[3] [not null]
+}
+
+Table product_material {
+  id_product int [ref: > product.id_product, not null]
+  id_material int [ref: > material.id_material, not null]
+  percentage float [not null]
+  indexes {
+    (id_product, id_material) [unique]
+  }
+  // some check that materials added to product should sum up to 100%
+}
+
+Table material {
+  id_material serial pk
+  id_material_type int [ref: > material_type.id_material_type, not null]
+  origin int [ref: > country.id_country, not null]
+}
+
+Table material_type {
+  id_material_type serial pk
+  name varchar(100) [not null]
+  description text [note: "for example material can have some attest"]
+  recyclable boolean [not null]
+  weight_per_unit float [not null, note: "grams per cm^3"]
+}
+
+// TODO na pewno wymaga iteracji
+Table order {
+  id_order serial pk
+  status enum [note: "e.g., pending, paid, shipped, delivered, cancelled"]
+  shipping_price float [not null]
+  total_price float
+  
+  id_user int [ref: > user.id_user, not null]
+
+  tracking_number uuid [not null]
+
+  shipped_at timestamp
+  delivered_at timestamp
+  payed_at timestamp
+  cancelled_at timestamp
+}
+
+Table order_product {
+  id_order int [ref: > order.id_order, not null]
+  id_product int [ref: > product.id_product, not null]
+  quantity int [not null]
+  // quantity > 0
+}
+Table user {
+  id_user serial pk
+  username varchar(50) [not null]
+  email varchar(100) [not null]
+  password_hash char(256) [not null]
+  admin bool [not null]
+}
+
+Table session {
+  id_session serial pk
+  id_user int [ref: > user.id_user, not null]
+  ip varchar(100) [not null]
+  device_details text
+  logged_at timestamp [not null]
 }
