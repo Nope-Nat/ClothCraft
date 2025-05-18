@@ -30,11 +30,11 @@ CREATE TRIGGER trg_sizing_type_metadata
 -- sizing_format
 CREATE TABLE sizing_format (
   id_sizing_format SERIAL PRIMARY KEY,
-  value             VARCHAR(100)    NOT NULL UNIQUE,
+  value             VARCHAR(50)    NOT NULL UNIQUE,
   version           INT             NOT NULL DEFAULT 0,
   created_at        TIMESTAMP       NOT NULL DEFAULT now(),
   updated_at        TIMESTAMP       NOT NULL DEFAULT now(),
-  CHECK (char_length(value) BETWEEN 1 AND 100)
+  CHECK (1 <= char_length(value))
 );
 CREATE TRIGGER trg_sizing_format_metadata
   BEFORE UPDATE ON sizing_format
@@ -50,7 +50,7 @@ CREATE TABLE category (
   created_at       TIMESTAMP         NOT NULL DEFAULT now(),
   updated_at       TIMESTAMP         NOT NULL DEFAULT now(),
   UNIQUE (parent_category, name),
-  CHECK (char_length(name) BETWEEN 1 AND 100)
+  CHECK (1 <= char_length(name))
 );
 CREATE TRIGGER trg_category_metadata
   BEFORE UPDATE ON category
@@ -80,7 +80,7 @@ CREATE TABLE size_data (
   created_at        TIMESTAMP NOT NULL DEFAULT now(),
   updated_at        TIMESTAMP NOT NULL DEFAULT now(),
   UNIQUE (id_size, id_sizing_format),
-  CHECK (char_length(value) BETWEEN 1 AND 30)
+  CHECK (1 <= char_length(value))
 );
 ALTER TABLE size_data
   ADD CONSTRAINT pk_size_data PRIMARY KEY (id_size, id_sizing_format);
@@ -96,14 +96,14 @@ CREATE TABLE product (
   id_sizing_type   INT           NOT NULL REFERENCES sizing_type(id_sizing_type),
   sku_code         VARCHAR(12)   NOT NULL UNIQUE
                       CHECK (
-                        char_length(sku_code) BETWEEN 8 AND 12
+                        8 <= char_length(sku_code)
                         AND sku_code ~ '^[A-Za-z0-9]+$'
                       ),
   published        BOOLEAN       NOT NULL,
   short_description TEXT,
   thumbnail_path   VARCHAR,
   name             VARCHAR(100)  NOT NULL
-                      CHECK (char_length(name) BETWEEN 1 AND 100),
+                      CHECK (1 <= char_length(name)),
   version          INT           NOT NULL DEFAULT 0,
   created_at       TIMESTAMP     NOT NULL DEFAULT now(),
   updated_at       TIMESTAMP     NOT NULL DEFAULT now()
@@ -117,7 +117,7 @@ CREATE TABLE variant (
   id_variant   SERIAL PRIMARY KEY,
   id_product   INT       NOT NULL REFERENCES product(id_product),
   name         VARCHAR(100) NOT NULL
-                CHECK (char_length(name) BETWEEN 1 AND 100),
+                CHECK (1 <= char_length(name)),
   color        CHAR(7)   NOT NULL
                 CHECK (color ~ '^#[0-9A-Fa-f]{6}$'),
   version      INT       NOT NULL DEFAULT 0,
@@ -193,7 +193,7 @@ CREATE TABLE tag (
   version    INT          NOT NULL DEFAULT 0,
   created_at TIMESTAMP    NOT NULL DEFAULT now(),
   updated_at TIMESTAMP    NOT NULL DEFAULT now(),
-  CHECK (char_length(name) BETWEEN 1 AND 100)
+  CHECK (1 <= char_length(name))
 );
 CREATE TRIGGER trg_tag_metadata
   BEFORE UPDATE ON tag
