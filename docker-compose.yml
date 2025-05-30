@@ -1,5 +1,23 @@
-
 services:
+  clothcraft-app:
+    image: clothcraft-app:latest
+    hostname: clothcraft/app
+    container_name: clothcraft-app
+    restart: always
+    volumes:
+      - ./app:/app
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080", "--reload"]
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@clothcraft-db:5432/clothcraft
+    depends_on:
+      clothcraft-db:
+        condition: service_healthy
+
   clothcraft-db:
     image: postgres:latest
     hostname: clothcraft/db
@@ -14,3 +32,8 @@ services:
     volumes:
       - .pgdata:/var/lib/postgresql/data
       - ./db/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
