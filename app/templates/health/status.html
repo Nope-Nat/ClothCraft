@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Health Status - ClothCraft{% endblock %}
+
+{% block content %}
+<h1>System Health Status</h1>
+
+<div>
+    <h2>API Status</h2>
+    <p>Status: <strong>{{ api_status.status }}</strong></p>
+    <p>Message: {{ api_status.message }}</p>
+</div>
+
+<div>
+    <h2>Database Status</h2>
+    <p>Status: <strong>{{ db_status.status }}</strong></p>
+    <p>Message: {{ db_status.message }}</p>
+    {% if db_status.error %}
+    <p>Error: {{ db_status.error }}</p>
+    {% endif %}
+</div>
+
+<div>
+    <h2>System Information</h2>
+    <ul>
+        <li>Current Time: {{ current_time }}</li>
+        <li>Environment: {{ environment }}</li>
+        <li>Version: 1.0.0</li>
+    </ul>
+</div>
+
+<div>
+    <h3>API Endpoints</h3>
+    <ul>
+        <li><a href="/health">Health Check (JSON)</a></li>
+        <li><a href="/health/db">Database Health (JSON)</a></li>
+        <li><a href="/docs">API Documentation</a></li>
+    </ul>
+</div>
+{% endblock %}

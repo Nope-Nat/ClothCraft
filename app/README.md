@@ -192,6 +192,178 @@ async def update_user_status(user_id: int, is_active: bool):
 # app.include_router(router)
 ```
 
+## Templates
+
+Templates use Jinja2 for rendering HTML pages. They support template inheritance and component inclusion.
+
+### Basic Template Structure
+
+```html
+<!-- base.html - Base template with common structure -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ClothCraft{% endblock %}</title>
+    {% block head %}{% endblock %}
+</head>
+<body>
+    {% include "navbar.html" %}
+    
+    <main>
+        {% block content %}
+        <h1>Welcome to ClothCraft</h1>
+        <p>Your premium clothing store</p>
+        {% endblock %}
+    </main>
+    
+    {% include "footer.html" %}
+</body>
+</html>
+```
+
+### Page Template Example
+
+```html
+<!-- product_list.html - Extends base template -->
+{% extends "base.html" %}
+
+{% block title %}Products - ClothCraft{% endblock %}
+
+{% block content %}
+<h1>Our Products</h1>
+
+{% if products %}
+    {% for product in products %}
+    <div class="product-card">
+        <h3>{{ product.name }}</h3>
+        <p>{{ product.short_description }}</p>
+        <p>Price: ${{ "%.2f"|format(product.price) }}</p>
+        
+        {% if product.published %}
+            <span class="status-available">Available</span>
+        {% else %}
+            <span class="status-unavailable">Not Available</span>
+        {% endif %}
+    </div>
+    {% endfor %}
+{% else %}
+    <p>No products available.</p>
+{% endif %}
+{% endblock %}
+```
+
+### Router with Template Response
+
+```python
+from fastapi import APIRouter, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+
+templates = Jinja2Templates(directory="templates")
+router = APIRouter(prefix="/products", tags=["products"])
+
+@router.get("/", response_class=HTMLResponse)
+async def products_page(request: Request):
+    """Products page with template"""
+    products = await product_repo.get_published_products()
+    
+    return templates.TemplateResponse("product_list.html", {
+        "request": request,
+        "products": products,
+        "total_count": len(products)
+    })
+
+@router.get("/{product_id}", response_class=HTMLResponse)
+async def product_detail_page(request: Request, product_id: int):
+    """Product detail page"""
+    product = await product_repo.get_product_by_id(product_id)
+    
+    if not product:
+        return templates.TemplateResponse("404.html", {
+            "request": request,
+            "message": "Product not found"
+        }, status_code=404)
+    
+    variants = await variant_repo.get_variants_by_product(product_id)
+    
+    return templates.TemplateResponse("product_detail.html", {
+        "request": request,
+        "product": product,
+        "variants": variants
+    })
+```
+
+### Template with Forms
+
+```html
+<!-- user_form.html - Form example -->
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Create Account</h1>
+
+<form method="post" action="/users/">
+    <div>
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+    </div>
+    
+    <div>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+    </div>
+    
+    <div>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+    </div>
+    
+    <button type="submit">Create Account</button>
+</form>
+
+{% if errors %}
+    <div class="errors">
+        {% for error in errors %}
+            <p>{{ error }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
+{% endblock %}
+```
+
+### Template Filters and Functions
+
+```python
+# In router - passing data to template
+return templates.TemplateResponse("products.html", {
+    "request": request,
+    "products": products,
+    "current_time": datetime.now(),
+    "user_authenticated": bool(request.user),
+    "categories": await category_repo.get_categories()
+})
+```
+
+```html
+<!-- Using filters and conditionals in template -->
+{% for product in products %}
+    <div>
+        <h3>{{ product.name|title }}</h3>
+        <p>Created: {{ product.created_at.strftime("%Y-%m-%d") }}</p>
+        
+        {% if product.price > 50 %}
+            <span class="premium">Premium Item</span>
+        {% endif %}
+        
+        <!-- Loop controls -->
+        {% if loop.first %}<div class="first-item">{% endif %}
+        {% if loop.last %}</div>{% endif %}
+    </div>
+{% endfor %}
+```
+
 ## Best Practices
 
 ### Error Handling

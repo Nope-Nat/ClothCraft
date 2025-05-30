@@ -16,10 +16,10 @@ class DatabaseConnection:
         if self.pool:
             await self.pool.close()
     
-    async def get_connection(self):
+    def get_connection(self):
         """Get a connection from the pool"""
         if not self.pool:
-            await self.connect()
+            raise RuntimeError("Database pool not initialized. Call connect() first.")
         return self.pool.acquire()
 
 # Global database instance

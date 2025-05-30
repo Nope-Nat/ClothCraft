@@ -1,9 +1,14 @@
 from fastapi import FastAPI 
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from router.health import router as health_router
 from db import db
 
 app = FastAPI()
+
+# Configure Jinja2 templates
+templates = Jinja2Templates(directory="templates")
 
 # Enable CORS
 app.add_middleware(
