@@ -20,6 +20,7 @@ app.add_middleware(
 )
 
 # Include routers
+app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(health_router)
 
 @app.on_event("startup")
