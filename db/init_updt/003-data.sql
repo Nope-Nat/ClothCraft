@@ -91,16 +91,16 @@ COPY material (id_material, id_material_type, origin) FROM stdin;
 \.
 
 COPY product (id_product, id_category, id_sizing_type, id_country, sku_code, active, short_description, thumbnail_path, name, created_at) FROM stdin;
-1	4	1	1	TSHIRT001	True	Cotton basic t-shirt	/img/tshirts/basic.jpg	Basic T-shirt	2024-06-02 08:00:00
-2	5	1	2	SHIRT001	True	Casual shirt with long sleeves	/img/shirts/casual_long.jpg	Casual Shirt	2024-06-02 08:01:00
-3	6	1	3	JEANS001	True	Straight fit blue jeans	/img/jeans/straightfit.jpg	Blue Jeans	2024-06-02 08:05:00
-4	7	1	1	SHORTS001	True	Cotton shorts	/img/shorts/cotton.jpg	Cotton Shorts	2024-06-02 08:10:00
-5	8	1	2	JACKET001	True	Denim jacket	/img/jackets/denim.jpg	Denim Jacket	2024-06-02 08:12:00
-6	4	1	3	TSHIRT002	True	White t-shirt with logo	/img/tshirts/logo_white.jpg	Logo T-shirt	2024-06-02 08:15:00
-7	5	1	4	SHIRT002	True	Slim fit shirt blue	/img/shirts/slim_blue.jpg	Slim Blue Shirt	2024-06-02 08:18:00
-8	4	1	5	TSHIRT003	True	Black T-shirt	/img/tshirts/black.jpg	Black T-shirt	2024-06-02 08:20:00
-9	7	1	1	SHORTS002	True	Denim shorts	/img/shorts/denim.jpg	Denim Shorts	2024-06-02 08:25:00
-10	6	1	2	JEANS002	True	Skinny jeans	/img/jeans/skinny.jpg	Skinny Jeans	2024-06-02 08:30:00
+1	4	1	1	TSHIRT001	True	Cotton basic t-shirt	/static/img/example1.webp	Basic T-shirt	2024-06-02 08:00:00
+2	5	1	2	SHIRT001	True	Casual shirt with long sleeves	/static/img/example2.webp	Casual Shirt	2024-06-02 08:01:00
+3	6	1	3	JEANS001	True	Straight fit blue jeans	/static/img/example3.webp	Blue Jeans	2024-06-02 08:05:00
+4	7	1	1	SHORTS001	True	Cotton shorts	/static/img/example4.webp	Cotton Shorts	2024-06-02 08:10:00
+5	8	1	2	JACKET001	True	Denim jacket	/static/img/example5.webp	Denim Jacket	2024-06-02 08:12:00
+6	4	1	3	TSHIRT002	True	White t-shirt with logo	/static/img/example6.webp	Logo T-shirt	2024-06-02 08:15:00
+7	5	1	4	SHIRT002	True	Slim fit shirt blue	/static/img/example7.webp	Slim Blue Shirt	2024-06-02 08:18:00
+8	4	1	5	TSHIRT003	True	Black T-shirt	/static/img/example8.webp	Black T-shirt	2024-06-02 08:20:00
+9	7	1	1	SHORTS002	True	Denim shorts	/static/img/example9.webp	Denim Shorts	2024-06-02 08:25:00
+10	6	1	2	JEANS002	True	Skinny jeans	/static/img/example10.webp	Skinny Jeans	2024-06-02 08:30:00
 \.
 
 COPY product_details_history (id_product, description, created_at) FROM stdin;
