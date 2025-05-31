@@ -17,6 +17,9 @@ services:
     depends_on:
       clothcraft-db:
         condition: service_healthy
+    networks:
+      clothcraft-network:
+        ipv4_address: 172.20.0.11
 
   clothcraft-db:
     image: postgres:latest
@@ -27,8 +30,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: clothcraft
-    ports:
-      - "5432:5432"
+      # ports:
+      #   - "5432:5432"
     volumes:
       - .pgdata:/var/lib/postgresql/data
       - ./db/init:/docker-entrypoint-initdb.d
@@ -37,3 +40,13 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      clothcraft-network:
+        ipv4_address: 172.20.0.10
+
+networks:
+  clothcraft-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "172.20.0.0/16"
