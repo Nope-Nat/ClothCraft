@@ -58,7 +58,7 @@ CREATE TABLE category (
   id_category       SERIAL PRIMARY KEY,
   parent_category   INT
     REFERENCES category(id_category)
-    ON UPDATE CASCADE ON DELETE SET NULL,
+    ON UPDATE CASCADE ON DELETE RESTRICT,
   name              VARCHAR(100) NOT NULL,
   created_at        TIMESTAMP     NOT NULL DEFAULT now(),
   UNIQUE (parent_category, name)
