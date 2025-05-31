@@ -155,6 +155,7 @@ CREATE TABLE product_details_history (
   description  TEXT      NOT NULL,  -- in markdown
   created_at   TIMESTAMP NOT NULL DEFAULT now()
   -- no primary key specified (history table)
+  PRIMARY KEY (id_product, created_at)
 );
 
 CREATE TABLE product_image (
@@ -171,7 +172,7 @@ CREATE TABLE discount_history (
   id_product    INT         NOT NULL
     REFERENCES product(id_product)
     ON UPDATE CASCADE ON DELETE CASCADE,
-  discount      FLOAT       NOT NULL,
+  discount      FLOAT       NOT NULL, -- percentage discount
   "from"        TIMESTAMP   NOT NULL,
   "to"          TIMESTAMP,
   secret_code   VARCHAR,
@@ -202,9 +203,10 @@ CREATE TABLE variant (
     REFERENCES product(id_product)
     ON UPDATE CASCADE ON DELETE CASCADE,
   name           VARCHAR(100)   NOT NULL,
-  color          CHAR(3)        NOT NULL,
+  color          BYTEA          NOT NULL,
   active         BOOLEAN        NOT NULL,
-  created_at     TIMESTAMP      NOT NULL DEFAULT now()
+  created_at     TIMESTAMP      NOT NULL DEFAULT now(),
+  CONSTRAINT color_length CHECK (LENGTH(color) = 3)
 );
 
 CREATE TABLE variant_size (
@@ -328,5 +330,5 @@ CREATE TABLE cart_product_variant (
   -- CHECK: quantity > 0
   CONSTRAINT chk_cart_qty
     CHECK (quantity > 0)
-  -- Note: represents cart for session; does not lock products
+  -- Note: Does not lock products
 );

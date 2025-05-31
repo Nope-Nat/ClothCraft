@@ -61,8 +61,7 @@ Table cart_product_variant {
   id_variant_size int [ref: > variant_size.id_variant_size, not null]
   quantity int [not null]
   note: '''
-    # represents cart for sesssion
-    does not lock products
+    Does not lock products
   '''
   // quantity > 0
   indexes {
@@ -85,7 +84,7 @@ Table variant {
   id_variant serial PK
   id_product int [ref: > product.id_product, not null]
   name varchar(100) [not null]
-  color char[3] [not null]
+  color byte[3] [not null] -- represented via bytea
   active bool [not null]
   ~metadata
 }
