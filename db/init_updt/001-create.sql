@@ -153,7 +153,7 @@ CREATE TABLE product_details_history (
     REFERENCES product(id_product)
     ON UPDATE CASCADE ON DELETE CASCADE,
   description  TEXT      NOT NULL,  -- in markdown
-  created_at   TIMESTAMP NOT NULL DEFAULT now()
+  created_at   TIMESTAMP NOT NULL DEFAULT now(),
   -- no primary key specified (history table)
   PRIMARY KEY (id_product, created_at)
 );

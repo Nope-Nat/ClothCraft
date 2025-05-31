@@ -230,24 +230,24 @@ COPY storage_delivery_part (id_delivery, id_variant_size, quantity) FROM stdin;
 1	15	60
 \.
 
-COPY product_material (id_product, id_material, percentage, created_at) FROM stdin;
-1	1	100.0	2024-06-02 08:00:00
-2	1	80.0	2024-06-02 08:01:00
-2	2	20.0	2024-06-02 08:01:00
-3	3	99.0	2024-06-02 08:05:00
-3	5	1.0	2024-06-02 08:05:00
-4	1	80.0	2024-06-02 08:10:00
-4	5	20.0	2024-06-02 08:10:00
-5	3	95.0	2024-06-02 08:12:00
-5	2	5.0	2024-06-02 08:12:00
-6	6	100.0	2024-06-02 08:15:00
-7	2	100.0	2024-06-02 08:18:00
-8	2	80.0	2024-06-02 08:20:00
-8	5	20.0	2024-06-02 08:20:00
-9	3	98.0	2024-06-02 08:25:00
-9	5	2.0	2024-06-02 08:25:00
-10	1	70.0	2024-06-02 08:30:00
-10	5	30.0	2024-06-02 08:30:00
+COPY product_material (id_product, id_material, percentage) FROM stdin;
+1	1	100.0
+2	1	80.0
+2	2	20.0
+3	3	99.0
+3	5	1.0
+4	1	80.0
+4	5	20.0
+5	3	95.0
+5	2	5.0
+6	6	100.0
+7	2	100.0
+8	2	80.0
+8	5	20.0
+9	3	98.0
+9	5	2.0
+10	1	70.0
+10	5	30.0
 \.
 
 COPY "order" (id_order, shipping_price, id_user, payed_at, cancelled_at, shippment_tracking_number, return_tracking_number, secret_code) FROM stdin;
