@@ -33,7 +33,7 @@ CREATE TABLE "user" (
   -- Note: mutable and can be dropped (per specification comment)
 );
 
-CREATE TABLE session (
+CREATE TABLE "session" (
   id_session      SERIAL PRIMARY KEY,
   id_user         UUID NOT NULL
     REFERENCES "user"(id_user)
@@ -81,7 +81,7 @@ CREATE TABLE sizing_format (
   created_at        TIMESTAMP     NOT NULL DEFAULT now()
 );
 
-CREATE TABLE size (
+CREATE TABLE "size" (
   id_size          SERIAL PRIMARY KEY,
   id_sizing_type   INT            NOT NULL
     REFERENCES sizing_type(id_sizing_type)
@@ -272,7 +272,6 @@ CREATE TABLE product_material (
     REFERENCES material(id_material)
     ON UPDATE CASCADE ON DELETE RESTRICT,
   percentage    FLOAT   NOT NULL,
-  created_at    TIMESTAMP NOT NULL DEFAULT now(),
   PRIMARY KEY (id_product, id_material)
   -- Note: “materials added to product should sum up to 100%” → enforced via trigger
 );
