@@ -27,6 +27,9 @@ Table product_details_history {
   id_product int [ref: > product.id_product, not null]
   description text [not null, note: "in markdown"]
   ~metadata
+  indexes {
+    (id_product, created_at) [pk]
+  }
 }
 
 Table product_image {
@@ -62,6 +65,9 @@ Table cart_product_variant {
     does not lock products
   '''
   // quantity > 0
+  indexes {
+    (id_user, id_variant_size) [pk]
+  }
 }
 
 
@@ -104,7 +110,7 @@ Table tag_product {
   id_tag id [ref: > tag.id_tag, not null]
   id_product id [ref: > product.id_product, not null]
   indexes {
-    (id_product, id_tag) [unique]
+    (id_product, id_tag) [pk]
   }
   note: '''
     Is mutable and can be dropped.
@@ -153,7 +159,7 @@ Table size_data {
   ~metadata
 
   indexes {
-    (id_size, id_sizing_format) [unique]
+    (id_size, id_sizing_format) [pk]
   }
 }
 
@@ -167,6 +173,9 @@ Table storage_delivery_part {
   id_variant_size int [ref: > variant_size.id_variant_size, not null]
   quantity int [not null]
   // check quantity > 0
+  indexes {
+    (id_delivery, id_variant_size) [pk]
+  }
 }
 
 Table country {
@@ -180,7 +189,7 @@ Table product_material {
   id_material int [ref: > material.id_material, not null]
   percentage float [not null]
   indexes {
-    (id_product, id_material) [unique]
+    (id_product, id_material) [pk]
   }
   // some check that materials added to product should sum up to 100%
 }
@@ -202,7 +211,7 @@ Table material_type {
 Table order {
   id_order serial pk
   shipping_price float [not null]
-  id_user int [ref: > user.id_user, not null]
+  id_user uuid [ref: > user.id_user, not null]
   payed_at timestamp
   cancelled_at timestamp
   shippment_tracking_number uuid [not null]
@@ -228,7 +237,7 @@ Table order_product {
   }
 }
 Table user {
-  id_user serial pk
+  id_user uuid pk
   username varchar(50) [not null]
   email varchar(100) [not null]
   password_hash char(256) [not null]
@@ -240,7 +249,7 @@ Table user {
 
 Table session {
   id_session serial pk
-  id_user int [ref: > user.id_user, not null]
+  id_user uuid [ref: > user.id_user, not null]
   ip varchar(100) [not null]
   device_details text
   logged_at timestamp [not null]
