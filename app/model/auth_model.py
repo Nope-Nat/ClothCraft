@@ -76,3 +76,17 @@ class SessionResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class UserSessionData(BaseModel):
+    """Combined user and session data for authenticated requests"""
+    user_id: str
+    username: str 
+    email: str
+    is_admin: bool
+    session_id: int
+    logged_at: datetime
+    ip: str
+    device_details: Optional[str] = None
+
+    class Config:
+        from_attributes = True

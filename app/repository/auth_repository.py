@@ -1,9 +1,9 @@
 from typing import Optional
 import hashlib
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from db import db
-from model.auth_model import UserResponse, SessionResponse
+from model.auth_model import UserResponse, SessionResponse, UserSessionData
 
 class AuthRepository:
     
@@ -106,6 +106,63 @@ class AuthRepository:
                 row_dict['id_user'] = str(row_dict['id_user'])
                 return SessionResponse(**row_dict)
             return None
+    
+    async def get_user_from_session(self, session_id: int) -> Optional[UserSessionData]:
+        """Get user data from session ID"""
+        query = """
+            SELECT 
+                u.id_user,
+                u.username,
+                u.email,
+                u.admin as is_admin,
+                s.id_session as session_id,
+                s.logged_at,
+                s.ip,
+                s.device_details
+            FROM session s
+            JOIN "user" u ON s.id_user = u.id_user
+            WHERE s.id_session = $1
+        """
+        
+        async with db.get_connection() as conn:
+            row = await conn.fetchrow(query, session_id)
+            if row:
+                # Convert UUID to string for Pydantic model
+                row_dict = dict(row)
+                row_dict['user_id'] = str(row_dict['id_user'])
+                del row_dict['id_user']  # Remove the UUID version
+                return UserSessionData(**row_dict)
+            return None
+    
+    async def delete_session(self, session_id: int) -> bool:
+        """Delete a session by ID"""
+        query = "DELETE FROM session WHERE id_session = $1"
+        
+        async with db.get_connection() as conn:
+            result = await conn.execute(query, session_id)
+            return result == "DELETE 1"
+    
+    async def delete_old_sessions(self, older_than: datetime) -> int:
+        """
+        Delete sessions older than the specified timestamp
+        
+        Args:
+            older_than: Delete sessions logged in before this timestamp
+        
+        Returns:
+            Number of sessions deleted
+        
+        Example:
+            # Delete sessions older than 30 days
+            cutoff_date = datetime.now() - timedelta(days=30)
+            deleted_count = await auth_repo.delete_old_sessions(cutoff_date)
+        """
+        query = "DELETE FROM session WHERE logged_at < $1"
+        
+        async with db.get_connection() as conn:
+            result = await conn.execute(query, older_than)
+            # Extract the number from "DELETE n" response
+            return int(result.split()[-1]) if result.startswith("DELETE") else 0
 
 # Global repository instance
 auth_repo = AuthRepository()
