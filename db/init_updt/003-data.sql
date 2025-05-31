@@ -1,65 +1,72 @@
 COPY "user" (id_user, username, email, password_hash, admin) FROM stdin;
-e5e4c4ab-069f-40eb-8e85-1bc523672b18	johnsmith	johnsmith@example.com	aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	False
-6f404e00-7ab5-41fd-af04-dd52e2c2d72e	janedoe	janedoe@example.com	aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	False
-db8565da-240c-4c5f-adfd-d6dac2fadd04	alexbrown	alexbrown@example.com	aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	True
-cc98b556-fc0a-40b6-826c-3ffdbd87d4c4	emilyc	emilyc@example.com	aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	False
-bd4b8db9-5f54-4bca-9ffa-91b68405cdd2	aliceh	aliceh@example.com	aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	False
+e5e4c4ab-069f-40eb-8e85-1bc523672b18	johnsmith	johnsmith@example.com	ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f	False
+6f404e00-7ab5-41fd-af04-dd52e2c2d72e	janedoe	janedoe@example.com	ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f	False
+db8565da-240c-4c5f-adfd-d6dac2fadd04	alexbrown	alexbrown@example.com	ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f	True
+cc98b556-fc0a-40b6-826c-3ffdbd87d4c4	emilyc	emilyc@example.com	ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f	False
+bd4b8db9-5f54-4bca-9ffa-91b68405cdd2	aliceh	aliceh@example.com	ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f	False
 \.
 
-COPY session (id_session, id_user, ip, device_details, logged_at) FROM stdin;
-1	e5e4c4ab-069f-40eb-8e85-1bc523672b18	192.168.1.10	Chrome 120.0 Windows 10	2024-06-01 09:01:00
-2	6f404e00-7ab5-41fd-af04-dd52e2c2d72e	192.168.1.11	Firefox 116.0 Linux	2024-06-01 10:02:00
-3	db8565da-240c-4c5f-adfd-d6dac2fadd04	192.168.1.13	Safari 13.1 Mac	2024-06-02 12:30:00
-4	cc98b556-fc0a-40b6-826c-3ffdbd87d4c4	192.168.1.12	Edge Win	2024-06-03 14:00:00
+-- Remove id_session from COPY - let SERIAL auto-generate
+COPY session (id_user, ip, device_details, logged_at) FROM stdin;
+e5e4c4ab-069f-40eb-8e85-1bc523672b18	192.168.1.10	Chrome 120.0 Windows 10	2024-06-01 09:01:00
+6f404e00-7ab5-41fd-af04-dd52e2c2d72e	192.168.1.11	Firefox 116.0 Linux	2024-06-01 10:02:00
+db8565da-240c-4c5f-adfd-d6dac2fadd04	192.168.1.13	Safari 13.1 Mac	2024-06-02 12:30:00
+cc98b556-fc0a-40b6-826c-3ffdbd87d4c4	192.168.1.12	Edge Win	2024-06-03 14:00:00
 \.
 
-COPY country (id_country, name, short_code) FROM stdin;
-1	Poland	POL
-2	Germany	DEU
-3	Italy	ITA
-4	France	FRA
-5	Spain	ESP
+-- Remove id_country from COPY - let SERIAL auto-generate
+COPY country (name, short_code) FROM stdin;
+Poland	POL
+Germany	DEU
+Italy	ITA
+France	FRA
+Spain	ESP
 \.
 
-COPY category (id_category, parent_category, name, created_at) FROM stdin;
-1	\N	Tops	2024-06-01 00:00:00
-2	\N	Bottoms	2024-06-01 00:00:00
-3	\N	Outerwear	2024-06-01 00:00:00
-4	1	T-shirts	2024-06-01 00:10:00
-5	1	Shirts	2024-06-01 00:20:00
-6	2	Jeans	2024-06-01 00:30:00
-7	2	Shorts	2024-06-01 00:40:00
-8	3	Jackets	2024-06-01 00:50:00
+-- Remove id_category from COPY - let SERIAL auto-generate
+COPY category (parent_category, name, created_at) FROM stdin;
+\N	Tops	2024-06-01 00:00:00
+\N	Bottoms	2024-06-01 00:00:00
+\N	Outerwear	2024-06-01 00:00:00
+1	T-shirts	2024-06-01 00:10:00
+1	Shirts	2024-06-01 00:20:00
+2	Jeans	2024-06-01 00:30:00
+2	Shorts	2024-06-01 00:40:00
+3	Jackets	2024-06-01 00:50:00
 \.
 
-COPY sizing_type (id_sizing_type, name, created_at) FROM stdin;
-1	Men International	2024-06-01 00:00:00
-2	Women International	2024-06-01 00:00:00
-3	Unisex International	2024-06-01 00:00:00
+-- Remove id_sizing_type from COPY - let SERIAL auto-generate
+COPY sizing_type (name, created_at) FROM stdin;
+Men International	2024-06-01 00:00:00
+Women International	2024-06-01 00:00:00
+Unisex International	2024-06-01 00:00:00
 \.
 
-COPY sizing_format (id_sizing_format, value, created_at) FROM stdin;
-1	S	2024-06-01 00:00:00
-2	M	2024-06-01 00:01:00
-3	L	2024-06-01 00:02:00
-4	XL	2024-06-01 00:03:00
-5	XS	2024-06-01 00:04:00
-6	XXL	2024-06-01 00:05:00
+-- Remove id_sizing_format from COPY - let SERIAL auto-generate
+COPY sizing_format (value, created_at) FROM stdin;
+S	2024-06-01 00:00:00
+M	2024-06-01 00:01:00
+L	2024-06-01 00:02:00
+XL	2024-06-01 00:03:00
+XS	2024-06-01 00:04:00
+XXL	2024-06-01 00:05:00
 \.
 
-COPY size (id_size, id_sizing_type, "order", created_at) FROM stdin;
-1	1	1	2024-06-01 00:00:00
-2	1	2	2024-06-01 00:01:00
-3	1	3	2024-06-01 00:02:00
-4	1	4	2024-06-01 00:03:00
-5	1	5	2024-06-01 00:04:00
-6	2	1	2024-06-01 00:10:00
-7	2	2	2024-06-01 00:11:00
-8	2	3	2024-06-01 00:12:00
-9	2	4	2024-06-01 00:13:00
-10	2	5	2024-06-01 00:14:00
+-- Remove id_size from COPY - let SERIAL auto-generate
+COPY size (id_sizing_type, "order", created_at) FROM stdin;
+1	1	2024-06-01 00:00:00
+1	2	2024-06-01 00:01:00
+1	3	2024-06-01 00:02:00
+1	4	2024-06-01 00:03:00
+1	5	2024-06-01 00:04:00
+2	1	2024-06-01 00:10:00
+2	2	2024-06-01 00:11:00
+2	3	2024-06-01 00:12:00
+2	4	2024-06-01 00:13:00
+2	5	2024-06-01 00:14:00
 \.
 
+-- Keep size_data as is since it references generated size IDs
 COPY size_data (id_size, id_sizing_format, value, created_at) FROM stdin;
 1	1	S	2024-06-01 00:00:00
 2	2	M	2024-06-01 00:01:00
@@ -73,36 +80,40 @@ COPY size_data (id_size, id_sizing_format, value, created_at) FROM stdin;
 10	5	XS	2024-06-01 00:14:00
 \.
 
-COPY material_type (id_material_type, name, description, recyclable, weight_per_unit) FROM stdin;
-1	Cotton	Cotton fabric	True	0.8
-2	Polyester	Synthetic polyester yarn	False	0.7
-3	Denim	Denim cotton	True	0.9
-4	Viscose	Soft viscose fibers	False	0.75
-5	Elastane	Stretch fiber	False	0.6
+-- Remove id_material_type from COPY - let SERIAL auto-generate
+COPY material_type (name, description, recyclable, weight_per_unit) FROM stdin;
+Cotton	Cotton fabric	True	0.8
+Polyester	Synthetic polyester yarn	False	0.7
+Denim	Denim cotton	True	0.9
+Viscose	Soft viscose fibers	False	0.75
+Elastane	Stretch fiber	False	0.6
 \.
 
-COPY material (id_material, id_material_type, origin) FROM stdin;
-1	1	1
-2	2	2
-3	3	3
-4	4	4
-5	5	5
-6	1	2
+-- Remove id_material from COPY - let SERIAL auto-generate  
+COPY material (id_material_type, origin) FROM stdin;
+1	1
+2	2
+3	3
+4	4
+5	5
+1	2
 \.
 
-COPY product (id_product, id_category, id_sizing_type, id_country, sku_code, active, short_description, thumbnail_path, name, created_at) FROM stdin;
-1	4	1	1	TSHIRT001	True	Cotton basic t-shirt	/static/img/example1.webp	Basic T-shirt	2024-06-02 08:00:00
-2	5	1	2	SHIRT001	True	Casual shirt with long sleeves	/static/img/example2.webp	Casual Shirt	2024-06-02 08:01:00
-3	6	1	3	JEANS001	True	Straight fit blue jeans	/static/img/example3.webp	Blue Jeans	2024-06-02 08:05:00
-4	7	1	1	SHORTS001	True	Cotton shorts	/static/img/example4.webp	Cotton Shorts	2024-06-02 08:10:00
-5	8	1	2	JACKET001	True	Denim jacket	/static/img/example5.webp	Denim Jacket	2024-06-02 08:12:00
-6	4	1	3	TSHIRT002	True	White t-shirt with logo	/static/img/example6.webp	Logo T-shirt	2024-06-02 08:15:00
-7	5	1	4	SHIRT002	True	Slim fit shirt blue	/static/img/example7.webp	Slim Blue Shirt	2024-06-02 08:18:00
-8	4	1	5	TSHIRT003	True	Black T-shirt	/static/img/example8.webp	Black T-shirt	2024-06-02 08:20:00
-9	7	1	1	SHORTS002	True	Denim shorts	/static/img/example9.webp	Denim Shorts	2024-06-02 08:25:00
-10	6	1	2	JEANS002	True	Skinny jeans	/static/img/example10.webp	Skinny Jeans	2024-06-02 08:30:00
+-- Remove id_product from COPY - let SERIAL auto-generate
+COPY product (id_category, id_sizing_type, id_country, sku_code, active, short_description, thumbnail_path, name, created_at) FROM stdin;
+4	1	1	TSHIRT001	True	Cotton basic t-shirt	/static/img/example1.webp	Basic T-shirt	2024-06-02 08:00:00
+5	1	2	SHIRT001	True	Casual shirt with long sleeves	/static/img/example2.webp	Casual Shirt	2024-06-02 08:01:00
+6	1	3	JEANS001	True	Straight fit blue jeans	/static/img/example3.webp	Blue Jeans	2024-06-02 08:05:00
+7	1	1	SHORTS001	True	Cotton shorts	/static/img/example4.webp	Cotton Shorts	2024-06-02 08:10:00
+8	1	2	JACKET001	True	Denim jacket	/static/img/example5.webp	Denim Jacket	2024-06-02 08:12:00
+4	1	3	TSHIRT002	True	White t-shirt with logo	/static/img/example6.webp	Logo T-shirt	2024-06-02 08:15:00
+5	1	4	SHIRT002	True	Slim fit shirt blue	/static/img/example7.webp	Slim Blue Shirt	2024-06-02 08:18:00
+4	1	5	TSHIRT003	True	Black T-shirt	/static/img/example8.webp	Black T-shirt	2024-06-02 08:20:00
+7	1	1	SHORTS002	True	Denim shorts	/static/img/example9.webp	Denim Shorts	2024-06-02 08:25:00
+6	1	2	JEANS002	True	Skinny jeans	/static/img/example10.webp	Skinny Jeans	2024-06-02 08:30:00
 \.
 
+-- Keep the rest of the data as is since they reference generated IDs or are composite keys
 COPY product_details_history (id_product, description, created_at) FROM stdin;
 1	Basic cotton t-shirt for casual wear.	2024-06-02 08:01:00
 2	Casual long-sleeve shirt, suitable for everyday use.	2024-06-02 08:02:00
@@ -148,43 +159,46 @@ COPY price_history (id_product, price, created_at) FROM stdin;
 10	59.90	2024-06-02 08:30:00
 \.
 
-COPY variant (id_variant, id_product, name, color, active, created_at) FROM stdin;
-1	1	Red	RED	True	2024-06-02 09:00:00
-2	1	Black	BLK	True	2024-06-02 09:01:00
-3	2	Blue	BLU	True	2024-06-02 09:02:00
-4	2	White	WHT	True	2024-06-02 09:03:00
-5	3	Denim	BLU	True	2024-06-02 09:04:00
-6	3	Black	BLK	True	2024-06-02 09:05:00
-7	4	Grey	GRY	True	2024-06-02 09:06:00
-8	5	Denim	BLU	True	2024-06-02 09:07:00
-9	6	White	WHT	True	2024-06-02 09:08:00
-10	7	Blue	BLU	True	2024-06-02 09:09:00
+-- Remove id_variant from COPY - let SERIAL auto-generate
+COPY variant (id_product, name, color, active, created_at) FROM stdin;
+1	Red	RED	True	2024-06-02 09:00:00
+1	Black	BLK	True	2024-06-02 09:01:00
+2	Blue	BLU	True	2024-06-02 09:02:00
+2	White	WHT	True	2024-06-02 09:03:00
+3	Denim	BLU	True	2024-06-02 09:04:00
+3	Black	BLK	True	2024-06-02 09:05:00
+4	Grey	GRY	True	2024-06-02 09:06:00
+5	Denim	BLU	True	2024-06-02 09:07:00
+6	White	WHT	True	2024-06-02 09:08:00
+7	Blue	BLU	True	2024-06-02 09:09:00
 \.
 
-COPY variant_size (id_variant_size, id_variant, id_size, created_at) FROM stdin;
-1	1	1	2024-06-02 10:00:00
-2	1	2	2024-06-02 10:01:00
-3	2	1	2024-06-02 10:03:00
-4	2	2	2024-06-02 10:04:00
-5	3	2	2024-06-02 10:05:00
-6	3	3	2024-06-02 10:06:00
-7	4	2	2024-06-02 10:07:00
-8	5	3	2024-06-02 10:08:00
-9	6	4	2024-06-02 10:09:00
-10	7	2	2024-06-02 10:10:00
-11	7	3	2024-06-02 10:11:00
-12	8	2	2024-06-02 10:12:00
-13	9	1	2024-06-02 10:13:00
-14	9	3	2024-06-02 10:14:00
-15	10	1	2024-06-02 10:15:00
+-- Remove id_variant_size from COPY - let SERIAL auto-generate
+COPY variant_size (id_variant, id_size, created_at) FROM stdin;
+1	1	2024-06-02 10:00:00
+1	2	2024-06-02 10:01:00
+2	1	2024-06-02 10:03:00
+2	2	2024-06-02 10:04:00
+3	2	2024-06-02 10:05:00
+3	3	2024-06-02 10:06:00
+4	2	2024-06-02 10:07:00
+5	3	2024-06-02 10:08:00
+6	4	2024-06-02 10:09:00
+7	2	2024-06-02 10:10:00
+7	3	2024-06-02 10:11:00
+8	2	2024-06-02 10:12:00
+9	1	2024-06-02 10:13:00
+9	3	2024-06-02 10:14:00
+10	1	2024-06-02 10:15:00
 \.
 
-COPY tag (id_tag, name, created_at) FROM stdin;
-1	summer	2024-06-01 00:00:00
-2	new	2024-06-01 01:00:00
-3	bestseller	2024-06-01 02:00:00
-4	denim	2024-06-01 03:00:00
-5	cotton	2024-06-01 04:00:00
+-- Remove id_tag from COPY - let SERIAL auto-generate
+COPY tag (name, created_at) FROM stdin;
+summer	2024-06-01 00:00:00
+new	2024-06-01 01:00:00
+bestseller	2024-06-01 02:00:00
+denim	2024-06-01 03:00:00
+cotton	2024-06-01 04:00:00
 \.
 
 COPY tag_product (id_tag, id_product) FROM stdin;
@@ -206,10 +220,11 @@ COPY tag_product (id_tag, id_product) FROM stdin;
 5	10
 \.
 
-COPY storage_delivery (id_storage_delivery, delivered_at) FROM stdin;
-1	2024-06-01 09:00:00
-2	2024-06-05 14:00:00
-3	2024-06-10 13:00:00
+-- Remove id_storage_delivery from COPY - let SERIAL auto-generate
+COPY storage_delivery (delivered_at) FROM stdin;
+2024-06-01 09:00:00
+2024-06-05 14:00:00
+2024-06-10 13:00:00
 \.
 
 COPY storage_delivery_part (id_delivery, id_variant_size, quantity) FROM stdin;
@@ -250,11 +265,12 @@ COPY product_material (id_product, id_material, percentage) FROM stdin;
 10	5	30.0
 \.
 
-COPY "order" (id_order, shipping_price, id_user, payed_at, cancelled_at, shippment_tracking_number, return_tracking_number, secret_code) FROM stdin;
-1	10.0	e5e4c4ab-069f-40eb-8e85-1bc523672b18	2024-06-10 09:00:00	\N	11111111-1111-1111-1111-111111111111	\N	ORDERSC1
-2	12.5	6f404e00-7ab5-41fd-af04-dd52e2c2d72e	2024-06-10 10:00:00	\N	22222222-2222-2222-2222-222222222222	\N	ORDERSC2
-3	8.0	cc98b556-fc0a-40b6-826c-3ffdbd87d4c4	2024-06-11 14:00:00	2024-06-13 16:00:00	33333333-3333-3333-3333-333333333333	44444444-4444-4444-4444-444444444444	ORDERSC3
-4	9.0	db8565da-240c-4c5f-adfd-d6dac2fadd04	2024-06-16 15:00:00	\N	55555555-5555-5555-5555-555555555555	\N	ORDERSC4
+-- Remove id_order from COPY - let SERIAL auto-generate
+COPY "order" (shipping_price, id_user, payed_at, cancelled_at, shippment_tracking_number, return_tracking_number, secret_code) FROM stdin;
+10.0	e5e4c4ab-069f-40eb-8e85-1bc523672b18	2024-06-10 09:00:00	\N	11111111-1111-1111-1111-111111111111	\N	ORDERSC1
+12.5	6f404e00-7ab5-41fd-af04-dd52e2c2d72e	2024-06-10 10:00:00	\N	22222222-2222-2222-2222-222222222222	\N	ORDERSC2
+8.0	cc98b556-fc0a-40b6-826c-3ffdbd87d4c4	2024-06-11 14:00:00	2024-06-13 16:00:00	33333333-3333-3333-3333-333333333333	44444444-4444-4444-4444-444444444444	ORDERSC3
+9.0	db8565da-240c-4c5f-adfd-d6dac2fadd04	2024-06-16 15:00:00	\N	55555555-5555-5555-5555-555555555555	\N	ORDERSC4
 \.
 
 COPY order_history (id_order, status, created_at) FROM stdin;

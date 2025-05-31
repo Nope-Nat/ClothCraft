@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Register - ClothCraft{% endblock %}
+{% block navbar %}
+    {% include "navbar.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid vh-100">
+    <div class="row h-100">
+        <div class="col-12 d-flex align-items-center">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-5">
+                                <div class="text-center mb-4">
+                                    <h2 class="fw-bold text-dark">Create Account</h2>
+                                    <p class="text-muted">Fill in your details to get started</p>
+                                </div>
+                                
+                                {% if error %}
+                                <div class="alert alert-danger" role="alert">
+                                    {{ error }}
+                                </div>
+                                {% endif %}
+                                
+                                <form method="POST" action="/auth/register" novalidate>
+                                    <div class="mb-3">
+                                        <label for="username" class="form-label fw-semibold">Username</label>
+                                        <input type="text" class="form-control form-control-lg" id="username" name="username" 
+                                               maxlength="50" pattern="[a-zA-Z0-9_]+" required>
+                                        <div class="invalid-feedback">
+                                            Please provide a valid username (letters, numbers, underscore only).
+                                        </div>
+                                        <div class="form-text">Username must be unique and contain only letters, numbers, and underscores.</div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label fw-semibold">Email Address</label>
+                                        <input type="email" class="form-control form-control-lg" id="email" name="email" 
+                                               maxlength="100" required>
+                                        <div class="invalid-feedback">
+                                            Please provide a valid email address.
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="password" class="form-label fw-semibold">Password</label>
+                                        <input type="password" class="form-control form-control-lg" id="password" name="password" 
+                                               minlength="8" required>
+                                        <div class="invalid-feedback">
+                                            Password must be at least 8 characters long.
+                                        </div>
+                                        <div class="form-text">Choose a strong password with at least 8 characters.</div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="confirm_password" class="form-label fw-semibold">Confirm Password</label>
+                                        <input type="password" class="form-control form-control-lg" id="confirm_password" 
+                                               name="confirm_password" required>
+                                        <div class="invalid-feedback">
+                                            Passwords must match.
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="terms" name="terms" value="1" required>
+                                        <label class="form-check-label" for="terms">
+                                            I agree to the <a href="#" class="text-decoration-none">Terms of Service</a> 
+                                            and <a href="#" class="text-decoration-none">Privacy Policy</a>
+                                        </label>
+                                        <div class="invalid-feedback">
+                                            You must agree to the terms and conditions.
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-grid mb-3">
+                                        <button type="submit" class="btn btn-success btn-lg">Create Account</button>
+                                    </div>
+                                </form>
+                                
+                                <hr class="my-4">
+                                
+                                <div class="text-center">
+                                    <p class="mb-0">Already have an account? 
+                                        <a href="/auth/login" class="text-success text-decoration-none fw-semibold">Sign in</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Password confirmation validation
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirm_password');
+    
+    function validatePassword() {
+        if (password.value !== confirmPassword.value) {
+            confirmPassword.setCustomValidity("Passwords don't match");
+        } else {
+            confirmPassword.setCustomValidity('');
+        }
+    }
+    
+    password.addEventListener('change', validatePassword);
+    confirmPassword.addEventListener('keyup', validatePassword);
+    
+    // Form validation
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+</script>
+{% endblock %}

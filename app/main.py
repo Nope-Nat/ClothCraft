@@ -6,6 +6,7 @@ from router.health import router as health_router
 from router.products import router as products_router
 from router.product import router as product_router
 from router.category import router as category_router
+from router.auth import router as auth_router
 from db import db
 
 app = FastAPI()
@@ -28,6 +29,7 @@ app.include_router(health_router)
 app.include_router(products_router)
 app.include_router(product_router)
 app.include_router(category_router)
+app.include_router(auth_router)
 
 @app.on_event("startup")
 async def startup_event():

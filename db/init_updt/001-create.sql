@@ -28,7 +28,7 @@ CREATE TABLE "user" (
   id_user               UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   username              VARCHAR(50)   NOT NULL,
   email                 VARCHAR(100)  NOT NULL,
-  password_hash         CHAR(256)     NOT NULL,
+  password_hash         VARCHAR(64)   NOT NULL,  -- SHA-256 produces 64 hex characters
   admin                 BOOLEAN       NOT NULL
   -- Note: mutable and can be dropped (per specification comment)
 );
