@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from router.health import router as health_router
+from router.products import router as products_router
 from db import db
 
 app = FastAPI()
@@ -22,6 +23,7 @@ app.add_middleware(
 # Include routers
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(health_router)
+app.include_router(products_router)
 
 @app.on_event("startup")
 async def startup_event():
