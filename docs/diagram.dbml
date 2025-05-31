@@ -35,7 +35,7 @@ Table product_image {
   order int [not null, note: "describes order of photos in gallery"]
   alt_desc varchar [note: "alternative text"]
   indexes {
-    (id_product, img_path) [pk]
+    img_path [pk]
   }
 }
 
@@ -44,7 +44,8 @@ Table discount_history {
   id_product int [ref: > product.id_product, not null]
   discount float [not null, note: "percentage discount"]
   from timestamp [not null]
-  to timestmap 
+  to timestmap
+  secret_code varchar
   indexes {
     (id_product, from, to) [pk]
   }
@@ -206,6 +207,7 @@ Table order {
   cancelled_at timestamp
   shippment_tracking_number uuid [not null]
   return_tracking_number uuid
+  secret_code varchar [note: "The secret code the user provided"]
 }
 Table order_history {
   id_order integer pk [ref: > order.id_order]
@@ -221,6 +223,9 @@ Table order_product {
   id_variant_size int [ref: > variant_size.id_variant_size, not null]
   quantity int [not null]
   // quantity > 0
+  indexes {
+    (id_order, id_variant_size) [pk]
+  }
 }
 Table user {
   id_user serial pk
