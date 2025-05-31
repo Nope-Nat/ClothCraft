@@ -135,18 +135,15 @@ CREATE TABLE product (
   id_country        INT            NOT NULL
     REFERENCES country(id_country)
     ON UPDATE CASCADE ON DELETE RESTRICT,
-  sku_code          VARCHAR       NOT NULL UNIQUE,
+  sku_code          VARCHAR(12)   NOT NULL UNIQUE,
   active            BOOLEAN       NOT NULL,
   short_description TEXT,
   thumbnail_path    VARCHAR,
-  name              VARCHAR       NOT NULL,
+  name              VARCHAR(100)  NOT NULL,
   created_at        TIMESTAMP     NOT NULL DEFAULT now(),
   -- CHECK: sku_code length between 8 and 12 (alphanumeric assumed)
   CONSTRAINT chk_product_sku_length
-    CHECK (char_length(sku_code) BETWEEN 8 AND 12),
-  -- CHECK: name length between 1 and 100
-  CONSTRAINT chk_product_name_length
-    CHECK (char_length(name) BETWEEN 1 AND 100)
+    CHECK (char_length(sku_code) >= 8),
 );
 
 CREATE TABLE product_details_history (
