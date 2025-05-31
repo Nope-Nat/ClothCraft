@@ -1,0 +1,47 @@
+.content-container {
+    padding: 20px;
+    line-height: 1.6;
+    font-size: 16px;
+}
+
+.content-container img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 10px 0;
+}
+
+.page-layout {
+    display: grid;
+    grid-template-columns: 70% 20%;
+    gap: 20px;
+    margin: 0 auto;
+    max-width: 1220px;
+}
+
+.main-column {
+    max-width: 100%;
+}
+
+.sidebar-column {
+    max-width: 100%;
+}
+
+.product-images-container {
+    max-width: 800px;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 10px;
+}
+
+.product-images {
+    display: flex;
+    gap: 20px;
+}
+
+.product-images img {
+    width: calc((800px - 20px) / 2);
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
