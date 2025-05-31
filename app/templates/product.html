@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}ClothCraft: {{ name }}{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/styles/product.css">
+{% endblock %}
+
+{% block content %}
+<div class="content-container">
+    <div class="page-layout">
+        <!-- Main Column -->
+        <div class="main-column">
+            <div class="subcategories">
+                {% for subcategory in subcategories_list %}
+                    <a href="/category/{{ subcategory.id }}">{{ subcategory.name }}</a>
+                    {% if not loop.last %} /{% endif %}
+                {% endfor %}
+            </div>
+            <div class="product-images-container">
+                <div class="product-images">
+                    {% for image_path in images_paths %}
+                        <img src="/{{ image_path }}" alt="{{ name }} - Image {{ loop.index }}">
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="description">
+                {{ description }}
+            </div>
+        </div>
+
+        <!-- Sidebar Column -->
+        <div class="sidebar-column">
+            <h1>{{ name }}</h1>
+            <p>{{ short_description }}</p>
+            <h2>Additional Info</h2>
+            <p>Here you can add extra details, links, or widgets related to the product.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

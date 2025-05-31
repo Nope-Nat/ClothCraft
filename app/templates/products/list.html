@@ -171,7 +171,7 @@
 
     <div class="products-grid">
         {% for product in products %}
-        <a href="/products/{{ product.id_product }}" class="product-card">
+        <a href="/product/{{ product.id_product }}" class="product-card">
             <div class="product-image">
                 {% if product.thumbnail_path %}
                 <img src="{{ product.thumbnail_path }}" alt="{{ product.name }}">
