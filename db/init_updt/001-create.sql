@@ -145,7 +145,7 @@ CREATE TABLE product (
   created_at        TIMESTAMP     NOT NULL DEFAULT now(),
   -- CHECK: sku_code length between 8 and 12 (alphanumeric assumed)
   CONSTRAINT chk_product_sku_length
-    CHECK (char_length(sku_code) >= 8),
+    CHECK (char_length(sku_code) >= 8)
 );
 
 CREATE TABLE product_details_history (
@@ -293,7 +293,7 @@ CREATE TABLE "order" (
 );
 
 CREATE TABLE order_history (
-  id_order     INT            PRIMARY KEY
+  id_order     INT
     REFERENCES "order"(id_order)
     ON UPDATE CASCADE ON DELETE CASCADE,
   status       order_status,
