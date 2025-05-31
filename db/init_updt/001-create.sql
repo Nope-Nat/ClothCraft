@@ -19,11 +19,13 @@ CREATE TYPE order_status AS ENUM (
   'return_delivered'
 );
 
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 -- ================================================
 -- 2) USERS & SESSIONS
 -- ================================================
 CREATE TABLE "user" (
-  id_user               SERIAL PRIMARY KEY,
+  id_user               UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   username              VARCHAR(50)   NOT NULL,
   email                 VARCHAR(100)  NOT NULL,
   password_hash         CHAR(256)     NOT NULL,
@@ -33,7 +35,7 @@ CREATE TABLE "user" (
 
 CREATE TABLE session (
   id_session      SERIAL PRIMARY KEY,
-  id_user         INT            NOT NULL
+  id_user         UUID NOT NULL
     REFERENCES "user"(id_user)
     ON UPDATE CASCADE ON DELETE RESTRICT,
   ip              VARCHAR(100)   NOT NULL,
@@ -281,7 +283,7 @@ CREATE TABLE product_material (
 CREATE TABLE "order" (
   id_order                  SERIAL PRIMARY KEY,
   shipping_price            FLOAT   NOT NULL,
-  id_user                   INT     NOT NULL
+  id_user                   UUID     NOT NULL
     REFERENCES "user"(id_user)
     ON UPDATE CASCADE ON DELETE RESTRICT,
   payed_at                  TIMESTAMP,
@@ -317,7 +319,7 @@ CREATE TABLE order_product (
 -- 12) CART (SESSION CART)
 -- ================================================
 CREATE TABLE cart_product_variant (
-  id_user           INT      NOT NULL
+  id_user           UUID      NOT NULL
     REFERENCES "user"(id_user)
     ON UPDATE CASCADE ON DELETE CASCADE,
   id_variant_size   INT      NOT NULL
