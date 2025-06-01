@@ -67,12 +67,33 @@ class ProductRepository:
                 
             return {"breadcrumbs": breadcrumbs, "subcategories": subcategories}
 
+    async def get_product_variants_list(product_id: int):
+        async with db.get_connection() as conn:
+            query = """
+                SELECT id_variant, name, color
+                FROM variant
+                WHERE id_product = $1 AND active = true;
+            """
+            return await conn.fetch(query, product_id)
+
+    async def get_product_variant_sizes_list(variant_id: int):
+        async with db.get_connection() as conn:
+            query = """
+                SELECT s.id_size, s.name, sd.value
+                FROM variant_size vs
+                JOIN size s ON vs.id_size = s.id_size
+                JOIN size_data sd ON s.id_size = sd.id_size
+                WHERE vs.id_variant = $1;
+            """
+            return await conn.fetch(query, variant_id)
+
     @staticmethod
     async def get_product(product_id: int):
         async with db.get_connection() as conn:
             query = """
                 SELECT
                     p.id_product, p.name, p.id_category, c.name as category_name,
+                    p.sku_code,
                     p.thumbnail_path,
                     (
                         SELECT array_agg(img_path ORDER BY "order")
@@ -99,17 +120,11 @@ class ProductRepository:
                         ORDER BY created_at DESC 
                         LIMIT 1
                     ) as current_price,
-                    p.sku_code,
-                    array_agg(DISTINCT t.name) FILTER (WHERE t.id_tag IS NOT NULL) as tags,
-                    array_agg(DISTINCT sf.value ORDER BY sf.value) FILTER (WHERE sf.id_sizing_format IS NOT NULL) as sizes
+                    array_agg(DISTINCT t.name) FILTER (WHERE t.id_tag IS NOT NULL) as tags
                 FROM product p
                 LEFT JOIN category c ON p.id_category = c.id_category
                 LEFT JOIN tag_product tp ON p.id_product = tp.id_product
                 LEFT JOIN tag t ON tp.id_tag = t.id_tag
-                LEFT JOIN variant v ON v.id_product = p.id_product
-                LEFT JOIN variant_size vs ON vs.id_variant = v.id_variant
-                LEFT JOIN size s ON vs.id_size = s.id_size
-                LEFT JOIN size_data sf ON s.id_size = sf.id_size
                 WHERE p.id_product = $1
                 GROUP BY p.id_product, c.name;
             """

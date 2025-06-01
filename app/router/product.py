@@ -42,12 +42,17 @@ async def product_page(
     discount_end_date = "2025-06-30"
     lowest_price_30_days = 75.99
     
-    product_variants = [
-        {"name": "Classic Red", "color": "#DC3545"},
-        {"name": "Ocean Blue", "color": "#0D6EFD"},
-        {"name": "Forest Green", "color": "#198754"},
-        {"name": "Midnight Black", "color": "#212529"}
-    ]
+    product_variants_raw = await ProductRepository.get_product_variants_list(id_product)
+    product_variants = []
+    for variant in product_variants_raw:
+        color_data = variant['color']
+        assert isinstance(color_data, bytes)
+        color_value = f"#{int.from_bytes(color_data, byteorder='big'):06X}"
+        product_variants.append({
+            "id": variant['id_variant'],
+            "name": variant['name'],
+            "color": color_value
+        })
     
     available_sizes = ["XS", "S", "M", "L", "XL", "XXL"]
 
