@@ -252,45 +252,79 @@ COPY price_history (id_product, price, created_at) FROM stdin;
 
 -- Remove id_variant from COPY - let SERIAL auto-generate
 COPY variant (id_product, name, color, active, created_at) FROM stdin;
-1	Red	RED	True	2024-06-02 09:00:00
-1	Black	BLK	True	2024-06-02 09:01:00
-2	Blue	BLU	True	2024-06-02 09:02:00
-2	White	WHT	True	2024-06-02 09:03:00
-3	Denim	BLU	True	2024-06-02 09:04:00
-3	Black	BLK	True	2024-06-02 09:05:00
-4	Grey	GRY	True	2024-06-02 09:06:00
-5	Denim	BLU	True	2024-06-02 09:07:00
-6	White	WHT	True	2024-06-02 09:08:00
-7	Blue	BLU	True	2024-06-02 09:09:00
-11	Navy	NVY	True	2024-06-02 09:10:00
-11	White	WHT	True	2024-06-02 09:11:00
-12	Red	RED	True	2024-06-02 09:12:00
-12	Navy	NVY	True	2024-06-02 09:13:00
-13	Red	RED	True	2024-06-02 09:14:00
-13	Blue	BLU	True	2024-06-02 09:15:00
-14	White	WHT	True	2024-06-02 09:16:00
-14	Blue	BLU	True	2024-06-02 09:17:00
-15	Beige	BGE	True	2024-06-02 09:18:00
-15	Navy	NVY	True	2024-06-02 09:19:00
-16	Khaki	KHK	True	2024-06-02 09:20:00
-17	Black	BLK	True	2024-06-02 09:21:00
-17	Navy	NVY	True	2024-06-02 09:22:00
-18	Grey	GRY	True	2024-06-02 09:23:00
-18	Black	BLK	True	2024-06-02 09:24:00
-19	Navy	NVY	True	2024-06-02 09:25:00
-19	Grey	GRY	True	2024-06-02 09:26:00
-20	Grey	GRY	True	2024-06-02 09:27:00
-20	Navy	NVY	True	2024-06-02 09:28:00
-21	Blue	BLU	True	2024-06-02 09:29:00
-21	Red	RED	True	2024-06-02 09:30:00
-22	Grey	GRY	True	2024-06-02 09:31:00
-22	Blue	BLU	True	2024-06-02 09:32:00
-23	Blue	BLU	True	2024-06-02 09:33:00
-23	Black	BLK	True	2024-06-02 09:34:00
-24	Pink	PNK	True	2024-06-02 09:35:00
-24	Blue	BLU	True	2024-06-02 09:36:00
-25	Black	BLK	True	2024-06-02 09:37:00
-25	White	WHT	True	2024-06-02 09:38:00
+1	Red	\\xFF0000	True	2024-06-02 09:00:00
+1	Black	\\x000000	True	2024-06-02 09:01:00
+1	White	\\xFFFFFF	True	2024-06-02 09:02:00
+1	Navy	\\x000080	True	2024-06-02 09:03:00
+2	Light Blue	\\x87CEEB	True	2024-06-02 09:04:00
+2	White	\\xFFFFFF	True	2024-06-02 09:05:00
+2	Charcoal	\\x36454F	True	2024-06-02 09:06:00
+3	Classic Blue	\\x4169E1	True	2024-06-02 09:07:00
+3	Black	\\x000000	True	2024-06-02 09:08:00
+3	Dark Wash	\\x1C2951	True	2024-06-02 09:09:00
+4	Khaki	\\xF0E68C	True	2024-06-02 09:10:00
+4	Navy	\\x000080	True	2024-06-02 09:11:00
+4	Olive	\\x808000	True	2024-06-02 09:12:00
+5	Classic Denim	\\x4169E1	True	2024-06-02 09:13:00
+5	Black Denim	\\x2F4F4F	True	2024-06-02 09:14:00
+6	Pure White	\\xFFFFFF	True	2024-06-02 09:15:00
+6	Off White	\\xFAF0E6	True	2024-06-02 09:16:00
+7	Sky Blue	\\x87CEEB	True	2024-06-02 09:17:00
+7	Navy Blue	\\x000080	True	2024-06-02 09:18:00
+7	Light Grey	\\xD3D3D3	True	2024-06-02 09:19:00
+8	Jet Black	\\x000000	True	2024-06-02 09:20:00
+8	Charcoal	\\x36454F	True	2024-06-02 09:21:00
+8	Dark Grey	\\x696969	True	2024-06-02 09:22:00
+9	Light Blue	\\x87CEEB	True	2024-06-02 09:23:00
+9	Dark Blue	\\x00008B	True	2024-06-02 09:24:00
+10	Indigo	\\x4B0082	True	2024-06-02 09:25:00
+10	Black	\\x000000	True	2024-06-02 09:26:00
+10	Dark Grey	\\x696969	True	2024-06-02 09:27:00
+11	Navy	\\x000080	True	2024-06-02 09:28:00
+11	White	\\xFFFFFF	True	2024-06-02 09:29:00
+11	Burgundy	\\x800020	True	2024-06-02 09:30:00
+12	Red Stripe	\\xFF0000	True	2024-06-02 09:31:00
+12	Navy Stripe	\\x000080	True	2024-06-02 09:32:00
+12	Green Stripe	\\x008000	True	2024-06-02 09:33:00
+13	Red Flannel	\\xFF0000	True	2024-06-02 09:34:00
+13	Blue Flannel	\\x0000FF	True	2024-06-02 09:35:00
+13	Green Flannel	\\x008000	True	2024-06-02 09:36:00
+14	Crisp White	\\xFFFFFF	True	2024-06-02 09:37:00
+14	Light Blue	\\x87CEEB	True	2024-06-02 09:38:00
+14	Pink	\\xFFC0CB	True	2024-06-02 09:39:00
+15	Tan	\\xD2B48C	True	2024-06-02 09:40:00
+15	Navy	\\x000080	True	2024-06-02 09:41:00
+15	Olive	\\x808000	True	2024-06-02 09:42:00
+16	Khaki	\\xF0E68C	True	2024-06-02 09:43:00
+16	Black	\\x000000	True	2024-06-02 09:44:00
+16	Camo Green	\\x4B5320	True	2024-06-02 09:45:00
+17	Black	\\x000000	True	2024-06-02 09:46:00
+17	Navy	\\x000080	True	2024-06-02 09:47:00
+17	Forest Green	\\x228B22	True	2024-06-02 09:48:00
+18	Heather Grey	\\xD3D3D3	True	2024-06-02 09:49:00
+18	Black	\\x000000	True	2024-06-02 09:50:00
+18	Maroon	\\x800000	True	2024-06-02 09:51:00
+19	Navy	\\x000080	True	2024-06-02 09:52:00
+19	Charcoal	\\x36454F	True	2024-06-02 09:53:00
+19	Brown	\\xA52A2A	True	2024-06-02 09:54:00
+20	Light Grey	\\xD3D3D3	True	2024-06-02 09:55:00
+20	Navy	\\x000080	True	2024-06-02 09:56:00
+20	Cream	\\xFFFDD0	True	2024-06-02 09:57:00
+21	Bright Blue	\\x0000FF	True	2024-06-02 09:58:00
+21	Red	\\xFF0000	True	2024-06-02 09:59:00
+21	Yellow	\\xFFFF00	True	2024-06-02 10:00:00
+22	Grey	\\x808080	True	2024-06-02 10:01:00
+22	Blue	\\x0000FF	True	2024-06-02 10:02:00
+22	Purple	\\x800080	True	2024-06-02 10:03:00
+23	Denim Blue	\\x4169E1	True	2024-06-02 10:04:00
+23	Black	\\x000000	True	2024-06-02 10:05:00
+23	Light Blue	\\x87CEEB	True	2024-06-02 10:06:00
+24	Pink	\\xFFC0CB	True	2024-06-02 10:07:00
+24	Light Blue	\\x87CEEB	True	2024-06-02 10:08:00
+24	Purple	\\x800080	True	2024-06-02 10:09:00
+25	Black	\\x000000	True	2024-06-02 10:10:00
+25	White	\\xFFFFFF	True	2024-06-02 10:11:00
+25	Red	\\xFF0000	True	2024-06-02 10:12:00
 \.
 
 -- Remove id_variant_size from COPY and create proper variant sizes matching the sizing types
