@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}ClothCraft - Premium Clothing Store{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12 text-center">
+            <h1>Welcome to ClothCraft</h1>
+            <p class="lead">Your premium clothing store</p>
+            
+            {% if current_user %}
+                <div class="alert alert-success">
+                    Welcome back, {{ current_user.username }}!
+                    {% if current_user.is_admin %}
+                        <br><strong>You have admin privileges.</strong>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="mt-4">
+                    <a href="/auth/login" class="btn btn-primary me-2">Login</a>
+                    <a href="/auth/register" class="btn btn-outline-primary">Register</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

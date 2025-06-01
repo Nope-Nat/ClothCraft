@@ -1,4 +1,4 @@
-from fastapi import FastAPI 
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -8,11 +8,27 @@ from router.product import router as product_router
 from router.category import router as category_router
 from router.auth import router as auth_router
 from db import db
+from utils.auth_utils import get_current_user
 
 app = FastAPI()
 
-# Configure Jinja2 templates
-templates = Jinja2Templates(directory="templates")
+# Custom template response class that adds global context
+class CustomTemplates:
+    def __init__(self, directory: str):
+        self.templates = Jinja2Templates(directory=directory)
+    
+    async def TemplateResponse(self, name: str, context: dict, **kwargs):
+        # Add global data to every template context
+        request = context.get('request')
+        if request:
+            context['current_user'] = await get_current_user(request)
+            # Add cart count here if you have a cart repository
+            # context['cart_count'] = await get_cart_count(context['current_user'])
+        
+        return self.templates.TemplateResponse(name, context, **kwargs)
+
+# Use custom template class
+templates = CustomTemplates(directory="templates")
 
 # Enable CORS
 app.add_middleware(
@@ -31,6 +47,7 @@ app.include_router(product_router)
 app.include_router(category_router)
 app.include_router(auth_router)
 
+
 @app.on_event("startup")
 async def startup_event():
     """Initialize database connection on startup"""
@@ -42,5 +59,5 @@ async def shutdown_event():
     await db.disconnect()
 
 @app.get("/")
-async def root():
-    return {"message": "Hello, World4!"}
+async def root(request: Request):
+    return await templates.TemplateResponse("home.html", {"request": request})
