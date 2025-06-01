@@ -61,7 +61,15 @@ async def product_page(
         "Eco-Friendly", 
         "Limited Edition"
     ]
+
+    images_paths = [product_data["thumbnail_path"]] if product_data["thumbnail_path"] else []
+    if product_data.get("images_paths"):
+        images_paths.extend(product_data["images_paths"])
     
+    images_alt_descriptions = [product_data["thumbnail_alt"]] if product_data.get("thumbnail_alt") else []
+    if product_data.get("images_alt_descriptions"):
+        images_alt_descriptions.extend(product_data["images_alt_descriptions"])
+
     return await templates.TemplateResponse("product.html", {
         "request": request,
         "id_product": id_product,
@@ -70,8 +78,8 @@ async def product_page(
         "sku_code": product_data["sku_code"],
         "short_description": product_data["short_description"],
         "description": Markup(html_description),
-        "images_paths": [product_data["thumbnail_path"]] + product_data["images_paths"],
-        "images_alt_descriptions": ["thumbnail"] + product_data["images_alt_descriptions"],
+        "images_paths": images_paths,
+        "images_alt_descriptions": images_alt_descriptions,
         "original_price": original_price,
         "discounted_price": discounted_price,
         "discount_percentage": discount_percentage,
