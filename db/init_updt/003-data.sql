@@ -204,16 +204,16 @@ COPY product_details_history (id_product, description, created_at) FROM stdin;
 \.
 
 COPY product_image (id_product, img_path, "order", alt_desc) FROM stdin;
-1	/static/img/example1.webp	1	Basic T-shirt front
-2	/static/img/example2.webp	1	Casual Shirt
-3	/static/img/example3.webp	1	Blue Jeans
-4	/static/img/example4.webp	1	Cotton Shorts
-5	/static/img/example5.webp	1	Denim Jacket
-6	/static/img/example6.webp	1	Logo T-shirt
-7	/static/img/example7.webp	1	Slim Blue Shirt
-8	/static/img/example8.webp	1	Black T-shirt
-9	/static/img/example9.webp	1	Denim Shorts
-10	/static/img/example10.webp	1	Skinny Jeans
+1	/static/img/tshirts/basic.webp	1	Basic T-shirt front
+2	/static/img/shirts/casual_long.webp	1	Casual Shirt
+3	/static/img/jeans/straightfit.webp	1	Blue Jeans
+4	/static/img/shorts/cotton.webp	1	Cotton Shorts
+5	/static/img/jackets/denim.webp	1	Denim Jacket
+6	/static/img/tshirts/logo_white.webp	1	Logo T-shirt
+7	/static/img/shirts/slim_blue.webp	1	Slim Blue Shirt
+8	/static/img/tshirts/black.webp	1	Black T-shirt
+9	/static/img/shorts/denim.webp	1	Denim Shorts
+10	/static/img/jeans/skinny.webp	1	Skinny Jeans
 \.
 
 COPY discount_history (id_product, discount, "from", "to", secret_code) FROM stdin;
