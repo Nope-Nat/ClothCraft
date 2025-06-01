@@ -73,49 +73,45 @@
             </div>
             <!-- Product Variants -->
             <div class="variants-section mb-4">
-                <h5>Color</h5>
+                {% if product_variants %}
+                <h5>Colors and variants</h5>
                 <div class="row row-cols-2 g-2">
                     {% for variant in product_variants %}
-                        <div class="col">
-                            <button type="button" 
-                                    class="btn {% if loop.index == selected_variant %}btn-primary{% else %}btn-outline-secondary{% endif %} d-flex align-items-center justify-content-between variant-btn w-100"
-                                    style="--variant-color: {{ variant.color }};"
-                                    onclick="setVariantParam('{{ loop.index }}')">
-                                <span>{{ variant.name }}</span>
-                                <div class="color-indicator rounded-circle"></div>
-                            </button>
-                        </div>
+                    <div class="col">
+                        <button type="button"
+                            class="btn {% if variant.id == id_variant %}btn-primary{% else %}btn-outline-secondary{% endif %} d-flex align-items-center justify-content-between variant-btn w-100"
+                            style="--variant-color: {{ variant.color }};" onclick="setVariantParam('{{ variant.id }}')">
+                            <span>{{ variant.name }}</span>
+                            <div class="color-indicator rounded-circle"></div>
+                        </button>
+                    </div>
                     {% endfor %}
                 </div>
+                {% endif %}
             </div>
 
             <script>
-            function setVariantParam(variantId) {
+            function setVariantParam(provided_id_variant) {
                 const url = new URL(window.location);
-                url.searchParams.set('variant', variantId);
+                url.searchParams.set('id_variant', provided_id_variant);
                 window.location.href = url.toString();
             }
             </script>
 
             <!-- Size Selection -->
             <div class="size-section mb-4">
+                {% if variant_sizes %}
                 <h5>Size</h5>
                 <div class="btn-group d-flex flex-wrap gap-2" role="group">
-                    <!-- {% for size in available_sizes %}
-                        <button type="button" 
-                                class="btn {% if loop.index == selected_size %}btn-primary{% else %}btn-outline-secondary{% endif %} size-btn"
-                                onclick="setSizeParam('{{ loop.index }}')">
-                            {{ size }}
-                        </button> -->
-                    <!-- {% endfor %} -->
                     {% for size in variant_sizes %}
                         <button type="button" 
-                                class="btn {% if loop.index == selected_size %}btn-primary{% else %}btn-outline-secondary{% endif %} size-btn"
-                                onclick="setSizeParam('{{ loop.index }}')">
-                            {{ size.value }}
+                                class="btn {% if size.id_size == id_size %}btn-primary{% else %}btn-outline-secondary{% endif %} size-btn"
+                                onclick="setSizeParam('{{ size.id_size }}')">
+                            {{ size.value }} {{ size.id }}
                         </button>
                     {% endfor %}
                 </div>
+                {% endif %}
             </div>
 
             <!-- Add to Cart Button -->
@@ -127,9 +123,9 @@
             </div>
 
             <script>
-            function setSizeParam(sizeId) {
+            function setSizeParam(provided_id_size) {
                 const url = new URL(window.location);
-                url.searchParams.set('size', sizeId);
+                url.searchParams.set('id_size', provided_id_size);
                 window.location.href = url.toString();
             }
 

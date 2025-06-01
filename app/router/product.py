@@ -24,18 +24,15 @@ def parse_optional_id(id_str: Optional[str]) -> Optional[int]:
 @router.get("/{id_product}", response_class=HTMLResponse)
 async def product_page(
     request: Request, id_product: int,
-    size: Optional[str] = None,
-    variant: Optional[str] = None,
+    id_size: Optional[str] = None,
+    id_variant: Optional[str] = None,
 ):
-    if not variant:
-        variant = "1"
-
     product_data = await ProductRepository.get_product(id_product)
     category_id = product_data["id_category"]
     category_data = await ProductRepository.get_category_hierarchy(category_id)
 
-    id_size = parse_optional_id(size)
-    selected_variant = parse_optional_id(variant)
+    id_size = parse_optional_id(id_size)
+    id_variant = parse_optional_id(id_variant)
 
     # Price and discount data
     original_price = product_data["current_price"]
@@ -56,12 +53,14 @@ async def product_page(
             "name": variant['name'],
             "color": color_value
         })
-    id_variant = product_variants[selected_variant - 1]["id"] if selected_variant and selected_variant <= len(product_variants) else None
     
     id_sizing_format = 1 # TODO Allow the user to select the sizing format
-    variant_sizes = get_product_variant_sizes = await ProductRepository.get_product_variant_sizes(
-        id_variant, id_sizing_format
-    )
+    variant_sizes = []
+    if id_variant is not None:
+        variant_sizes = get_product_variant_sizes = await ProductRepository.get_product_variant_sizes(
+            id_variant, id_sizing_format
+        )
+
     available_sizes = ["XS", "S", "M", "L", "XL", "XXL"]
 
     html_description = markdown.markdown(product_data["description"], extensions=['tables'])
@@ -102,7 +101,7 @@ async def product_page(
         "product_variants": product_variants,
         "variant_sizes": variant_sizes,
         "available_sizes": available_sizes,
-        "selected_size": id_size,
-        "selected_variant": selected_variant,
+        "id_size": id_size,
+        "id_variant": id_variant,
         "tags": tags
     })
