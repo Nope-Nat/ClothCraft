@@ -8,23 +8,56 @@
         padding: 20px;
     }
 
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .breadcrumb a {
+        color: #666;
+        text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+        text-decoration: underline;
+    }
+
+    .breadcrumb-separator {
+        color: #666;
+    }
+
+    .subcategories {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin: 20px 0;
+    }
+
+    .subcategory-link {
+        padding: 8px 16px;
+        background-color: #f5f5f5;
+        border-radius: 20px;
+        color: #333;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .subcategory-link:hover {
+        background-color: #000;
+        color: #fff;
+    }
+
     .filter-section {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin: 20px 0;
-    }
-
-    .category-filter {
-        margin: 20px 0;
-        text-align: right;
-    }
-
-    .category-filter select {
-        padding: 8px 16px;
-        border: 1px solid #e0e0e0;
-        border-radius: 4px;
-        font-size: 14px;
+        padding: 16px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
     }
 
     .tag-filter {
@@ -65,10 +98,15 @@
         text-decoration: none;
         color: inherit;
         transition: transform 0.2s;
+        background: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
     .product-card:hover {
         transform: translateY(-5px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
     }
 
     .product-image {
@@ -86,7 +124,7 @@
     }
 
     .product-info {
-        padding: 12px 0;
+        padding: 16px;
     }
 
     .product-category {
@@ -98,18 +136,19 @@
     .product-name {
         font-size: 16px;
         margin: 4px 0;
-        font-weight: normal;
+        font-weight: 500;
     }
 
     .product-price {
         font-weight: bold;
-        margin: 4px 0;
+        margin: 8px 0;
+        font-size: 18px;
     }
 
     .product-description {
         font-size: 14px;
         color: #666;
-        margin: 4px 0;
+        margin: 8px 0;
         overflow: hidden;
         text-overflow: ellipsis;
         display: -webkit-box;
@@ -135,8 +174,35 @@
 </style>
 
 <div class="products-container">
-    <h1>Products</h1>
-    
+    <!-- Breadcrumb Navigation -->
+    <div class="breadcrumb">
+        <a href="/products/">All Categories</a>
+        {% for crumb in breadcrumbs %}
+            <span class="breadcrumb-separator">›</span>
+            <a href="/products/?category={{ crumb.id_category }}">{{ crumb.name }}</a>
+        {% endfor %}
+    </div>
+
+    <h1>
+        {% if breadcrumbs %}
+            {{ breadcrumbs[0].name }}
+        {% else %}
+            All Products
+        {% endif %}
+    </h1>
+
+    <!-- Subcategories -->
+    {% if subcategories %}
+    <div class="subcategories">
+        {% for subcat in subcategories %}
+        <a href="/products/?category={{ subcat.id_category }}" class="subcategory-link">
+            {{ subcat.name }}
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Filters -->
     <div class="filter-section">
         <div class="tag-filter">
             <form id="filterForm" method="get">
@@ -155,23 +221,12 @@
                 {% endfor %}
             </form>
         </div>
-        
-        <div class="category-filter">
-            <select name="category" onchange="updateFilters()">
-                <option value="">All Categories</option>
-                {% for category in categories %}
-                <option value="{{ category.id_category }}" 
-                        {% if selected_category == category.id_category %}selected{% endif %}>
-                    {{ category.name }}
-                </option>
-                {% endfor %}
-            </select>
-        </div>
     </div>
 
+    <!-- Products Grid -->
     <div class="products-grid">
         {% for product in products %}
-        <a href="/product/{{ product.id_product }}" class="product-card">
+        <a href="/products/{{ product.id_product }}" class="product-card">
             <div class="product-image">
                 {% if product.thumbnail_path %}
                 <img src="{{ product.thumbnail_path }}" alt="{{ product.name }}">
@@ -202,19 +257,11 @@ function updateFilters() {
         .map(cb => cb.value)
         .join(',');
     
-    const category = document.querySelector('select[name="category"]').value;
-    
     let url = new URL(window.location);
     if (selectedTags) {
         url.searchParams.set('tags', selectedTags);
     } else {
         url.searchParams.delete('tags');
-    }
-    
-    if (category) {
-        url.searchParams.set('category', category);
-    } else {
-        url.searchParams.delete('category');
     }
     
     window.location.href = url.toString();
