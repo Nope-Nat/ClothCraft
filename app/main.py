@@ -64,7 +64,7 @@ async def shutdown_event():
 
 @app.get("/")
 async def root(request: Request):
-    recent_products = await ProductRepository.get_recent_products(limit=10)
+    recent_products = await ProductRepository.get_recent_products(limit=12)
     return await templates.TemplateResponse("home.html", {
         "request": request, 
         "recent_products": recent_products

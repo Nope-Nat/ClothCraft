@@ -147,16 +147,31 @@ COPY material (id_material_type, origin) FROM stdin;
 
 -- Remove id_product from COPY - let SERIAL auto-generate
 COPY product (id_category, id_sizing_type, id_country, sku_code, active, short_description, thumbnail_path, name, created_at) FROM stdin;
-4	1	1	TSHIRT001	True	Cotton basic t-shirt	/static/img/example1.webp	Basic T-shirt	2024-06-02 08:00:00
-5	1	2	SHIRT001	True	Casual shirt with long sleeves	/static/img/example2.webp	Casual Shirt	2024-06-02 08:01:00
-6	2	3	JEANS001	True	Straight fit blue jeans	/static/img/example3.webp	Blue Jeans	2024-06-02 08:05:00
-7	1	1	SHORTS001	True	Cotton shorts	/static/img/example4.webp	Cotton Shorts	2024-06-02 08:10:00
-8	5	2	JACKET001	True	Denim jacket	/static/img/example5.webp	Denim Jacket	2024-06-02 08:12:00
-4	1	3	TSHIRT002	True	White t-shirt with logo	/static/img/example6.webp	Logo T-shirt	2024-06-02 08:15:00
-5	1	4	SHIRT002	True	Slim fit shirt blue	/static/img/example7.webp	Slim Blue Shirt	2024-06-02 08:18:00
-4	1	5	TSHIRT003	True	Black T-shirt	/static/img/example8.webp	Black T-shirt	2024-06-02 08:20:00
-7	4	1	SHORTS002	True	Kids denim shorts	/static/img/example9.webp	Kids Denim Shorts	2024-06-02 08:25:00
-6	2	2	JEANS002	True	Skinny jeans	/static/img/example10.webp	Skinny Jeans	2024-06-02 08:30:00
+4	1	1	TSHIRT001	True	Cotton basic t-shirt	/static/img/example1.webp	Basic T-shirt	2024-06-02 18:00:00
+5	1	2	SHIRT001	True	Casual shirt with long sleeves	/static/img/example2.webp	Casual Shirt	2024-06-02 18:01:00
+6	2	3	JEANS001	True	Straight fit blue jeans	/static/img/example3.webp	Blue Jeans	2024-06-02 18:05:00
+7	1	1	SHORTS001	True	Cotton shorts	/static/img/example4.webp	Cotton Shorts	2024-06-02 18:10:00
+8	5	2	JACKET001	True	Denim jacket	/static/img/example5.webp	Denim Jacket	2024-06-02 18:12:00
+4	1	3	TSHIRT002	True	White t-shirt with logo	/static/img/example6.webp	Logo T-shirt	2024-06-02 18:15:00
+5	1	4	SHIRT002	True	Slim fit shirt blue	/static/img/example7.webp	Slim Blue Shirt	2024-06-02 18:18:00
+4	1	5	TSHIRT003	True	Black T-shirt	/static/img/example8.webp	Black T-shirt	2024-06-02 18:20:00
+7	4	1	SHORTS002	True	Kids denim shorts	/static/img/example9.webp	Kids Denim Shorts	2024-06-02 18:25:00
+6	2	2	JEANS002	True	Skinny jeans	/static/img/example10.webp	Skinny Jeans	2024-06-02 18:30:00
+4	1	1	TSHIRT004	True	V-neck cotton t-shirt	/static/img/no_image.png	V-Neck T-shirt	2024-06-02 08:35:00
+4	1	2	TSHIRT005	True	Striped pattern t-shirt	/static/img/no_image.png	Striped T-shirt	2024-06-02 08:40:00
+5	1	3	SHIRT003	True	Classic flannel shirt	/static/img/no_image.png	Flannel Shirt	2024-06-02 08:45:00
+5	1	4	SHIRT004	True	Oxford button-down shirt	/static/img/no_image.png	Oxford Shirt	2024-06-02 08:50:00
+6	2	5	PANTS001	True	Chino pants beige	/static/img/no_image.png	Chinos	2024-06-02 08:55:00
+7	1	1	SHORTS003	True	Cargo shorts with pockets	/static/img/no_image.png	Cargo Shorts	2024-06-02 09:00:00
+8	5	2	JACKET002	True	Bomber jacket lightweight	/static/img/no_image.png	Bomber Jacket	2024-06-02 09:05:00
+8	1	3	HOODIE001	True	Cotton pullover hoodie	/static/img/no_image.png	Hoodie	2024-06-02 09:10:00
+8	5	4	BLAZER001	True	Business casual blazer	/static/img/no_image.png	Blazer	2024-06-02 09:15:00
+8	1	5	CARDIGAN01	True	Knit cardigan sweater	/static/img/no_image.png	Cardigan	2024-06-02 09:20:00
+4	4	1	KIDSTSH001	True	Kids colorful t-shirt	/static/img/no_image.png	Kids T-shirt	2024-06-02 09:25:00
+8	4	2	KIDSHOD001	True	Kids hooded sweatshirt	/static/img/no_image.png	Kids Hoodie	2024-06-02 09:30:00
+6	4	3	KIDSJNS001	True	Kids stretch jeans	/static/img/no_image.png	Kids Jeans	2024-06-02 09:35:00
+1	4	4	KIDSDRS001	True	Kids summer dress	/static/img/no_image.png	Kids Dress	2024-06-02 09:40:00
+4	1	5	SPORTTSH01	True	Athletic performance t-shirt	/static/img/no_image.png	Sports T-shirt	2024-06-02 09:45:00
 \.
 
 -- Keep the rest of the data as is since they reference generated IDs or are composite keys
@@ -171,19 +186,34 @@ COPY product_details_history (id_product, description, created_at) FROM stdin;
 8	Black casual t-shirt.	2024-06-02 08:21:00
 9	Denim shorts for kids.	2024-06-02 08:26:00
 10	Skinny jeans modern look.	2024-06-02 08:31:00
+11	V-neck cotton t-shirt with modern fit.	2024-06-02 08:36:00
+12	Striped pattern t-shirt for casual style.	2024-06-02 08:41:00
+13	Classic flannel shirt perfect for autumn.	2024-06-02 08:46:00
+14	Oxford button-down shirt for business casual.	2024-06-02 08:51:00
+15	Chino pants in beige color for versatile styling.	2024-06-02 08:56:00
+16	Cargo shorts with multiple pockets for utility.	2024-06-02 09:01:00
+17	Lightweight bomber jacket for transitional weather.	2024-06-02 09:06:00
+18	Cotton pullover hoodie for comfort and warmth.	2024-06-02 09:11:00
+19	Business casual blazer for professional settings.	2024-06-02 09:16:00
+20	Knit cardigan sweater perfect for layering.	2024-06-02 09:21:00
+21	Colorful t-shirt designed specifically for children.	2024-06-02 09:26:00
+22	Kids hooded sweatshirt for playground activities.	2024-06-02 09:31:00
+23	Stretch jeans for kids with adjustable waist.	2024-06-02 09:36:00
+24	Summer dress for girls with floral pattern.	2024-06-02 09:41:00
+25	Athletic performance t-shirt with moisture-wicking technology.	2024-06-02 09:46:00
 \.
 
 COPY product_image (id_product, img_path, "order", alt_desc) FROM stdin;
-1	/img/tshirts/basic.jpg	1	Basic T-shirt front
-2	/img/shirts/casual_long.jpg	1	Casual Shirt
-3	/img/jeans/straightfit.jpg	1	Blue Jeans
-4	/img/shorts/cotton.jpg	1	Cotton Shorts
-5	/img/jackets/denim.jpg	1	Denim Jacket
-6	/img/tshirts/logo_white.jpg	1	Logo T-shirt
-7	/img/shirts/slim_blue.jpg	1	Slim Blue Shirt
-8	/img/tshirts/black.jpg	1	Black T-shirt
-9	/img/shorts/denim.jpg	1	Denim Shorts
-10	/img/jeans/skinny.jpg	1	Skinny Jeans
+1	/static/img/example1.webp	1	Basic T-shirt front
+2	/static/img/example2.webp	1	Casual Shirt
+3	/static/img/example3.webp	1	Blue Jeans
+4	/static/img/example4.webp	1	Cotton Shorts
+5	/static/img/example5.webp	1	Denim Jacket
+6	/static/img/example6.webp	1	Logo T-shirt
+7	/static/img/example7.webp	1	Slim Blue Shirt
+8	/static/img/example8.webp	1	Black T-shirt
+9	/static/img/example9.webp	1	Denim Shorts
+10	/static/img/example10.webp	1	Skinny Jeans
 \.
 
 COPY discount_history (id_product, discount, "from", "to", secret_code) FROM stdin;
@@ -203,6 +233,21 @@ COPY price_history (id_product, price, created_at) FROM stdin;
 8	24.99	2024-06-02 08:20:00
 9	22.50	2024-06-02 08:25:00
 10	59.90	2024-06-02 08:30:00
+11	27.99	2024-06-02 08:35:00
+12	32.50	2024-06-02 08:40:00
+13	49.99	2024-06-02 08:45:00
+14	52.00	2024-06-02 08:50:00
+15	48.99	2024-06-02 08:55:00
+16	24.99	2024-06-02 09:00:00
+17	79.99	2024-06-02 09:05:00
+18	45.00	2024-06-02 09:10:00
+19	89.99	2024-06-02 09:15:00
+20	55.50	2024-06-02 09:20:00
+21	18.99	2024-06-02 09:25:00
+22	35.00	2024-06-02 09:30:00
+23	39.99	2024-06-02 09:35:00
+24	28.50	2024-06-02 09:40:00
+25	34.99	2024-06-02 09:45:00
 \.
 
 -- Remove id_variant from COPY - let SERIAL auto-generate
@@ -217,6 +262,35 @@ COPY variant (id_product, name, color, active, created_at) FROM stdin;
 5	Denim	BLU	True	2024-06-02 09:07:00
 6	White	WHT	True	2024-06-02 09:08:00
 7	Blue	BLU	True	2024-06-02 09:09:00
+11	Navy	NVY	True	2024-06-02 09:10:00
+11	White	WHT	True	2024-06-02 09:11:00
+12	Red	RED	True	2024-06-02 09:12:00
+12	Navy	NVY	True	2024-06-02 09:13:00
+13	Red	RED	True	2024-06-02 09:14:00
+13	Blue	BLU	True	2024-06-02 09:15:00
+14	White	WHT	True	2024-06-02 09:16:00
+14	Blue	BLU	True	2024-06-02 09:17:00
+15	Beige	BGE	True	2024-06-02 09:18:00
+15	Navy	NVY	True	2024-06-02 09:19:00
+16	Khaki	KHK	True	2024-06-02 09:20:00
+17	Black	BLK	True	2024-06-02 09:21:00
+17	Navy	NVY	True	2024-06-02 09:22:00
+18	Grey	GRY	True	2024-06-02 09:23:00
+18	Black	BLK	True	2024-06-02 09:24:00
+19	Navy	NVY	True	2024-06-02 09:25:00
+19	Grey	GRY	True	2024-06-02 09:26:00
+20	Grey	GRY	True	2024-06-02 09:27:00
+20	Navy	NVY	True	2024-06-02 09:28:00
+21	Blue	BLU	True	2024-06-02 09:29:00
+21	Red	RED	True	2024-06-02 09:30:00
+22	Grey	GRY	True	2024-06-02 09:31:00
+22	Blue	BLU	True	2024-06-02 09:32:00
+23	Blue	BLU	True	2024-06-02 09:33:00
+23	Black	BLK	True	2024-06-02 09:34:00
+24	Pink	PNK	True	2024-06-02 09:35:00
+24	Blue	BLU	True	2024-06-02 09:36:00
+25	Black	BLK	True	2024-06-02 09:37:00
+25	White	WHT	True	2024-06-02 09:38:00
 \.
 
 -- Remove id_variant_size from COPY and create proper variant sizes matching the sizing types
@@ -247,43 +321,149 @@ COPY variant_size (id_variant, id_size, created_at) FROM stdin;
 9	4	2024-06-02 10:23:00
 10	16	2024-06-02 10:24:00
 10	17	2024-06-02 10:25:00
+11	2	2024-06-02 10:26:00
+11	3	2024-06-02 10:27:00
+11	4	2024-06-02 10:28:00
+12	1	2024-06-02 10:29:00
+12	2	2024-06-02 10:30:00
+12	3	2024-06-02 10:31:00
+13	2	2024-06-02 10:32:00
+13	3	2024-06-02 10:33:00
+13	4	2024-06-02 10:34:00
+14	3	2024-06-02 10:35:00
+14	4	2024-06-02 10:36:00
+15	2	2024-06-02 10:37:00
+15	3	2024-06-02 10:38:00
+15	4	2024-06-02 10:39:00
+16	7	2024-06-02 10:40:00
+16	8	2024-06-02 10:41:00
+16	9	2024-06-02 10:42:00
+17	8	2024-06-02 10:43:00
+17	9	2024-06-02 10:44:00
+18	2	2024-06-02 10:45:00
+18	3	2024-06-02 10:46:00
+18	4	2024-06-02 10:47:00
+19	19	2024-06-02 10:48:00
+19	20	2024-06-02 10:49:00
+19	21	2024-06-02 10:50:00
+20	2	2024-06-02 10:51:00
+20	3	2024-06-02 10:52:00
+20	4	2024-06-02 10:53:00
+21	19	2024-06-02 10:54:00
+21	20	2024-06-02 10:55:00
+21	21	2024-06-02 10:56:00
+22	15	2024-06-02 10:57:00
+22	16	2024-06-02 10:58:00
+22	17	2024-06-02 10:59:00
+23	19	2024-06-02 11:00:00
+23	20	2024-06-02 11:01:00
+23	21	2024-06-02 11:02:00
+24	15	2024-06-02 11:03:00
+24	16	2024-06-02 11:04:00
+24	17	2024-06-02 11:05:00
+25	15	2024-06-02 11:06:00
+25	16	2024-06-02 11:07:00
+25	17	2024-06-02 11:08:00
+26	2	2024-06-02 11:09:00
+26	3	2024-06-02 11:10:00
+26	4	2024-06-02 11:11:00
+27	3	2024-06-02 11:12:00
+27	4	2024-06-02 11:13:00
+28	1	2024-06-02 11:14:00
+28	2	2024-06-02 11:15:00
+28	3	2024-06-02 11:16:00
 \.
 
--- Remove id_tag from COPY - let SERIAL auto-generate
+-- Add more tags for better categorization
 COPY tag (name, created_at) FROM stdin;
 summer	2024-06-01 00:00:00
 new	2024-06-01 01:00:00
 bestseller	2024-06-01 02:00:00
 denim	2024-06-01 03:00:00
 cotton	2024-06-01 04:00:00
+casual	2024-06-01 05:00:00
+formal	2024-06-01 06:00:00
+kids	2024-06-01 07:00:00
+sports	2024-06-01 08:00:00
+vintage	2024-06-01 09:00:00
+eco-friendly	2024-06-01 10:00:00
+winter	2024-06-01 11:00:00
 \.
 
+-- Tag more products to ensure good distribution
 COPY tag_product (id_tag, id_product) FROM stdin;
 1	1
 2	1
 5	1
+6	1
 1	2
 2	2
+6	2
 3	3
 4	3
 5	4
 1	4
+6	4
 3	5
 4	5
 2	6
+6	6
 3	7
+6	7
 1	8
+6	8
 4	9
+8	9
 5	10
+6	10
+2	11
+5	11
+6	11
+2	12
+5	12
+6	12
+10	13
+5	13
+6	13
+7	14
+5	14
+6	15
+5	15
+1	16
+6	16
+12	17
+2	17
+12	18
+5	18
+7	19
+2	19
+12	20
+5	20
+8	21
+2	21
+8	22
+2	22
+8	23
+4	23
+8	24
+2	24
+9	25
+2	25
+11	25
 \.
 
--- Remove id_storage_delivery from COPY - let SERIAL auto-generate
+-- Add more storage deliveries for better inventory distribution
 COPY storage_delivery (delivered_at) FROM stdin;
 2024-06-01 09:00:00
 2024-06-05 14:00:00
 2024-06-10 13:00:00
+2024-06-15 10:00:00
+2024-06-20 12:00:00
+2024-06-25 11:00:00
+2024-06-30 15:00:00
 \.
 
+-- Add storage delivery parts for all new variant sizes
 COPY storage_delivery_part (id_delivery, id_variant_size, quantity) FROM stdin;
 1	1	100
 1	2	100
@@ -300,6 +480,60 @@ COPY storage_delivery_part (id_delivery, id_variant_size, quantity) FROM stdin;
 2	13	70
 2	14	75
 1	15	60
+4	16	90
+4	17	85
+4	18	95
+4	19	70
+4	20	75
+4	21	80
+5	22	60
+5	23	65
+5	24	70
+5	25	50
+5	26	55
+5	27	60
+6	28	40
+6	29	45
+6	30	50
+6	31	35
+6	32	40
+6	33	45
+7	34	25
+7	35	30
+7	36	35
+7	37	20
+7	38	25
+7	39	30
+7	40	15
+7	41	20
+7	42	25
+7	43	18
+7	44	22
+7	45	20
+7	46	12
+7	47	15
+7	48	18
+3	49	30
+3	50	35
+3	51	40
+4	52	25
+4	53	30
+4	54	35
+5	55	20
+5	56	25
+5	57	30
+6	58	15
+6	59	18
+6	60	22
+7	61	10
+7	62	12
+7	63	15
+7	64	8
+7	65	10
+7	66	12
+7	67	25
+7	68	30
+7	69	35
 \.
 
 COPY product_material (id_product, id_material, percentage) FROM stdin;
@@ -364,5 +598,4 @@ cc98b556-fc0a-40b6-826c-3ffdbd87d4c4	9	1
 bd4b8db9-5f54-4bca-9ffa-91b68405cdd2	11	2
 bd4b8db9-5f54-4bca-9ffa-91b68405cdd2	12	1
 \.
-
 
