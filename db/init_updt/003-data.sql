@@ -37,22 +37,22 @@ COPY category (parent_category, name, created_at) FROM stdin;
 
 -- Remove id_sizing_type from COPY - let SERIAL auto-generate
 COPY sizing_type (name, created_at) FROM stdin;
-Men International	2024-06-01 00:00:00
-Women International	2024-06-01 00:00:00
-Unisex International	2024-06-01 00:00:00
+T-shirt Sizing	2024-06-01 00:00:00
+Jeans Sizing	2024-06-01 00:01:00
+Shoe Sizing	2024-06-01 00:02:00
+Kids Clothing	2024-06-01 00:03:00
+Jacket Sizing	2024-06-01 00:04:00
 \.
 
 -- Remove id_sizing_format from COPY - let SERIAL auto-generate
 COPY sizing_format (value, created_at) FROM stdin;
-S	2024-06-01 00:00:00
-M	2024-06-01 00:01:00
-L	2024-06-01 00:02:00
-XL	2024-06-01 00:03:00
-XS	2024-06-01 00:04:00
-XXL	2024-06-01 00:05:00
+US	2024-06-01 00:00:00
+EU	2024-06-01 00:01:00
+UK	2024-06-01 00:02:00
+International	2024-06-01 00:03:00
 \.
 
--- Remove id_size from COPY - let SERIAL auto-generate
+-- Remove id_size from COPY - Create proper size combinations for each sizing type
 COPY size (id_sizing_type, "order", created_at) FROM stdin;
 1	1	2024-06-01 00:00:00
 1	2	2024-06-01 00:01:00
@@ -64,20 +64,66 @@ COPY size (id_sizing_type, "order", created_at) FROM stdin;
 2	3	2024-06-01 00:12:00
 2	4	2024-06-01 00:13:00
 2	5	2024-06-01 00:14:00
+3	1	2024-06-01 00:20:00
+3	2	2024-06-01 00:21:00
+3	3	2024-06-01 00:22:00
+3	4	2024-06-01 00:23:00
+4	1	2024-06-01 00:30:00
+4	2	2024-06-01 00:31:00
+4	3	2024-06-01 00:32:00
+4	4	2024-06-01 00:33:00
+5	1	2024-06-01 00:40:00
+5	2	2024-06-01 00:41:00
+5	3	2024-06-01 00:42:00
+5	4	2024-06-01 00:43:00
 \.
 
--- Keep size_data as is since it references generated size IDs
+-- Create proper size_data with different formats for each sizing type
 COPY size_data (id_size, id_sizing_format, value, created_at) FROM stdin;
-1	1	S	2024-06-01 00:00:00
-2	2	M	2024-06-01 00:01:00
-3	3	L	2024-06-01 00:02:00
-4	4	XL	2024-06-01 00:03:00
-5	5	XS	2024-06-01 00:04:00
-6	1	S	2024-06-01 00:10:00
-7	2	M	2024-06-01 00:11:00
-8	3	L	2024-06-01 00:12:00
-9	4	XL	2024-06-01 00:13:00
-10	5	XS	2024-06-01 00:14:00
+1	4	XS	2024-06-01 00:00:00
+1	1	XS	2024-06-01 00:00:01
+2	4	S	2024-06-01 00:01:00
+2	1	S	2024-06-01 00:01:01
+3	4	M	2024-06-01 00:02:00
+3	1	M	2024-06-01 00:02:01
+4	4	L	2024-06-01 00:03:00
+4	1	L	2024-06-01 00:03:01
+5	4	XL	2024-06-01 00:04:00
+5	1	XL	2024-06-01 00:04:01
+6	1	28	2024-06-01 00:10:00
+6	2	30	2024-06-01 00:10:01
+7	1	30	2024-06-01 00:11:00
+7	2	32	2024-06-01 00:11:01
+8	1	32	2024-06-01 00:12:00
+8	2	34	2024-06-01 00:12:01
+9	1	34	2024-06-01 00:13:00
+9	2	36	2024-06-01 00:13:01
+10	1	36	2024-06-01 00:14:00
+10	2	38	2024-06-01 00:14:01
+11	1	7	2024-06-01 00:20:00
+11	2	40	2024-06-01 00:20:01
+11	3	6	2024-06-01 00:20:02
+12	1	8	2024-06-01 00:21:00
+12	2	42	2024-06-01 00:21:01
+12	3	7	2024-06-01 00:21:02
+13	1	9	2024-06-01 00:22:00
+13	2	43	2024-06-01 00:22:01
+13	3	8	2024-06-01 00:22:02
+14	1	10	2024-06-01 00:23:00
+14	2	44	2024-06-01 00:23:01
+14	3	9	2024-06-01 00:23:02
+15	4	2-3Y	2024-06-01 00:30:00
+16	4	4-5Y	2024-06-01 00:31:00
+17	4	6-7Y	2024-06-01 00:32:00
+18	4	8-9Y	2024-06-01 00:33:00
+19	4	XS	2024-06-01 00:40:00
+19	1	XS	2024-06-01 00:40:01
+20	4	S	2024-06-01 00:41:00
+20	1	S	2024-06-01 00:41:01
+21	4	M	2024-06-01 00:42:00
+21	1	M	2024-06-01 00:42:01
+22	4	L	2024-06-01 00:43:00
+22	1	L	2024-06-01 00:43:01
 \.
 
 -- Remove id_material_type from COPY - let SERIAL auto-generate
@@ -103,14 +149,14 @@ COPY material (id_material_type, origin) FROM stdin;
 COPY product (id_category, id_sizing_type, id_country, sku_code, active, short_description, thumbnail_path, name, created_at) FROM stdin;
 4	1	1	TSHIRT001	True	Cotton basic t-shirt	/static/img/example1.webp	Basic T-shirt	2024-06-02 08:00:00
 5	1	2	SHIRT001	True	Casual shirt with long sleeves	/static/img/example2.webp	Casual Shirt	2024-06-02 08:01:00
-6	1	3	JEANS001	True	Straight fit blue jeans	/static/img/example3.webp	Blue Jeans	2024-06-02 08:05:00
+6	2	3	JEANS001	True	Straight fit blue jeans	/static/img/example3.webp	Blue Jeans	2024-06-02 08:05:00
 7	1	1	SHORTS001	True	Cotton shorts	/static/img/example4.webp	Cotton Shorts	2024-06-02 08:10:00
-8	1	2	JACKET001	True	Denim jacket	/static/img/example5.webp	Denim Jacket	2024-06-02 08:12:00
+8	5	2	JACKET001	True	Denim jacket	/static/img/example5.webp	Denim Jacket	2024-06-02 08:12:00
 4	1	3	TSHIRT002	True	White t-shirt with logo	/static/img/example6.webp	Logo T-shirt	2024-06-02 08:15:00
 5	1	4	SHIRT002	True	Slim fit shirt blue	/static/img/example7.webp	Slim Blue Shirt	2024-06-02 08:18:00
 4	1	5	TSHIRT003	True	Black T-shirt	/static/img/example8.webp	Black T-shirt	2024-06-02 08:20:00
-7	1	1	SHORTS002	True	Denim shorts	/static/img/example9.webp	Denim Shorts	2024-06-02 08:25:00
-6	1	2	JEANS002	True	Skinny jeans	/static/img/example10.webp	Skinny Jeans	2024-06-02 08:30:00
+7	4	1	SHORTS002	True	Kids denim shorts	/static/img/example9.webp	Kids Denim Shorts	2024-06-02 08:25:00
+6	2	2	JEANS002	True	Skinny jeans	/static/img/example10.webp	Skinny Jeans	2024-06-02 08:30:00
 \.
 
 -- Keep the rest of the data as is since they reference generated IDs or are composite keys
@@ -173,23 +219,34 @@ COPY variant (id_product, name, color, active, created_at) FROM stdin;
 7	Blue	BLU	True	2024-06-02 09:09:00
 \.
 
--- Remove id_variant_size from COPY - let SERIAL auto-generate
+-- Remove id_variant_size from COPY and create proper variant sizes matching the sizing types
 COPY variant_size (id_variant, id_size, created_at) FROM stdin;
-1	1	2024-06-02 10:00:00
-1	2	2024-06-02 10:01:00
-2	1	2024-06-02 10:03:00
-2	2	2024-06-02 10:04:00
-3	2	2024-06-02 10:05:00
-3	3	2024-06-02 10:06:00
-4	2	2024-06-02 10:07:00
-5	3	2024-06-02 10:08:00
-6	4	2024-06-02 10:09:00
-7	2	2024-06-02 10:10:00
-7	3	2024-06-02 10:11:00
-8	2	2024-06-02 10:12:00
-9	1	2024-06-02 10:13:00
-9	3	2024-06-02 10:14:00
-10	1	2024-06-02 10:15:00
+1	2	2024-06-02 10:00:00
+1	3	2024-06-02 10:01:00
+1	4	2024-06-02 10:02:00
+2	2	2024-06-02 10:03:00
+2	3	2024-06-02 10:04:00
+2	4	2024-06-02 10:05:00
+3	2	2024-06-02 10:06:00
+3	3	2024-06-02 10:07:00
+3	4	2024-06-02 10:08:00
+4	3	2024-06-02 10:09:00
+4	4	2024-06-02 10:10:00
+5	7	2024-06-02 10:11:00
+5	8	2024-06-02 10:12:00
+5	9	2024-06-02 10:13:00
+6	8	2024-06-02 10:14:00
+6	9	2024-06-02 10:15:00
+7	2	2024-06-02 10:16:00
+7	3	2024-06-02 10:17:00
+8	19	2024-06-02 10:18:00
+8	20	2024-06-02 10:19:00
+8	21	2024-06-02 10:20:00
+9	2	2024-06-02 10:21:00
+9	3	2024-06-02 10:22:00
+9	4	2024-06-02 10:23:00
+10	16	2024-06-02 10:24:00
+10	17	2024-06-02 10:25:00
 \.
 
 -- Remove id_tag from COPY - let SERIAL auto-generate
