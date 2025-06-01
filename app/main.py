@@ -9,6 +9,7 @@ from router.category import router as category_router
 from router.auth import router as auth_router
 from db import db
 from utils.auth_utils import get_current_user
+from repository.product_repository import ProductRepository
 
 app = FastAPI()
 
@@ -60,4 +61,8 @@ async def shutdown_event():
 
 @app.get("/")
 async def root(request: Request):
-    return await templates.TemplateResponse("home.html", {"request": request})
+    recent_products = await ProductRepository.get_recent_products(limit=10)
+    return await templates.TemplateResponse("home.html", {
+        "request": request, 
+        "recent_products": recent_products
+    })

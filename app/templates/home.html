@@ -2,27 +2,285 @@
 
 {% block title %}ClothCraft - Premium Clothing Store{% endblock %}
 
+{% block head %}
+<style>
+    /* Custom carousel navigation outside the carousel */
+    .carousel-nav-container {
+        position: relative;
+    }
+    
+    .carousel-nav-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: rgba(0, 0, 0, 0.7);
+        border: none;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        color: white;
+        font-size: 1.2rem;
+        z-index: 10;
+        transition: all 0.3s ease;
+    }
+    
+    .carousel-nav-btn:hover {
+        background-color: rgba(0, 0, 0, 0.9);
+        color: white;
+        transform: translateY(-50%) scale(1.1);
+    }
+    
+    .carousel-nav-prev {
+        left: -25px;
+    }
+    
+    .carousel-nav-next {
+        right: -25px;
+    }
+    
+    /* Hide default carousel indicators */
+    .carousel-indicators {
+        display: none;
+    }
+    
+    /* Custom indicators below carousel */
+    .custom-indicators {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 30px;
+    }
+    
+    .custom-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: rgba(0, 0, 0, 0.3);
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .custom-indicator.active {
+        background-color: #0d6efd;
+        transform: scale(1.2);
+    }
+    
+    .custom-indicator:hover {
+        background-color: rgba(0, 0, 0, 0.6);
+    }
+    
+    /* Remove default carousel controls */
+    .carousel-control-prev,
+    .carousel-control-next {
+        display: none;
+    }
+    
+    @media (max-width: 768px) {
+        .carousel-nav-prev {
+            left: -15px;
+        }
+        
+        .carousel-nav-next {
+            right: -15px;
+        }
+        
+        .carousel-nav-btn {
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-12 text-center">
-            <h1>Welcome to ClothCraft</h1>
-            <p class="lead">Your premium clothing store</p>
-            
-            {% if current_user %}
-                <div class="alert alert-success">
-                    Welcome back, {{ current_user.username }}!
-                    {% if current_user.is_admin %}
-                        <br><strong>You have admin privileges.</strong>
-                    {% endif %}
+<!-- Hero Section -->
+<div class="bg-light py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold text-dark">Welcome to ClothCraft</h1>
+                <p class="lead text-muted mb-4">Discover premium clothing crafted with passion and designed for modern life. Quality materials, timeless style.</p>
+                
+                {% if current_user %}
+                    <div class="alert alert-success d-flex align-items-center">
+                        <i class="fas fa-user-check me-2"></i>
+                        <div>
+                            Welcome back, <strong>{{ current_user.username }}</strong>!
+                            {% if current_user.is_admin %}
+                                <br><span class="badge bg-danger">Admin Access</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="d-flex gap-3">
+                        <a href="/auth/login" class="btn btn-primary btn-lg">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login
+                        </a>
+                        <a href="/auth/register" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-user-plus me-2"></i>Register
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-lg-6">
+                <div class="text-center">
+                    <i class="fas fa-tshirt text-primary" style="font-size: 8rem; opacity: 0.1;"></i>
                 </div>
-            {% else %}
-                <div class="mt-4">
-                    <a href="/auth/login" class="btn btn-primary me-2">Login</a>
-                    <a href="/auth/register" class="btn btn-outline-primary">Register</a>
-                </div>
-            {% endif %}
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Recently Added Products Section -->
+{% if recent_products %}
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h2 class="fw-bold">Latest Arrivals</h2>
+            <p class="text-muted">Discover our newest premium clothing pieces</p>
+        </div>
+    </div>
+    
+    <!-- Products Carousel with External Navigation -->
+    <div class="carousel-nav-container">
+        <!-- External Navigation Buttons -->
+        <button class="carousel-nav-btn carousel-nav-prev" type="button" data-bs-target="#productsCarousel" data-bs-slide="prev">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="carousel-nav-btn carousel-nav-next" type="button" data-bs-target="#productsCarousel" data-bs-slide="next">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+        
+        <div id="productsCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+            <div class="carousel-inner">
+                {% for chunk in recent_products|batch(3) %}
+                <div class="carousel-item {% if loop.first %}active{% endif %}">
+                    <div class="row g-4">
+                        {% for product in chunk %}
+                        <div class="col-md-4">
+                            <div class="card h-100 shadow-sm border-0">
+                                <div class="position-relative overflow-hidden" style="height: 250px;">
+                                    {% if product.thumbnail_path %}
+                                    <img src="{{ product.thumbnail_path }}" class="card-img-top h-100 w-100" 
+                                         style="object-fit: cover;" alt="{{ product.name }}">
+                                    {% else %}
+                                    <div class="d-flex align-items-center justify-content-center h-100 bg-light">
+                                        <i class="fas fa-image text-muted" style="font-size: 3rem;"></i>
+                                    </div>
+                                    {% endif %}
+                                    <div class="position-absolute top-0 end-0 m-2">
+                                        <span class="badge bg-primary">New</span>
+                                    </div>
+                                </div>
+                                <div class="card-body d-flex flex-column">
+                                    <div class="mb-2">
+                                        <small class="text-muted text-uppercase">{{ product.category_name }}</small>
+                                    </div>
+                                    <h5 class="card-title fw-bold">{{ product.name }}</h5>
+                                    <p class="card-text text-muted flex-grow-1">{{ product.short_description }}</p>
+                                    <div class="d-flex justify-content-between align-items-center mt-auto">
+                                        <span class="h5 mb-0 text-primary fw-bold">${{ "%.2f"|format(product.current_price) }}</span>
+                                        <a href="/product/{{ product.id_product }}" class="btn btn-outline-primary btn-sm">
+                                            View Details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Custom Indicators Below Carousel -->
+        <div class="custom-indicators">
+            {% for i in range((recent_products|length + 2) // 3) %}
+            <button type="button" class="custom-indicator {% if i == 0 %}active{% endif %}" 
+                    data-bs-target="#productsCarousel" data-bs-slide-to="{{ i }}" 
+                    aria-label="Slide {{ i + 1 }}"></button>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Call to Action Section -->
+<div class="bg-dark text-white py-5">
+    <div class="container text-center">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h3 class="fw-bold mb-3">Explore Our Full Collection</h3>
+                <p class="lead mb-4">Browse through hundreds of premium clothing items crafted with care and attention to detail.</p>
+                <a href="/products" class="btn btn-light btn-lg">
+                    <i class="fas fa-shopping-bag me-2"></i>Shop Now
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="container my-5">
+    <div class="row text-center">
+        <div class="col-md-4 mb-4">
+            <div class="p-4">
+                <i class="fas fa-shipping-fast text-primary mb-3" style="font-size: 3rem;"></i>
+                <h5 class="fw-bold">Fast Shipping</h5>
+                <p class="text-muted">Free shipping on orders over $50. Express delivery available.</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="p-4">
+                <i class="fas fa-medal text-primary mb-3" style="font-size: 3rem;"></i>
+                <h5 class="fw-bold">Premium Quality</h5>
+                <p class="text-muted">Carefully selected materials and expert craftsmanship in every piece.</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="p-4">
+                <i class="fas fa-undo text-primary mb-3" style="font-size: 3rem;"></i>
+                <h5 class="fw-bold">Easy Returns</h5>
+                <p class="text-muted">30-day return policy. No questions asked, hassle-free returns.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Sync custom indicators with carousel state
+    document.addEventListener('DOMContentLoaded', function() {
+        const carousel = document.getElementById('productsCarousel');
+        const indicators = document.querySelectorAll('.custom-indicator');
+        
+        if (carousel && indicators.length > 0) {
+            // Update indicators when carousel slides
+            carousel.addEventListener('slide.bs.carousel', function(event) {
+                // Remove active class from all indicators
+                indicators.forEach(indicator => indicator.classList.remove('active'));
+                
+                // Add active class to current indicator
+                if (indicators[event.to]) {
+                    indicators[event.to].classList.add('active');
+                }
+            });
+            
+            // Handle indicator clicks
+            indicators.forEach((indicator, index) => {
+                indicator.addEventListener('click', function() {
+                    // Remove active class from all indicators
+                    indicators.forEach(ind => ind.classList.remove('active'));
+                    
+                    // Add active class to clicked indicator
+                    this.classList.add('active');
+                });
+            });
+        }
+    });
+</script>
 {% endblock %}

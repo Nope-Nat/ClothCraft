@@ -126,3 +126,23 @@ class ProductRepository:
             """
             
             return await conn.fetch(query, *params)
+
+    @staticmethod
+    async def get_recent_products(limit: int = 10):
+        """Get recently added products for home page"""
+        async with db.get_connection() as conn:
+            query = """
+                SELECT p.id_product, p.name, p.thumbnail_path, p.short_description, c.name as category_name,
+                    (SELECT price 
+                    FROM price_history ph 
+                    WHERE ph.id_product = p.id_product 
+                    ORDER BY created_at DESC 
+                    LIMIT 1) as current_price,
+                    p.created_at
+                FROM product p
+                LEFT JOIN category c ON p.id_category = c.id_category
+                WHERE p.active = true
+                ORDER BY p.created_at DESC
+                LIMIT $1
+            """
+            return await conn.fetch(query, limit)
