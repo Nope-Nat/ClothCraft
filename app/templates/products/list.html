@@ -64,10 +64,10 @@
         </ol>
     </nav>
 
-    <!-- Title -->
+    <!-- Title - Changed to show the lowest category -->
     <h1 class="h2 mb-4">
         {% if breadcrumbs %}
-            {{ breadcrumbs[0].name }}
+            {{ breadcrumbs[-1].name }}
         {% else %}
             All Products
         {% endif %}

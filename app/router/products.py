@@ -3,7 +3,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from typing import Optional, List
 from repository.product_repository import ProductRepository
-from template import template
+from template import templates
 
 router = APIRouter(prefix="/products", tags=["products"])
 
