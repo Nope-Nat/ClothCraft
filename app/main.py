@@ -12,6 +12,9 @@ from router.cart import router as cart_router
 from db import db
 from repository.product_repository import ProductRepository
 from template import templates
+import asyncio
+import logging
+
 app = FastAPI()
 
 
@@ -36,8 +39,23 @@ app.include_router(cart_router)
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize database connection on startup"""
-    await db.connect()
+    """Initialize database connection on startup with retry logic"""
+    max_retries = 10
+    retry_delay = 2  # seconds
+    
+    for attempt in range(max_retries):
+        try:
+            await db.connect()
+            logging.info("Database connection established successfully")
+            break
+        except Exception as e:
+            if attempt < max_retries - 1:
+                logging.warning(f"Database connection attempt {attempt + 1} failed: {e}. Retrying in {retry_delay} seconds...")
+                await asyncio.sleep(retry_delay)
+                retry_delay = min(retry_delay * 1.5, 30)  # Exponential backoff, max 30 seconds
+            else:
+                logging.error(f"Failed to connect to database after {max_retries} attempts: {e}")
+                raise
 
 @app.on_event("shutdown")
 async def shutdown_event():
