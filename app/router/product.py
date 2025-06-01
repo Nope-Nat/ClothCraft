@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from datetime import datetime
+from repository.product_repository import ProductRepository
 from template import templates
 import os
 
@@ -26,38 +27,15 @@ async def product_page(
     size: Optional[str] = None,
     variant: Optional[str] = None,
 ):
+    product_data = await ProductRepository.get_product(id_product)
+    category_id = product_data["id_category"]
+    category_data = await ProductRepository.get_category_hierarchy(category_id)
+
     id_size = parse_optional_id(size)
     id_variants_size = parse_optional_id(variant)
 
-    name = "Sample Product"
-    subcategories_list = [
-        {"id": 1, "name": "Subcategory 1"},
-        {"id": 2, "name": "Subcategory 2"},
-        {"id": 3, "name": "T-Shirt"}
-    ]
-    country = "USA"
-    sku_code = "SKU123456"
-    short_description = "This is a sample product description."
-
-    description = (
-        "# Heading 1\n"
-        "## Heading 2\n"
-        "### Heading 3\n"
-        "* Bullet point 1\n"
-        "    * Sub-bullet point 1\n"
-        "* Bullet point 2\n"
-        "**Bold text** and *italic text*.\n"
-        "[Link to example](https://example.com)\n"
-    )
-
-    images_paths = [
-        "static/img/example1.webp",
-        "static/img/example2.webp",
-        "static/img/example3.webp"
-    ]
-
     # Price and discount data
-    original_price = 99.99
+    original_price = product_data["current_price"]
     discount_percentage = 20
     discounted_price = round(original_price * (1 - discount_percentage / 100), 2)
     discount_start_date = "2025-05-01"
@@ -73,7 +51,7 @@ async def product_page(
     
     available_sizes = ["XS", "S", "M", "L", "XL", "XXL"]
 
-    html_description = markdown.markdown(description)
+    html_description = markdown.markdown(product_data["description"], extensions=['tables'])
 
     # Example tags with types for styling
     tags = [
@@ -83,17 +61,17 @@ async def product_page(
         "Eco-Friendly", 
         "Limited Edition"
     ]
-
+    
     return await templates.TemplateResponse("product.html", {
         "request": request,
         "id_product": id_product,
-        "name": name,
-        "subcategories_list": subcategories_list,
-        "country": country,
-        "sku_code": sku_code,
-        "short_description": short_description,
+        "name": product_data["name"],
+        "breadcrumbs": category_data["breadcrumbs"],
+        "sku_code": product_data["sku_code"],
+        "short_description": product_data["short_description"],
         "description": Markup(html_description),
-        "images_paths": images_paths,
+        "images_paths": [product_data["thumbnail_path"]] + product_data["images_paths"],
+        "images_alt_descriptions": ["thumbnail"] + product_data["images_alt_descriptions"],
         "original_price": original_price,
         "discounted_price": discounted_price,
         "discount_percentage": discount_percentage,

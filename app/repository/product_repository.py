@@ -68,6 +68,54 @@ class ProductRepository:
             return {"breadcrumbs": breadcrumbs, "subcategories": subcategories}
 
     @staticmethod
+    async def get_product(product_id: int):
+        async with db.get_connection() as conn:
+            query = """
+                SELECT
+                    p.id_product, p.name, p.id_category, c.name as category_name,
+                    p.thumbnail_path,
+                    (
+                        SELECT array_agg(img_path ORDER BY "order")
+                        FROM product_image pi
+                        WHERE pi.id_product = p.id_product
+                    ) as images_paths,
+                    (
+                        SELECT array_agg(alt_desc ORDER BY "order")
+                        FROM product_image pi
+                        WHERE pi.id_product = p.id_product
+                    ) as images_alt_descriptions,
+                    p.short_description,
+                    (
+                        SELECT description
+                        FROM product_details_history pdh
+                        WHERE pdh.id_product = p.id_product
+                        ORDER BY pdh.created_at DESC
+                        LIMIT 1
+                    ) as description,
+                    (
+                        SELECT price 
+                        FROM price_history ph 
+                        WHERE ph.id_product = p.id_product 
+                        ORDER BY created_at DESC 
+                        LIMIT 1
+                    ) as current_price,
+                    p.sku_code,
+                    array_agg(DISTINCT t.name) FILTER (WHERE t.id_tag IS NOT NULL) as tags,
+                    array_agg(DISTINCT sf.value ORDER BY sf.value) FILTER (WHERE sf.id_sizing_format IS NOT NULL) as sizes
+                FROM product p
+                LEFT JOIN category c ON p.id_category = c.id_category
+                LEFT JOIN tag_product tp ON p.id_product = tp.id_product
+                LEFT JOIN tag t ON tp.id_tag = t.id_tag
+                LEFT JOIN variant v ON v.id_product = p.id_product
+                LEFT JOIN variant_size vs ON vs.id_variant = v.id_variant
+                LEFT JOIN size s ON vs.id_size = s.id_size
+                LEFT JOIN size_data sf ON s.id_size = sf.id_size
+                WHERE p.id_product = $1
+                GROUP BY p.id_product, c.name;
+            """
+            return await conn.fetchrow(query, product_id)
+
+    @staticmethod
     async def get_products(category_id: Optional[int] = None, tag_ids: List[int] = None, size_ids: List[int] = None):
         async with db.get_connection() as conn:
             base_query = """
