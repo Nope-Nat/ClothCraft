@@ -2,18 +2,10 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from typing import Optional, List
-import os
 from repository.product_repository import ProductRepository
+from template import template
 
-template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
-templates = Jinja2Templates(directory=template_dir)
 router = APIRouter(prefix="/products", tags=["products"])
-
-def unique_filter(seq):
-    seen = set()
-    return [x for x in seq if not (x in seen or seen.add(x))]
-
-templates.env.filters["unique"] = unique_filter
 
 @router.get("/", response_class=HTMLResponse)
 async def list_products(
@@ -46,7 +38,7 @@ async def list_products(
         
         products = await ProductRepository.get_products(category_id, selected_tags, selected_sizes)
         
-        return templates.TemplateResponse("products/list.html", {
+        return await templates.TemplateResponse("products/list.html", {
             "request": request,
             "products": products,
             "breadcrumbs": category_data["breadcrumbs"],
