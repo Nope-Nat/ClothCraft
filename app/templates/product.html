@@ -101,11 +101,18 @@
             <div class="size-section mb-4">
                 <h5>Size</h5>
                 <div class="btn-group d-flex flex-wrap gap-2" role="group">
-                    {% for size in available_sizes %}
+                    <!-- {% for size in available_sizes %}
                         <button type="button" 
                                 class="btn {% if loop.index == selected_size %}btn-primary{% else %}btn-outline-secondary{% endif %} size-btn"
                                 onclick="setSizeParam('{{ loop.index }}')">
                             {{ size }}
+                        </button> -->
+                    <!-- {% endfor %} -->
+                    {% for size in variant_sizes %}
+                        <button type="button" 
+                                class="btn {% if loop.index == selected_size %}btn-primary{% else %}btn-outline-secondary{% endif %} size-btn"
+                                onclick="setSizeParam('{{ loop.index }}')">
+                            {{ size.value }}
                         </button>
                     {% endfor %}
                 </div>

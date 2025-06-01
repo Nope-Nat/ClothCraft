@@ -67,7 +67,7 @@ class ProductRepository:
                 
             return {"breadcrumbs": breadcrumbs, "subcategories": subcategories}
 
-    async def get_product_variants_list(product_id: int):
+    async def get_product_variants(product_id: int):
         async with db.get_connection() as conn:
             query = """
                 SELECT id_variant, name, color
@@ -76,16 +76,16 @@ class ProductRepository:
             """
             return await conn.fetch(query, product_id)
 
-    async def get_product_variant_sizes_list(variant_id: int):
+    async def get_product_variant_sizes(id_variant: int, id_sizing_format: int):
         async with db.get_connection() as conn:
             query = """
-                SELECT s.id_size, s.name, sd.value
+                SELECT s.id_size, sd.value
                 FROM variant_size vs
                 JOIN size s ON vs.id_size = s.id_size
                 JOIN size_data sd ON s.id_size = sd.id_size
-                WHERE vs.id_variant = $1;
+                WHERE vs.id_variant = $1 and sd.id_sizing_format = $2;
             """
-            return await conn.fetch(query, variant_id)
+            return await conn.fetch(query, id_variant, id_sizing_format)
 
     @staticmethod
     async def get_product(product_id: int):

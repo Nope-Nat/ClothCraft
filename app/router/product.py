@@ -27,12 +27,15 @@ async def product_page(
     size: Optional[str] = None,
     variant: Optional[str] = None,
 ):
+    if not variant:
+        variant = "1"
+
     product_data = await ProductRepository.get_product(id_product)
     category_id = product_data["id_category"]
     category_data = await ProductRepository.get_category_hierarchy(category_id)
 
     id_size = parse_optional_id(size)
-    id_variants_size = parse_optional_id(variant)
+    selected_variant = parse_optional_id(variant)
 
     # Price and discount data
     original_price = product_data["current_price"]
@@ -42,7 +45,7 @@ async def product_page(
     discount_end_date = "2025-06-30"
     lowest_price_30_days = 75.99
     
-    product_variants_raw = await ProductRepository.get_product_variants_list(id_product)
+    product_variants_raw = await ProductRepository.get_product_variants(id_product)
     product_variants = []
     for variant in product_variants_raw:
         color_data = variant['color']
@@ -53,7 +56,12 @@ async def product_page(
             "name": variant['name'],
             "color": color_value
         })
+    id_variant = product_variants[selected_variant - 1]["id"] if selected_variant and selected_variant <= len(product_variants) else None
     
+    id_sizing_format = 1 # TODO Allow the user to select the sizing format
+    variant_sizes = get_product_variant_sizes = await ProductRepository.get_product_variant_sizes(
+        id_variant, id_sizing_format
+    )
     available_sizes = ["XS", "S", "M", "L", "XL", "XXL"]
 
     html_description = markdown.markdown(product_data["description"], extensions=['tables'])
@@ -92,8 +100,9 @@ async def product_page(
         "discount_end_date": discount_end_date,
         "lowest_price_30_days": lowest_price_30_days,
         "product_variants": product_variants,
+        "variant_sizes": variant_sizes,
         "available_sizes": available_sizes,
         "selected_size": id_size,
-        "selected_variant": id_variants_size,
+        "selected_variant": selected_variant,
         "tags": tags
     })
