@@ -8,6 +8,7 @@ from router.product import router as product_router
 from router.category import router as category_router
 from router.auth import router as auth_router
 from router.orders import router as orders_router
+from router.cart import router as cart_router
 from db import db
 from repository.product_repository import ProductRepository
 from template import templates
@@ -31,6 +32,7 @@ app.include_router(product_router)
 app.include_router(category_router)
 app.include_router(auth_router)
 app.include_router(orders_router)
+app.include_router(cart_router)
 
 @app.on_event("startup")
 async def startup_event():
