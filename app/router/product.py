@@ -9,7 +9,7 @@ from markupsafe import Markup
 from db import db
 import markdown
 
-router = APIRouter(prefix="/products")
+router = APIRouter(prefix="/product")
 
 @router.get("/{id_product}", response_class=HTMLResponse)
 async def product_page(request: Request, id_product: int):
