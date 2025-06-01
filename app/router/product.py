@@ -64,7 +64,6 @@ async def product_page(
     discount_end_date = "2025-06-30"
     lowest_price_30_days = 75.99
     
-    # Product variants with colors (based on database schema)
     product_variants = [
         {"name": "Classic Red", "color": "#DC3545"},
         {"name": "Ocean Blue", "color": "#0D6EFD"},
@@ -72,10 +71,18 @@ async def product_page(
         {"name": "Midnight Black", "color": "#212529"}
     ]
     
-    # Available sizes
     available_sizes = ["XS", "S", "M", "L", "XL", "XXL"]
 
     html_description = markdown.markdown(description)
+
+    # Example tags with types for styling
+    tags = [
+        "New Arrival", 
+        "Best Seller", 
+        "Premium Quality", 
+        "Eco-Friendly", 
+        "Limited Edition"
+    ]
 
     return await templates.TemplateResponse("product.html", {
         "request": request,
@@ -96,5 +103,6 @@ async def product_page(
         "product_variants": product_variants,
         "available_sizes": available_sizes,
         "selected_size": id_size,
-        "selected_variant": id_variants_size
+        "selected_variant": id_variants_size,
+        "tags": tags
     })

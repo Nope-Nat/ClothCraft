@@ -11,21 +11,36 @@
     <div class="page-layout">
         <!-- Main Column -->
         <div class="main-column">
-            <div class="subcategories">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/products/" class="text-decoration-none text-muted">All Categories</a></li>
                 {% for subcategory in subcategories_list %}
-                    <a href="/category/{{ subcategory.id }}">{{ subcategory.name }}</a>
-                    {% if not loop.last %} /{% endif %}
+                <li class="breadcrumb-item"><a href="/products/?category={{ subcategory.id }}"
+                    class="text-decoration-none text-muted">{{ subcategory.name }}</a></li>
+                {% endfor %}
+            </ol>
+            </nav>
+
+
+            <div class="d-flex flex-wrap gap-1 mb-4">
+                {% for tag in tags %}
+                <span class="product-tag {% if 'New' in tag %}tag-new{% elif 'Best' in tag %}tag-bestseller{% elif 'Limited' in tag %}tag-limited{% endif %}">
+                    {{ tag }}
+                </span>
                 {% endfor %}
             </div>
+
+            <!-- Product Images -->
             <div class="product-images-container">
-                <div class="product-images">
-                    {% for image_path in images_paths %}
-                        <img src="/{{ image_path }}" alt="{{ name }} - Image {{ loop.index }}">
-                    {% endfor %}
-                </div>
+            <div class="product-images">
+                {% for image_path in images_paths %}
+                <img src="/{{ image_path }}" alt="{{ name }} - Image {{ loop.index }}">
+                {% endfor %}
+            </div>
             </div>
             <div class="description">
-                {{ description }}
+            {{ description }}
             </div>
         </div>
 
