@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -11,8 +12,23 @@ import markdown
 
 router = APIRouter(prefix="/product")
 
+def parse_optional_id(id_str: Optional[str]) -> Optional[int]:
+    if id_str is None:
+        return None
+    try:
+        return int(id_str)
+    except (ValueError, TypeError):
+        return None
+
 @router.get("/{id_product}", response_class=HTMLResponse)
-async def product_page(request: Request, id_product: int):
+async def product_page(
+    request: Request, id_product: int,
+    size: Optional[str] = None,
+    variant: Optional[str] = None,
+):
+    id_size = parse_optional_id(size)
+    id_variants_size = parse_optional_id(variant)
+
     name = "Sample Product"
     subcategories_list = [
         {"id": 1, "name": "Subcategory 1"},
@@ -79,4 +95,6 @@ async def product_page(request: Request, id_product: int):
         "lowest_price_30_days": lowest_price_30_days,
         "product_variants": product_variants,
         "available_sizes": available_sizes,
+        "selected_size": id_size,
+        "selected_variant": id_variants_size
     })
