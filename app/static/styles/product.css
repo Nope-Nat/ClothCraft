@@ -1,47 +1,104 @@
 .content-container {
-    padding: 20px;
-    line-height: 1.6;
-    font-size: 16px;
-}
-
-.content-container img {
-    max-width: 100%;
-    height: auto;
-    display: block;
-    margin: 10px 0;
-}
-
-.page-layout {
-    display: grid;
-    grid-template-columns: 70% 20%;
-    gap: 20px;
+    max-width: 1200px;
     margin: 0 auto;
-    max-width: 1220px;
+    padding: 32px 16px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
 }
-
+.page-layout {
+    display: flex;
+    gap: 40px;
+}
 .main-column {
-    max-width: 100%;
+    flex: 2;
 }
-
 .sidebar-column {
-    max-width: 100%;
+    flex: 1;
+    background: #f8f9fa;
+    padding: 24px;
+    border-radius: 8px;
 }
-
+.subcategories {
+    margin-bottom: 16px;
+    font-size: 0.95em;
+    color: #888;
+}
+.subcategories a {
+    color: #007bff;
+    text-decoration: none;
+}
 .product-images-container {
-    max-width: 800px;
+    margin-bottom: 24px;
+    max-width: 100%;
     overflow-x: auto;
     white-space: nowrap;
     padding-bottom: 10px;
 }
-
 .product-images {
     display: flex;
-    gap: 20px;
+    gap: 12px;
 }
-
 .product-images img {
-    width: calc((800px - 20px) / 2);
+    width: calc((100% - 12px) / 2);
+    min-width: calc((100% - 12px) / 2);
     height: auto;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid #eee;
+    flex-shrink: 0;
+}
+.description {
+    margin-top: 18px;
+    font-size: 1.1em;
+    color: #333;
+}
+.price-section {
+    margin-bottom: 24px;
+}
+.current-price {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.text-success {
+    color: #28a745 !important;
+}
+.text-muted {
+    color: #6c757d !important;
+}
+.text-decoration-line-through {
+    text-decoration: line-through;
+}
+.badge.bg-danger {
+    background: #dc3545;
+}
+.variants-section .btn {
+    text-align: left;
+    padding: 8px 12px;
+}
+.variant-btn {
+    border-left-width: 4px !important;
+    border-left-style: solid !important;
+    border-left-color: var(--variant-color, #000) !important;
+}
+.color-indicator {
+    border: 1px solid #ccc;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-color: var(--variant-color, #ccc);
+}
+.size-section .btn {
+    min-width: 48px;
+    font-weight: 500;
+}
+@media (max-width: 900px) {
+    .page-layout {
+        flex-direction: column;
+        gap: 24px;
+    }
+    .sidebar-column {
+        padding: 16px;
+    }
 }

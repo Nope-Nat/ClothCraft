@@ -140,7 +140,7 @@
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
         {% for product in products %}
         <div class="col">
-            <a href="/products/{{ product.id_product }}" class="text-decoration-none text-dark">
+            <a href="/product/{{ product.id_product }}" class="text-decoration-none text-dark">
                 <div class="card product-card border-0 shadow-sm h-100">
                     <div class="product-image-container">
                         {% if product.thumbnail_path %}
