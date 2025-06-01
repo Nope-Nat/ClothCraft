@@ -33,8 +33,59 @@
         <div class="sidebar-column">
             <h1>{{ name }}</h1>
             <p>{{ short_description }}</p>
-            <h2>Additional Info</h2>
-            <p>Here you can add extra details, links, or widgets related to the product.</p>
+            
+            <!-- Price Section -->
+            <div class="price-section mb-4">
+                <div class="current-price">
+                    <span class="h3 text-success">${{ discounted_price }}</span>
+                    {% if discount_percentage > 0 %}
+                        <span class="h5 text-muted text-decoration-line-through ms-2">${{ original_price }}</span>
+                        <span class="badge bg-danger ms-2">-{{ discount_percentage }}%</span>
+                    {% endif %}
+                </div>
+                
+                {% if discount_percentage > 0 %}
+                <div class="discount-info mt-2">
+                    <small class="text-muted">
+                        Discount valid from {{ discount_start_date }} to {{ discount_end_date }}
+                    </small>
+                </div>
+                {% endif %}
+                
+                <div class="lowest-price mt-2">
+                    <small class="text-muted">
+                        Lowest price in last 30 days: ${{ lowest_price_30_days }}
+                    </small>
+                </div>
+            </div>
+            <!-- Product Variants -->
+            <div class="variants-section mb-4">
+                <h5>Color</h5>
+                <div class="row row-cols-2 g-2">
+                    {% for variant in product_variants %}
+                        <div class="col">
+                            <button type="button" 
+                                    class="btn btn-outline-secondary d-flex align-items-center justify-content-between variant-btn w-100"
+                                    style="--variant-color: {{ variant.color }};">
+                                <span>{{ variant.name }}</span>
+                                <div class="color-indicator rounded-circle"></div>
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Size Selection -->
+            <div class="size-section mb-4">
+                <h5>Size</h5>
+                <div class="btn-group d-flex flex-wrap gap-2" role="group">
+                    {% for size in available_sizes %}
+                        <button type="button" class="btn btn-outline-primary">
+                            {{ size }}
+                        </button>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
     </div>
 </div>
