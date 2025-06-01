@@ -9,28 +9,10 @@ from router.category import router as category_router
 from router.auth import router as auth_router
 from router.orders import router as orders_router
 from db import db
-from utils.auth_utils import get_current_user
 from repository.product_repository import ProductRepository
-
+from template import templates
 app = FastAPI()
 
-# Custom template response class that adds global context
-class CustomTemplates:
-    def __init__(self, directory: str):
-        self.templates = Jinja2Templates(directory=directory)
-    
-    async def TemplateResponse(self, name: str, context: dict, **kwargs):
-        # Add global data to every template context
-        request = context.get('request')
-        if request:
-            context['current_user'] = await get_current_user(request)
-            # Add cart count here if you have a cart repository
-            # context['cart_count'] = await get_cart_count(context['current_user'])
-        
-        return self.templates.TemplateResponse(name, context, **kwargs)
-
-# Use custom template class
-templates = CustomTemplates(directory="templates")
 
 # Enable CORS
 app.add_middleware(
