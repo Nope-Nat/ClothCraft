@@ -1,4 +1,4 @@
-from fastapi import FastAPI 
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -7,12 +7,12 @@ from router.products import router as products_router
 from router.product import router as product_router
 from router.category import router as category_router
 from router.auth import router as auth_router
+from router.orders import router as orders_router
 from db import db
-
+from repository.product_repository import ProductRepository
+from template import templates
 app = FastAPI()
 
-# Configure Jinja2 templates
-templates = Jinja2Templates(directory="templates")
 
 # Enable CORS
 app.add_middleware(
@@ -30,6 +30,7 @@ app.include_router(products_router)
 app.include_router(product_router)
 app.include_router(category_router)
 app.include_router(auth_router)
+app.include_router(orders_router)
 
 @app.on_event("startup")
 async def startup_event():
@@ -42,5 +43,9 @@ async def shutdown_event():
     await db.disconnect()
 
 @app.get("/")
-async def root():
-    return {"message": "Hello, World4!"}
+async def root(request: Request):
+    recent_products = await ProductRepository.get_recent_products(limit=10)
+    return await templates.TemplateResponse("home.html", {
+        "request": request, 
+        "recent_products": recent_products
+    })
