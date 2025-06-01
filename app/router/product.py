@@ -2,13 +2,13 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from datetime import datetime
+from template import templates
 import os
 
 from markupsafe import Markup
 from db import db
 import markdown
 
-templates = Jinja2Templates(directory="templates")
 router = APIRouter(prefix="/products")
 
 @router.get("/{id_product}", response_class=HTMLResponse)
@@ -61,7 +61,7 @@ async def product_page(request: Request, id_product: int):
 
     html_description = markdown.markdown(description)
 
-    return templates.TemplateResponse("product.html", {
+    return await templates.TemplateResponse("product.html", {
         "request": request,
         "id_product": id_product,
         "name": name,
