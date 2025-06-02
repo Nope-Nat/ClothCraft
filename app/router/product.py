@@ -38,12 +38,18 @@ async def product_page(
     id_format = parse_optional_id(id_format)
 
     # Price and discount data
-    discount_data = await ProductRepository.get_total_discount_for_product_at_moment(id_product)
+    discount_data = await ProductRepository.get_product_discount_info(id_product)
+    if not discount_data:
+        discount_data = {
+            "discount_percent": 0,
+            "discount_from": None,
+            "discount_to": None
+        }
     original_price = product_data["current_price"]
-    discount_percentage = discount_data["total_discount"]
+    discount_percentage = discount_data["discount_percent"]
     discounted_price = round(original_price * (1 - discount_percentage / 100), 2)
-    discount_start_date = discount_data["shortest_discount_from"]
-    discount_end_date = discount_data["shortest_discount_to"]
+    discount_start_date = discount_data["discount_from"]
+    discount_end_date = discount_data["discount_to"]
     lowest_price_30_days = (await ProductRepository.get_min_price_30_days(id_product))["min_price"]
     
     product_variants_raw = await ProductRepository.get_product_variants(id_product)

@@ -140,13 +140,11 @@ class ProductRepository:
             return await conn.fetch(query, id_variant, format_id)
 
     @staticmethod
-    async def get_total_discount_for_product_at_moment(product_id: int):
+    async def get_product_discount_info(product_id: int):
         async with db.get_connection() as conn:
             query = """
-                SELECT 
-                    (total_discount_for_product_at_moment($1, CURRENT_TIMESTAMP::TIMESTAMP, NULL)).total_discount,
-                    (total_discount_for_product_at_moment($1, CURRENT_TIMESTAMP::TIMESTAMP, NULL)).shortest_discount_from,
-                    (total_discount_for_product_at_moment($1, CURRENT_TIMESTAMP::TIMESTAMP, NULL)).shortest_discount_to;
+                SELECT *
+                FROM get_product_discount_info($1, NULL) as di;
             """
             return await conn.fetchrow(query, product_id)
 
