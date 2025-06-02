@@ -191,11 +191,8 @@ class ProductRepository:
                     p.name, 
                     p.thumbnail_path, 
                     c.name as category_name,
-                    (SELECT price 
-                    FROM price_history ph 
-                    WHERE ph.id_product = p.id_product 
-                    ORDER BY created_at DESC 
-                    LIMIT 1) as current_price,
+                    get_product_regular_price(p.id_product) as current_price,
+                    get_product_discounted_price(p.id_product, NULL) as discounted_price,
                     array_agg(DISTINCT t.name) FILTER (WHERE t.id_tag IS NOT NULL) as tags,
                     array_agg(DISTINCT concat(sf.value, ' ', f.value)) 
                         FILTER (WHERE sf.id_sizing_format IS NOT NULL) as sizes

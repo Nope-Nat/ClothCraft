@@ -177,7 +177,14 @@
                             <div class="card-body d-flex flex-column">
                                 <small class="text-muted">{{ product.category_name }}</small>
                                 <h5 class="card-title h6 mb-2">{{ product.name }}</h5>
-                                <p class="card-text fw-bold mb-3">${{ "%.2f"|format(product.current_price) }}</p>
+                                <div class="card-text fw-bold mb-3">
+                                    {% if product.discounted_price < product.current_price %}
+                                        <span class="text-success">${{ "%.2f"|format(product.discounted_price) }}</span>
+                                        <span class="text-muted text-decoration-line-through ms-2">${{ "%.2f"|format(product.current_price) }}</span>
+                                    {% else %}
+                                        <span>${{ "%.2f"|format(product.current_price) }}</span>
+                                    {% endif %}
+                                </div>
                                 <div class="mt-auto">
                                     {% if product.tags %}
                                     <div class="d-flex flex-wrap gap-1">
