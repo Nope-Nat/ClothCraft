@@ -96,7 +96,7 @@ class ProductRepository:
             return await conn.fetch(query, product_id)
 
     async def get_product_variant_sizes(id_variant: int, format_id: int = None):
-        """Get sizes for variant in specific format, default to first available format"""
+        """Get sizes for variant in specific format with stock quantities"""
         async with db.get_connection() as conn:
             # If no format specified, get the first available format
             if format_id is None:
@@ -121,7 +121,16 @@ class ProductRepository:
                     s.id_size,
                     s."order" as size_order,
                     vs.id_variant_size,
-                    sd.value as size_value
+                    sd.value as size_value,
+                    COALESCE(
+                        (SELECT SUM(sdp.quantity) 
+                         FROM storage_delivery_part sdp 
+                         WHERE sdp.id_variant_size = vs.id_variant_size), 0
+                    ) - COALESCE(
+                        (SELECT SUM(op.quantity) 
+                         FROM order_product op 
+                         WHERE op.id_variant_size = vs.id_variant_size), 0
+                    ) as available_quantity
                 FROM variant_size vs
                 JOIN size s ON vs.id_size = s.id_size
                 JOIN size_data sd ON s.id_size = sd.id_size
@@ -202,11 +211,8 @@ class ProductRepository:
                     p.name, 
                     p.thumbnail_path, 
                     c.name as category_name,
-                    (SELECT price 
-                    FROM price_history ph 
-                    WHERE ph.id_product = p.id_product 
-                    ORDER BY created_at DESC 
-                    LIMIT 1) as current_price,
+                    get_product_regular_price(p.id_product) as current_price,
+                    get_product_discounted_price(p.id_product, NULL) as discounted_price,
                     array_agg(DISTINCT t.name) FILTER (WHERE t.id_tag IS NOT NULL) as tags,
                     array_agg(DISTINCT concat(sf.value, ' ', f.value)) 
                         FILTER (WHERE sf.id_sizing_format IS NOT NULL) as sizes

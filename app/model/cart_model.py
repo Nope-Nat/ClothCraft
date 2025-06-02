@@ -20,6 +20,9 @@ class CartProduct(BaseModel):
     discount_code: Optional[str] = None
     discount_from: Optional[datetime] = None
     discount_to: Optional[datetime] = None
+    available_quantity: int = 0
+    is_available: bool = True
+    shortage: int = 0
 
     @property
     def has_discount(self) -> bool:
@@ -33,3 +36,4 @@ class CartSummary(BaseModel):
     total_savings: float
     total_items: int
     coupon_code: Optional[str] = None
+    can_checkout: bool = True

@@ -4,6 +4,8 @@ from repository.cart_repository import cart_repo
 from utils.auth_utils import get_current_user
 from template import templates
 from typing import Optional
+import uuid
+from db import db
 
 router = APIRouter(prefix="/cart", tags=["cart"])
 
@@ -22,8 +24,8 @@ async def cart_page(request: Request):
     # Get coupon code from cookies
     coupon_code = request.cookies.get("coupon_code")
     
-    # Get user's cart items with pricing
-    cart = await cart_repo.get_user_cart(current_user.user_id, coupon_code)
+    # Get user's cart items with pricing and availability
+    cart = await cart_repo.get_user_cart_with_availability(current_user.user_id, coupon_code)
     
     return await templates.TemplateResponse("cart.html", {
         "request": request,
@@ -79,9 +81,10 @@ async def add_to_cart(
 async def remove_from_cart(
     request: Request,
     variant_size_id: int = Form(..., alias="variant_size_id"),
+    quantity: int = Form(default=1),
     callback: Optional[str] = Query(default=None)
 ):
-    """Remove item from cart"""
+    """Remove specified quantity of item from cart or remove entirely if quantity >= current quantity"""
     # Check if user is authenticated
     current_user = await get_current_user(request)
     
@@ -92,10 +95,31 @@ async def remove_from_cart(
         )
     
     try:
-        success = await cart_repo.remove_from_cart(
-            user_id=current_user.user_id,
-            variant_size_id=variant_size_id
-        )
+        # Get current cart item to check existing quantity
+        cart = await cart_repo.get_user_cart_with_availability(current_user.user_id)
+        current_item = next((item for item in cart.products if item.id_variant_size == variant_size_id), None)
+        
+        if not current_item:
+            redirect_url = callback or "/cart"
+            return RedirectResponse(
+                url=f"{redirect_url}?error=Item not found in cart",
+                status_code=303
+            )
+        
+        if quantity >= current_item.quantity:
+            # Remove entire item from cart
+            success = await cart_repo.remove_from_cart(
+                user_id=current_user.user_id,
+                variant_size_id=variant_size_id
+            )
+        else:
+            # Reduce quantity
+            new_quantity = current_item.quantity - quantity
+            success = await cart_repo.update_cart_quantity(
+                user_id=current_user.user_id,
+                variant_size_id=variant_size_id,
+                quantity=new_quantity
+            )
         
         redirect_url = callback or "/cart"
         if success:
@@ -142,5 +166,51 @@ async def apply_coupon(
         response.delete_cookie("coupon_code")
     
     return response
+
+@router.post("/purchase")
+async def purchase_cart(request: Request):
+    """Purchase all items in cart using PostgreSQL function"""
+    # Check if user is authenticated
+    current_user = await get_current_user(request)
+    
+    if not current_user:
+        return RedirectResponse(
+            url="/auth/login?error=Please login to purchase items",
+            status_code=303
+        )
+    
+    try:
+        # Generate tracking number and order secret code
+        tracking_number = uuid.uuid4()
+        order_secret_code = f"ORDER_{uuid.uuid4().hex[:8].upper()}"
+        
+        # Call PostgreSQL purchase function
+        async with db.get_connection() as conn:
+            result = await conn.fetchrow(
+                "SELECT success, order_id FROM purchase_cart($1, $2, $3)",
+                current_user.user_id,
+                tracking_number,
+                order_secret_code
+            )
+            
+            if result and result['success']:
+                # Purchase successful - redirect to orders page
+                return RedirectResponse(
+                    url="/orders?success=Order placed successfully",
+                    status_code=303
+                )
+            else:
+                # Purchase failed - redirect back to cart with error
+                return RedirectResponse(
+                    url="/cart?error=Unable to complete purchase. Please check item availability.",
+                    status_code=303
+                )
+                
+    except Exception as e:
+        print(f"Error during cart purchase: {e}")
+        return RedirectResponse(
+            url="/cart?error=An error occurred during checkout. Please try again.",
+            status_code=303
+        )
 
 
