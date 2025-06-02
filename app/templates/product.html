@@ -116,10 +116,14 @@
 
             <!-- Add to Cart Button -->
             <div class="add-to-cart-section mb-4">
-                <button type="button" class="btn add-to-cart-btn w-100" onclick="addToCart()">
-                    <i class="fas fa-shopping-cart me-2"></i>
-                    Add to Cart
-                </button>
+                <form method="POST" action="/cart/add">
+                    <input type="hidden" name="variant_size_id" value="{{ variant_size_id }}">
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit" class="btn add-to-cart-btn w-100">
+                        <i class="fas fa-shopping-cart me-2"></i>
+                        Add to Cart
+                    </button>
+                </form>
             </div>
 
             <script>
@@ -127,11 +131,6 @@
                 const url = new URL(window.location);
                 url.searchParams.set('id_size', provided_id_size);
                 window.location.href = url.toString();
-            }
-
-            function addToCart() {
-                // TODO Cart logic to be implemented
-                alert('Product added to cart!');
             }
             </script>
         </div>
