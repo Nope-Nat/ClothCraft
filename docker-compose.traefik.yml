@@ -1,0 +1,62 @@
+services:
+  clothcraft-app:
+    image: clothcraft-app:latest
+    hostname: clothcraft/app
+    container_name: clothcraft-app
+    restart: always
+    volumes:
+      - ./app:/app
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@clothcraft-db:5432/clothcraft
+      RELEASE: "false"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_network"
+      - "traefik.http.routers.clothcraft-app.rule=Host(`clothcraft.poneciak.com`)"
+      - "traefik.http.routers.clothcraft-app.entrypoints=websecure"
+      - "traefik.http.routers.clothcraft-app.tls.certresolver=myresolver"
+      - "traefik.http.routers.clothcraft-app.tls=true"
+      - "traefik.http.services.clothcraft-app.loadbalancer.server.port=8080"
+      - "traefik.docker.network=traefik_network"
+    networks:
+      - traefik_network
+      - clothcraft-network
+
+  clothcraft-db:
+    image: postgres:latest
+    hostname: clothcraft/db
+    container_name: clothcraft-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: clothcraft
+    volumes:
+      - .pgdata:/var/lib/postgresql/data
+      - ./db/init_updt:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - clothcraft-network
+
+networks:
+  traefik_network:
+    external: true
+  clothcraft-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "172.20.0.0/16"
