@@ -54,12 +54,31 @@ async def product_page(
             "color": color_value
         })
     
-    id_sizing_format = 1 # TODO Allow the user to select the sizing format
+    # Ensure default variant is selected
+    if id_variant is None and product_variants:
+        id_variant = product_variants[0]["id"]
+    
+    id_sizing_format = 4  # Use International sizing format (ID 4) instead of 1
     variant_sizes = []
     if id_variant is not None:
         variant_sizes = get_product_variant_sizes = await ProductRepository.get_product_variant_sizes(
             id_variant, id_sizing_format
         )
+    
+    # Ensure default size is selected
+    if id_size is None and variant_sizes:
+        id_size = variant_sizes[0]["id_size"]
+    
+    # Calculate variant_size_id for the form
+    variant_size_id = None
+    if id_variant and id_size:
+        async with db.get_connection() as conn:
+            result = await conn.fetchrow(
+                "SELECT id_variant_size FROM variant_size WHERE id_variant = $1 AND id_size = $2",
+                id_variant, id_size
+            )
+            if result:
+                variant_size_id = result["id_variant_size"]
 
     available_sizes = ["XS", "S", "M", "L", "XL", "XXL"]
 
@@ -103,5 +122,6 @@ async def product_page(
         "available_sizes": available_sizes,
         "id_size": id_size,
         "id_variant": id_variant,
+        "variant_size_id": variant_size_id,
         "tags": tags
     })

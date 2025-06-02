@@ -29,14 +29,20 @@
                                         <div>
                                             <h6 class="mb-1">{{ product.product_name }}</h6>
                                             <small class="text-muted d-block">
-                                                {{ product.variant_name }} - {{ product.color }} - Size: {{ product.size }}
+                                                {{ product.variant_name }} - Size: {{ product.size }}
                                             </small>
                                             <small class="text-muted">${{ "%.2f"|format(product.price) }} each</small>
                                         </div>
                                     </div>
                                     <div class="text-end">
                                         <div class="mb-2">Qty: {{ product.quantity }}</div>
-                                        <div class="fw-bold">${{ "%.2f"|format(product.price * product.quantity) }}</div>
+                                        <div class="fw-bold mb-2">${{ "%.2f"|format(product.price * product.quantity) }}</div>
+                                        <form method="post" action="/cart/remove?callback={{ current_path }}" class="d-inline">
+                                            <input type="hidden" name="variant_size_id" value="{{ product.id_variant_size }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i> Remove
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                                 {% endfor %}

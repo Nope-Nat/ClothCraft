@@ -82,11 +82,12 @@ class ProductRepository:
     async def get_product_variant_sizes(id_variant: int, id_sizing_format: int):
         async with db.get_connection() as conn:
             query = """
-                SELECT s.id_size, sd.value
+                SELECT s.id_size, sd.value, vs.id_variant_size
                 FROM variant_size vs
                 JOIN size s ON vs.id_size = s.id_size
                 JOIN size_data sd ON s.id_size = sd.id_size
-                WHERE vs.id_variant = $1 and sd.id_sizing_format = $2;
+                WHERE vs.id_variant = $1 and sd.id_sizing_format = $2
+                ORDER BY s."order";
             """
             return await conn.fetch(query, id_variant, id_sizing_format)
 

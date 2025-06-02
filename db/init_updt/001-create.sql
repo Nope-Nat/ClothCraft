@@ -327,6 +327,7 @@ CREATE TABLE cart_product_variant (
     REFERENCES variant_size(id_variant_size)
     ON UPDATE CASCADE ON DELETE RESTRICT,
   quantity          INT      NOT NULL,
+  PRIMARY KEY (id_user, id_variant_size),
   -- CHECK: quantity > 0
   CONSTRAINT chk_cart_qty
     CHECK (quantity > 0)
