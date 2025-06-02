@@ -142,6 +142,15 @@ class ProductRepository:
             return await conn.fetchrow(query, product_id)
 
     @staticmethod
+    async def get_min_price_30_days(product_id: int):
+        async with db.get_connection() as conn:
+            query = """
+                SELECT 
+                    (get_min_price_30_days($1)) as min_price;
+            """
+            return await conn.fetchrow(query, product_id)
+
+    @staticmethod
     async def get_product(product_id: int):
         async with db.get_connection() as conn:
             query = """

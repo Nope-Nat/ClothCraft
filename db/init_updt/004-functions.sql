@@ -117,3 +117,27 @@ BEGIN
     END IF;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION get_min_price_30_days(product_id INT)
+RETURNS FLOAT AS $$
+DECLARE
+    min_price FLOAT;
+    greatest_timestamp_older_than_30_days TIMESTAMP;
+BEGIN
+    SELECT created_at
+    INTO greatest_timestamp_older_than_30_days
+    FROM price_history ph
+    WHERE ph.id_product = product_id
+        AND created_at < (NOW() - interval '30 days')
+    ORDER BY created_at DESC
+    LIMIT 1;
+
+    SELECT MIN(price)
+    INTO min_price
+    FROM price_history ph
+    WHERE ph.id_product = product_id
+      AND ph.created_at >= greatest_timestamp_older_than_30_days;
+    
+    RETURN COALESCE(min_price, 0);
+END;
+$$ LANGUAGE plpgsql;

@@ -44,7 +44,7 @@ async def product_page(
     discounted_price = round(original_price * (1 - discount_percentage / 100), 2)
     discount_start_date = discount_data["shortest_discount_from"]
     discount_end_date = discount_data["shortest_discount_to"]
-    lowest_price_30_days = 75.99
+    lowest_price_30_days = (await ProductRepository.get_min_price_30_days(id_product))["min_price"]
     
     product_variants_raw = await ProductRepository.get_product_variants(id_product)
     product_variants = []
