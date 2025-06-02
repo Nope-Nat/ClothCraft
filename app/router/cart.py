@@ -19,8 +19,11 @@ async def cart_page(request: Request):
             status_code=303
         )
     
-    # Get user's cart items
-    cart = await cart_repo.get_user_cart(current_user.user_id)
+    # Get coupon code from cookies
+    coupon_code = request.cookies.get("coupon_code")
+    
+    # Get user's cart items with pricing
+    cart = await cart_repo.get_user_cart(current_user.user_id, coupon_code)
     
     return await templates.TemplateResponse("cart.html", {
         "request": request,
@@ -108,5 +111,36 @@ async def remove_from_cart(
             url=f"{redirect_url}?error=Error removing item from cart",
             status_code=303
         )
+
+@router.post("/coupon")
+async def apply_coupon(
+    request: Request,
+    coupon_code: str = Form(..., alias="coupon_code")
+):
+    """Apply or remove coupon code"""
+    # Check if user is authenticated
+    current_user = await get_current_user(request)
+    
+    if not current_user:
+        return RedirectResponse(
+            url="/auth/login?error=Please login to apply coupons",
+            status_code=303
+        )
+    
+    response = RedirectResponse(url="/cart/", status_code=303)
+    
+    if coupon_code and coupon_code.strip():
+        # Set coupon code in cookie (expires in 30 days)
+        response.set_cookie(
+            key="coupon_code",
+            value=coupon_code.strip().upper(),
+            max_age=30*24*60*60,  # 30 days
+            httponly=True
+        )
+    else:
+        # Remove coupon code
+        response.delete_cookie("coupon_code")
+    
+    return response
 
 

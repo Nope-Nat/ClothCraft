@@ -216,8 +216,7 @@ CREATE TABLE variant_size (
     ON UPDATE CASCADE ON DELETE CASCADE,
   id_size          INT            NOT NULL
     REFERENCES size(id_size)
-    ON UPDATE CASCADE ON DELETE RESTRICT,
-  created_at       TIMESTAMP      NOT NULL DEFAULT now()
+    ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
 -- ================================================
