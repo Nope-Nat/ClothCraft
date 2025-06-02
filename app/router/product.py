@@ -23,7 +23,8 @@ def parse_optional_id(id_str: Optional[str]) -> Optional[int]:
 
 @router.get("/{id_product}", response_class=HTMLResponse)
 async def product_page(
-    request: Request, id_product: int,
+    request: Request,
+    id_product: int,
     id_size: Optional[str] = None,
     id_variant: Optional[str] = None,
 ):
@@ -35,11 +36,12 @@ async def product_page(
     id_variant = parse_optional_id(id_variant)
 
     # Price and discount data
+    discount_data = await ProductRepository.get_total_discount_for_product_at_moment(id_product)
     original_price = product_data["current_price"]
-    discount_percentage = 20
+    discount_percentage = discount_data["total_discount"]
     discounted_price = round(original_price * (1 - discount_percentage / 100), 2)
-    discount_start_date = "2025-05-01"
-    discount_end_date = "2025-06-30"
+    discount_start_date = discount_data["shortest_discount_from"]
+    discount_end_date = discount_data["shortest_discount_to"]
     lowest_price_30_days = 75.99
     
     product_variants_raw = await ProductRepository.get_product_variants(id_product)
