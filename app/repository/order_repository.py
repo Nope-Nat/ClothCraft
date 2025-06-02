@@ -70,12 +70,34 @@ class OrderRepository:
         """Get all products for a specific order"""
         query = """
             SELECT 
+                op.id_variant_size,
+                op.quantity,
+                p.id_product,
                 p.name as product_name,
                 v.name as variant_name,
-                v.color,
-                sf.value as size,
-                op.quantity,
-                ph.price
+                CASE 
+                    WHEN v.color IS NOT NULL AND LENGTH(v.color) = 3
+                    THEN CONCAT('#', LPAD(TO_HEX(GET_BYTE(v.color, 0)), 2, '0'), 
+                                     LPAD(TO_HEX(GET_BYTE(v.color, 1)), 2, '0'),
+                                     LPAD(TO_HEX(GET_BYTE(v.color, 2)), 2, '0'))
+                    ELSE '#000000'
+                END as color,
+                sd.value as size,
+                p.thumbnail_path,
+                -- Get price at time of order (from order date)
+                COALESCE(
+                    (SELECT ph.price 
+                     FROM price_history ph 
+                     WHERE ph.id_product = p.id_product 
+                     AND ph.created_at <= o.payed_at
+                     ORDER BY ph.created_at DESC 
+                     LIMIT 1),
+                    (SELECT ph.price 
+                     FROM price_history ph 
+                     WHERE ph.id_product = p.id_product 
+                     ORDER BY ph.created_at DESC 
+                     LIMIT 1)
+                ) as price
             FROM order_product op
             JOIN "order" o ON op.id_order = o.id_order
             JOIN variant_size vs ON op.id_variant_size = vs.id_variant_size
@@ -84,15 +106,8 @@ class OrderRepository:
             JOIN size s ON vs.id_size = s.id_size
             JOIN size_data sd ON s.id_size = sd.id_size
             JOIN sizing_format sf ON sd.id_sizing_format = sf.id_sizing_format
-            JOIN LATERAL (
-                SELECT price 
-                FROM price_history ph2 
-                WHERE ph2.id_product = p.id_product 
-                AND ph2.created_at <= COALESCE(o.payed_at, NOW())
-                ORDER BY ph2.created_at DESC 
-                LIMIT 1
-            ) ph ON true
             WHERE op.id_order = $1
+            AND sf.value = 'International'
             ORDER BY p.name, v.name
         """
         
