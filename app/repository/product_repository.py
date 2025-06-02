@@ -79,17 +79,56 @@ class ProductRepository:
             """
             return await conn.fetch(query, product_id)
 
-    async def get_product_variant_sizes(id_variant: int, id_sizing_format: int):
+    async def get_product_sizing_formats(product_id: int):
+        """Get all available sizing formats for a product"""
         async with db.get_connection() as conn:
             query = """
-                SELECT s.id_size, sd.value, vs.id_variant_size
+                SELECT DISTINCT sf.id_sizing_format, sf.value as format_name
+                FROM product p
+                JOIN variant v ON p.id_product = v.id_product
+                JOIN variant_size vs ON v.id_variant = vs.id_variant
+                JOIN size s ON vs.id_size = s.id_size
+                JOIN size_data sd ON s.id_size = sd.id_size
+                JOIN sizing_format sf ON sd.id_sizing_format = sf.id_sizing_format
+                WHERE p.id_product = $1 AND v.active = true
+                ORDER BY sf.id_sizing_format
+            """
+            return await conn.fetch(query, product_id)
+
+    async def get_product_variant_sizes(id_variant: int, format_id: int = None):
+        """Get sizes for variant in specific format, default to first available format"""
+        async with db.get_connection() as conn:
+            # If no format specified, get the first available format
+            if format_id is None:
+                format_query = """
+                    SELECT sf.id_sizing_format
+                    FROM variant_size vs
+                    JOIN size s ON vs.id_size = s.id_size
+                    JOIN size_data sd ON s.id_size = sd.id_size
+                    JOIN sizing_format sf ON sd.id_sizing_format = sf.id_sizing_format
+                    WHERE vs.id_variant = $1
+                    ORDER BY sf.id_sizing_format
+                    LIMIT 1
+                """
+                format_result = await conn.fetchrow(format_query, id_variant)
+                if format_result:
+                    format_id = format_result['id_sizing_format']
+                else:
+                    return []
+
+            query = """
+                SELECT 
+                    s.id_size,
+                    s."order" as size_order,
+                    vs.id_variant_size,
+                    sd.value as size_value
                 FROM variant_size vs
                 JOIN size s ON vs.id_size = s.id_size
                 JOIN size_data sd ON s.id_size = sd.id_size
-                WHERE vs.id_variant = $1 and sd.id_sizing_format = $2
-                ORDER BY s."order";
+                WHERE vs.id_variant = $1 AND sd.id_sizing_format = $2
+                ORDER BY s."order"
             """
-            return await conn.fetch(query, id_variant, id_sizing_format)
+            return await conn.fetch(query, id_variant, format_id)
 
     @staticmethod
     async def get_total_discount_for_product_at_moment(product_id: int):

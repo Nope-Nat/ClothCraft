@@ -27,6 +27,7 @@ async def product_page(
     id_product: int,
     id_size: Optional[str] = None,
     id_variant: Optional[str] = None,
+    id_format: Optional[str] = None,
 ):
     product_data = await ProductRepository.get_product(id_product)
     category_id = product_data["id_category"]
@@ -34,6 +35,7 @@ async def product_page(
 
     id_size = parse_optional_id(id_size)
     id_variant = parse_optional_id(id_variant)
+    id_format = parse_optional_id(id_format)
 
     # Price and discount data
     discount_data = await ProductRepository.get_total_discount_for_product_at_moment(id_product)
@@ -60,12 +62,28 @@ async def product_page(
     if id_variant is None and product_variants:
         id_variant = product_variants[0]["id"]
     
-    id_sizing_format = 4  # Use International sizing format (ID 4) instead of 1
+    # Get available sizing formats for the product
+    available_formats = []
     variant_sizes = []
     if id_variant is not None:
-        variant_sizes = get_product_variant_sizes = await ProductRepository.get_product_variant_sizes(
-            id_variant, id_sizing_format
-        )
+        available_formats = await ProductRepository.get_product_sizing_formats(id_product)
+        
+        # Ensure default format is selected
+        if id_format is None and available_formats:
+            id_format = available_formats[0]["id_sizing_format"]
+        
+        # Get sizes for the selected variant and format
+        if id_format is not None:
+            variant_sizes_raw = await ProductRepository.get_product_variant_sizes(id_variant, id_format)
+            variant_sizes = [
+                {
+                    'id_size': size_data['id_size'],
+                    'size_order': size_data['size_order'],
+                    'id_variant_size': size_data['id_variant_size'],
+                    'size_value': size_data['size_value']
+                }
+                for size_data in variant_sizes_raw
+            ]
     
     # Ensure default size is selected
     if id_size is None and variant_sizes:
@@ -120,10 +138,11 @@ async def product_page(
         "discount_end_date": discount_end_date,
         "lowest_price_30_days": lowest_price_30_days,
         "product_variants": product_variants,
+        "available_formats": available_formats,
         "variant_sizes": variant_sizes,
-        "available_sizes": available_sizes,
         "id_size": id_size,
         "id_variant": id_variant,
+        "id_format": id_format,
         "variant_size_id": variant_size_id,
         "tags": tags
     })
