@@ -216,6 +216,8 @@ COPY product_image (id_product, img_path, "order", alt_desc) FROM stdin;
 8	/static/img/tshirts/black.webp	1	Black T-shirt
 9	/static/img/shorts/denim.webp	1	Denim Shorts
 10	/static/img/jeans/skinny.webp	1	Skinny Jeans
+17	/static/img/example27.webp	1	Bomber Jacket
+17	/static/img/example31.webp	1	Bomber Jacket
 18	/static/img/example29.webp	1	Hoodie
 18	/static/img/example30.webp	1	Hoodie
 \.
