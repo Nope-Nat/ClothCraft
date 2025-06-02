@@ -157,21 +157,21 @@ COPY product (id_category, id_sizing_type, id_country, sku_code, active, short_d
 4	1	5	TSHIRT003	True	Black T-shirt	/static/img/example8.webp	Black T-shirt	2024-06-02 18:20:00
 7	4	1	SHORTS002	True	Kids denim shorts	/static/img/example9.webp	Kids Denim Shorts	2024-06-02 18:25:00
 6	2	2	JEANS002	True	Skinny jeans	/static/img/example10.webp	Skinny Jeans	2024-06-02 18:30:00
-4	1	1	TSHIRT004	True	V-neck cotton t-shirt	/static/img/no_image.png	V-Neck T-shirt	2024-06-02 08:35:00
-4	1	2	TSHIRT005	True	Striped pattern t-shirt	/static/img/no_image.png	Striped T-shirt	2024-06-02 08:40:00
-5	1	3	SHIRT003	True	Classic flannel shirt	/static/img/no_image.png	Flannel Shirt	2024-06-02 08:45:00
-5	1	4	SHIRT004	True	Oxford button-down shirt	/static/img/no_image.png	Oxford Shirt	2024-06-02 08:50:00
-6	2	5	PANTS001	True	Chino pants beige	/static/img/no_image.png	Chinos	2024-06-02 08:55:00
-7	1	1	SHORTS003	True	Cargo shorts with pockets	/static/img/no_image.png	Cargo Shorts	2024-06-02 09:00:00
-8	5	2	JACKET002	True	Bomber jacket lightweight	/static/img/no_image.png	Bomber Jacket	2024-06-02 09:05:00
-8	1	3	HOODIE001	True	Cotton pullover hoodie	/static/img/no_image.png	Hoodie	2024-06-02 09:10:00
-8	5	4	BLAZER001	True	Business casual blazer	/static/img/no_image.png	Blazer	2024-06-02 09:15:00
-8	1	5	CARDIGAN01	True	Knit cardigan sweater	/static/img/no_image.png	Cardigan	2024-06-02 09:20:00
-4	4	1	KIDSTSH001	True	Kids colorful t-shirt	/static/img/no_image.png	Kids T-shirt	2024-06-02 09:25:00
-8	4	2	KIDSHOD001	True	Kids hooded sweatshirt	/static/img/no_image.png	Kids Hoodie	2024-06-02 09:30:00
-6	4	3	KIDSJNS001	True	Kids stretch jeans	/static/img/no_image.png	Kids Jeans	2024-06-02 09:35:00
-1	4	4	KIDSDRS001	True	Kids summer dress	/static/img/no_image.png	Kids Dress	2024-06-02 09:40:00
-4	1	5	SPORTTSH01	True	Athletic performance t-shirt	/static/img/no_image.png	Sports T-shirt	2024-06-02 09:45:00
+4	1	1	TSHIRT004	True	V-neck cotton t-shirt	/static/img/example11.webp	V-Neck T-shirt	2024-06-02 08:35:00
+4	1	2	TSHIRT005	True	Striped pattern t-shirt	/static/img/example12.webp	Striped T-shirt	2024-06-02 08:40:00
+5	1	3	SHIRT003	True	Classic flannel shirt	/static/img/example13.webp	Flannel Shirt	2024-06-02 08:45:00
+5	1	4	SHIRT004	True	Oxford button-down shirt	/static/img/example14.webp	Oxford Shirt	2024-06-02 08:50:00
+6	2	5	PANTS001	True	Chino pants beige	/static/img/example15.webp	Chinos	2024-06-02 08:55:00
+7	1	1	SHORTS003	True	Cargo shorts with pockets	/static/img/example16.webp	Cargo Shorts	2024-06-02 09:00:00
+8	5	2	JACKET002	True	Bomber jacket lightweight	/static/img/example17.webp	Bomber Jacket	2024-06-02 09:05:00
+8	1	3	HOODIE001	True	Cotton pullover hoodie	/static/img/example18.webp	Hoodie	2024-06-02 09:10:00
+8	5	4	BLAZER001	True	Business casual blazer	/static/img/example19.webp	Blazer	2024-06-02 09:15:00
+8	1	5	CARDIGAN01	True	Knit cardigan sweater	/static/img/example20.webp	Cardigan	2024-06-02 09:20:00
+4	4	1	KIDSTSH001	True	Kids colorful t-shirt	/static/img/example21.webp	Kids T-shirt	2024-06-02 09:25:00
+8	4	2	KIDSHOD001	True	Kids hooded sweatshirt	/static/img/example22.webp	Kids Hoodie	2024-06-02 09:30:00
+6	4	3	KIDSJNS001	True	Kids stretch jeans	/static/img/example23.webp	Kids Jeans	2024-06-02 09:35:00
+1	4	4	KIDSDRS001	True	Kids summer dress	/static/img/example24.webp	Kids Dress	2024-06-02 09:40:00
+4	1	5	SPORTTSH01	True	Athletic performance t-shirt	/static/img/example25.webp	Sports T-shirt	2024-06-02 09:45:00
 \.
 
 -- Keep the rest of the data as is since they reference generated IDs or are composite keys
