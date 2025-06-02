@@ -111,34 +111,87 @@
             <!-- Size Selection -->
             <div class="size-section mb-4">
                 {% if variant_sizes %}
-                <h5>Size</h5>
-                <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-2">
+                <h5>Size & quantity</h5>
+                <div class="d-flex flex-wrap gap-2">
                     {% for size in variant_sizes %}
-                    <div class="col">
-                        <button type="button" 
-                                class="btn {% if size.id_size == id_size %}btn-primary{% else %}btn-outline-secondary{% endif %} w-100"
-                                onclick="setSizeParam('{{ size.id_size }}')">
-                            {{ size.size_value }}
-                        </button>
-                    </div>
+                    <button type="button" 
+                            class="btn {% if size.id_size == id_size %}btn-primary{% elif not size.in_stock %}btn-outline-secondary{% else %}btn-outline-secondary{% endif %} flex-shrink-0"
+                            onclick="{% if size.in_stock %}setSizeParam('{{ size.id_size }}'){% endif %}"
+                            {% if not size.in_stock %}disabled{% endif %}
+                            style="min-width: 60px; white-space: nowrap;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="me-2">{{ size.size_value }}</span>
+                            <small class="text-muted">{{ size.available_quantity }}</small>
+                        </div>
+                    </button>
                     {% endfor %}
                 </div>
+
+                {% set has_stock = namespace(value=false) %}
+                {% for size in variant_sizes %}
+                    {% if size.in_stock %}
+                        {% set has_stock.value = true %}
+                    {% endif %}
+                {% endfor %}
+                {% if not variant_sizes or not has_stock.value %}
+                <div class="alert alert-warning mt-2">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    No sizes are currently in stock for this variant.
+                </div>
+                {% endif %}
                 {% endif %}
             </div>
 
-            <!-- Add to Cart Button -->
+            <!-- Stock Availability Info -->
+            {% if variant_size_id %}
+            {% set selected_size = variant_sizes | selectattr('id_size', 'equalto', id_size) | first %}
+            {% if selected_size and selected_size.in_stock %}
+            <div class="mb-3">
+                <small class="text-muted">
+                    <i class="fas fa-box me-1"></i>
+                    {{ selected_size.available_quantity }} items in stock
+                </small>
+            </div>
+            {% endif %}
+            {% endif %}
+
+            <!-- Add to Cart Button with Quantity -->
             <div class="add-to-cart-section mb-4">
                 <form method="POST" action="/cart/add">
                     <input type="hidden" name="variant_size_id" value="{{ variant_size_id }}">
-                    <input type="hidden" name="quantity" value="1">
-                    <button type="submit" class="btn btn-success w-100 py-3" {% if not variant_size_id %}disabled{% endif %}>
+                    {% set selected_size_in_stock = namespace(value=false) %}
+                    {% set max_quantity = namespace(value=1) %}
+                    {% for size in variant_sizes %}
+                        {% if size.id_size == id_size and size.in_stock %}
+                            {% set selected_size_in_stock.value = true %}
+                            {% set max_quantity.value = size.available_quantity %}
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if selected_size_in_stock.value %}
+                    <div class="input-group">
+                        <input type="number" 
+                               name="quantity" 
+                               class="form-control text-center" 
+                               value="1" 
+                               min="1" 
+                               max="{{ max_quantity.value }}"
+                               style="max-width: 80px;">
+                        <button type="submit" class="btn btn-success flex-fill">
+                            <i class="fas fa-shopping-cart me-2"></i>
+                            Add to Cart
+                        </button>
+                    </div>
+                    {% else %}
+                    <button type="submit" class="btn btn-success w-100 py-3" disabled>
                         <i class="fas fa-shopping-cart me-2"></i>
-                        {% if variant_size_id %}
-                        Add to Cart
-                        {% else %}
+                        {% if not variant_size_id %}
                         Select Options First
+                        {% else %}
+                        Out of Stock
                         {% endif %}
                     </button>
+                    {% endif %}
                 </form>
             </div>
 

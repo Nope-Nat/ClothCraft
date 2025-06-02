@@ -96,7 +96,7 @@ class ProductRepository:
             return await conn.fetch(query, product_id)
 
     async def get_product_variant_sizes(id_variant: int, format_id: int = None):
-        """Get sizes for variant in specific format, default to first available format"""
+        """Get sizes for variant in specific format with stock quantities"""
         async with db.get_connection() as conn:
             # If no format specified, get the first available format
             if format_id is None:
@@ -121,7 +121,16 @@ class ProductRepository:
                     s.id_size,
                     s."order" as size_order,
                     vs.id_variant_size,
-                    sd.value as size_value
+                    sd.value as size_value,
+                    COALESCE(
+                        (SELECT SUM(sdp.quantity) 
+                         FROM storage_delivery_part sdp 
+                         WHERE sdp.id_variant_size = vs.id_variant_size), 0
+                    ) - COALESCE(
+                        (SELECT SUM(op.quantity) 
+                         FROM order_product op 
+                         WHERE op.id_variant_size = vs.id_variant_size), 0
+                    ) as available_quantity
                 FROM variant_size vs
                 JOIN size s ON vs.id_size = s.id_size
                 JOIN size_data sd ON s.id_size = sd.id_size

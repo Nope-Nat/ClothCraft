@@ -78,14 +78,18 @@ async def product_page(
                     'id_size': size_data['id_size'],
                     'size_order': size_data['size_order'],
                     'id_variant_size': size_data['id_variant_size'],
-                    'size_value': size_data['size_value']
+                    'size_value': size_data['size_value'],
+                    'available_quantity': size_data['available_quantity'],
+                    'in_stock': size_data['available_quantity'] > 0
                 }
                 for size_data in variant_sizes_raw
             ]
     
-    # Ensure default size is selected
+    # Ensure default size is selected (only from in-stock sizes)
     if id_size is None and variant_sizes:
-        id_size = variant_sizes[0]["id_size"]
+        in_stock_sizes = [size for size in variant_sizes if size['in_stock']]
+        if in_stock_sizes:
+            id_size = in_stock_sizes[0]["id_size"]
     
     # Calculate variant_size_id for the form
     variant_size_id = None
