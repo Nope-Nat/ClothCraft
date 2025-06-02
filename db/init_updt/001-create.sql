@@ -169,6 +169,7 @@ CREATE TABLE product_image (
 );
 
 CREATE TABLE discount_history (
+  id_discount   SERIAL PRIMARY KEY,
   id_product    INT         NOT NULL
     REFERENCES product(id_product)
     ON UPDATE CASCADE ON DELETE CASCADE,
@@ -176,7 +177,6 @@ CREATE TABLE discount_history (
   "from"        TIMESTAMP   NOT NULL,
   "to"          TIMESTAMP,
   secret_code   VARCHAR,
-  PRIMARY KEY (id_product, "from", "to"),
   -- CHECK: discount > 0
   CONSTRAINT chk_discount_positive
     CHECK (discount > 0),
@@ -216,8 +216,7 @@ CREATE TABLE variant_size (
     ON UPDATE CASCADE ON DELETE CASCADE,
   id_size          INT            NOT NULL
     REFERENCES size(id_size)
-    ON UPDATE CASCADE ON DELETE RESTRICT,
-  created_at       TIMESTAMP      NOT NULL DEFAULT now()
+    ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
 -- ================================================

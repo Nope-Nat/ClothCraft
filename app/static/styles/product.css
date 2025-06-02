@@ -81,6 +81,12 @@
     border-left-width: 4px !important;
     border-left-style: solid !important;
     border-left-color: var(--variant-color, #000) !important;
+    min-height: 45px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .color-indicator {
     border: 1px solid #ccc;
@@ -107,95 +113,52 @@
     transform: translateY(-2px);
 }
 .size-section .btn {
-    min-width: 48px;
-    font-weight: 500;
-}
-.size-btn {
-    border-left-width: 4px !important;
-    border-left-style: solid !important;
-    border-left-color: #6c757d !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: all 0.2s ease;
-    border-radius: 8px !important;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    min-height: 50px;
+    font-weight: bold;
+    font-size: 1rem;
+    padding: 8px 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.size-btn:hover {
-    box-shadow: 0 4px 8px rgba(108, 117, 125, 0.25);
-    transform: translateY(-1px);
-    border-left-color: #495057 !important;
+.size-section .row {
+    max-width: 300px;
 }
 
-/* Selected size button styling */
-.size-btn.btn-primary {
-    background-color: #fef7e0 !important;
-    border-color: #d4a574 !important;
-    color: #8b4513 !important;
-    border-left-color: #d4a574 !important;
-    box-shadow: 0 2px 8px rgba(212, 165, 116, 0.3) !important;
-    transform: translateY(-1px);
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .format-section .btn {
+        font-size: 0.8rem;
+        min-height: 40px;
+        padding: 6px 8px;
+    }
+    
+    .size-section .btn {
+        font-size: 0.9rem;
+        min-height: 45px;
+        padding: 6px 2px;
+    }
 }
 
-.size-btn.btn-primary:hover {
-    background-color: #f5e6c8 !important;
-    border-color: #b8935a !important;
-    color: #6b3410 !important;
-    border-left-color: #b8935a !important;
-    box-shadow: 0 4px 12px rgba(212, 165, 116, 0.4) !important;
-    transform: translateY(-2px);
+/* Ensure variant buttons also fit properly */
+.variant-btn {
+    min-height: 45px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* Add to Cart Button */
-.add-to-cart-btn {
-    background: linear-gradient(135deg, #f4e4bc 0%, #e8d5b7 100%);
-    border: none;
-    color: #8b4513;
-    font-weight: 600;
-    font-size: 1.1rem;
-    padding: 12px 24px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(212, 165, 116, 0.3);
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.add-to-cart-btn:hover {
-    background: linear-gradient(135deg, #f0dbb0 0%, #e2c89f 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(212, 165, 116, 0.4);
-    color: #6b3410;
-}
-
-.add-to-cart-btn:active {
-    transform: translateY(0px);
-    box-shadow: 0 2px 10px rgba(212, 165, 116, 0.3);
-}
-
-/* Shared tag styles for consistency across pages */
-.product-tag {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    color: #495057;
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.4rem 0.8rem;
-    border-radius: 20px;
-    border: 1px solid #dee2e6;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    display: inline-block;
-    margin: 0.2rem;
-    transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.product-tag:hover {
-    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
-    color: #343a40;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+.variant-btn span {
+    flex: 1;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Special tag variants for different types */
@@ -217,12 +180,14 @@
     border-color: #f5c6cb;
 }
 
-@media (max-width: 900px) {
-    .page-layout {
-        flex-direction: column;
-        gap: 24px;
-    }
-    .sidebar-column {
-        padding: 16px;
-    }
+.format-section .btn {
+    min-height: 45px;
+    font-weight: 500;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
+
+/* Remove custom add-to-cart button styles - use Bootstrap instead */

@@ -90,25 +90,37 @@
                 {% endif %}
             </div>
 
-            <script>
-            function setVariantParam(provided_id_variant) {
-                const url = new URL(window.location);
-                url.searchParams.set('id_variant', provided_id_variant);
-                window.location.href = url.toString();
-            }
-            </script>
+            <!-- Format Selection -->
+            <div class="format-section mb-4">
+                {% if available_formats %}
+                <h5>Size Format</h5>
+                <div class="row row-cols-1 row-cols-sm-2 g-2">
+                    {% for format in available_formats %}
+                    <div class="col">
+                        <button type="button"
+                            class="btn {% if format.id_sizing_format == id_format %}btn-primary{% else %}btn-outline-secondary{% endif %} w-100"
+                            onclick="setFormatParam('{{ format.id_sizing_format }}')">
+                            {{ format.format_name }}
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
 
             <!-- Size Selection -->
             <div class="size-section mb-4">
                 {% if variant_sizes %}
                 <h5>Size</h5>
-                <div class="btn-group d-flex flex-wrap gap-2" role="group">
+                <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-2">
                     {% for size in variant_sizes %}
+                    <div class="col">
                         <button type="button" 
-                                class="btn {% if size.id_size == id_size %}btn-primary{% else %}btn-outline-secondary{% endif %} size-btn"
+                                class="btn {% if size.id_size == id_size %}btn-primary{% else %}btn-outline-secondary{% endif %} w-100"
                                 onclick="setSizeParam('{{ size.id_size }}')">
-                            {{ size.value }} {{ size.id }}
+                            {{ size.size_value }}
                         </button>
+                    </div>
                     {% endfor %}
                 </div>
                 {% endif %}
@@ -119,14 +131,35 @@
                 <form method="POST" action="/cart/add">
                     <input type="hidden" name="variant_size_id" value="{{ variant_size_id }}">
                     <input type="hidden" name="quantity" value="1">
-                    <button type="submit" class="btn add-to-cart-btn w-100">
+                    <button type="submit" class="btn btn-success w-100 py-3" {% if not variant_size_id %}disabled{% endif %}>
                         <i class="fas fa-shopping-cart me-2"></i>
+                        {% if variant_size_id %}
                         Add to Cart
+                        {% else %}
+                        Select Options First
+                        {% endif %}
                     </button>
                 </form>
             </div>
 
             <script>
+            function setVariantParam(provided_id_variant) {
+                const url = new URL(window.location);
+                url.searchParams.set('id_variant', provided_id_variant);
+                // Reset size and format when variant changes
+                url.searchParams.delete('id_size');
+                url.searchParams.delete('id_format');
+                window.location.href = url.toString();
+            }
+
+            function setFormatParam(provided_id_format) {
+                const url = new URL(window.location);
+                url.searchParams.set('id_format', provided_id_format);
+                // Reset size when format changes
+                url.searchParams.delete('id_size');
+                window.location.href = url.toString();
+            }
+
             function setSizeParam(provided_id_size) {
                 const url = new URL(window.location);
                 url.searchParams.set('id_size', provided_id_size);
