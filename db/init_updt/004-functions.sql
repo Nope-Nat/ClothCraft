@@ -22,29 +22,38 @@ CREATE OR REPLACE FUNCTION get_product_discounted_price(product_id INT, user_sec
 RETURNS FLOAT AS $$
 DECLARE
     regular_price FLOAT;
-    discount_percent FLOAT := 0;
+    total_discount_percent FLOAT := 0;
+    general_discount FLOAT := 0;
+    secret_discount FLOAT := 0;
 BEGIN
     -- Get regular price
     regular_price := get_product_regular_price(product_id);
     
-    -- Find applicable discount
-    SELECT dh.discount INTO discount_percent
+    -- Find general discount (no secret code required)
+    SELECT COALESCE(MAX(dh.discount), 0) INTO general_discount
     FROM discount_history dh
     WHERE dh.id_product = product_id
       AND NOW() BETWEEN dh."from" AND COALESCE(dh."to", NOW() + INTERVAL '1 year')
-      AND (
-          dh.secret_code IS NULL OR 
-          (user_secret_code IS NOT NULL AND dh.secret_code = user_secret_code)
-      )
-    ORDER BY dh.discount DESC
-    LIMIT 1;
+      AND dh.secret_code IS NULL;
     
-    -- Apply discount if found
-    IF discount_percent IS NULL THEN
-        discount_percent := 0;
+    -- Find secret code discount if user provided one
+    IF user_secret_code IS NOT NULL THEN
+        SELECT COALESCE(MAX(dh.discount), 0) INTO secret_discount
+        FROM discount_history dh
+        WHERE dh.id_product = product_id
+          AND NOW() BETWEEN dh."from" AND COALESCE(dh."to", NOW() + INTERVAL '1 year')
+          AND dh.secret_code = user_secret_code;
     END IF;
     
-    RETURN regular_price * (1 - discount_percent / 100.0);
+    -- Stack discounts: apply general discount first, then secret discount on top
+    total_discount_percent := general_discount + secret_discount;
+    
+    -- Cap total discount at 100%
+    IF total_discount_percent > 100 THEN
+        total_discount_percent := 100;
+    END IF;
+    
+    RETURN regular_price * (1 - total_discount_percent / 100.0);
 END;
 $$ LANGUAGE plpgsql;
 
@@ -56,21 +65,55 @@ RETURNS TABLE(
     discount_from TIMESTAMP,
     discount_to TIMESTAMP
 ) AS $$
+DECLARE
+    general_discount FLOAT := 0;
+    secret_discount FLOAT := 0;
+    total_discount FLOAT := 0;
+    earliest_from TIMESTAMP;
+    latest_to TIMESTAMP;
 BEGIN
-    RETURN QUERY
-    SELECT 
-        dh.discount,
-        dh.secret_code,
-        dh."from",
-        dh."to"
+    -- Get general discount info
+    SELECT COALESCE(MAX(dh.discount), 0), MIN(dh."from"), MAX(dh."to")
+    INTO general_discount, earliest_from, latest_to
     FROM discount_history dh
     WHERE dh.id_product = product_id
       AND NOW() BETWEEN dh."from" AND COALESCE(dh."to", NOW() + INTERVAL '1 year')
-      AND (
-          dh.secret_code IS NULL OR 
-          (user_secret_code IS NOT NULL AND dh.secret_code = user_secret_code)
-      )
-    ORDER BY dh.discount DESC
-    LIMIT 1;
+      AND dh.secret_code IS NULL;
+    
+    -- Get secret code discount info if provided
+    IF user_secret_code IS NOT NULL THEN
+        SELECT COALESCE(MAX(dh.discount), 0)
+        INTO secret_discount
+        FROM discount_history dh
+        WHERE dh.id_product = product_id
+          AND NOW() BETWEEN dh."from" AND COALESCE(dh."to", NOW() + INTERVAL '1 year')
+          AND dh.secret_code = user_secret_code;
+          
+        -- Update date range if secret discount exists
+        IF secret_discount > 0 THEN
+            SELECT MIN(dh."from"), MAX(dh."to")
+            INTO earliest_from, latest_to
+            FROM discount_history dh
+            WHERE dh.id_product = product_id
+              AND NOW() BETWEEN dh."from" AND COALESCE(dh."to", NOW() + INTERVAL '1 year')
+              AND (dh.secret_code IS NULL OR dh.secret_code = user_secret_code);
+        END IF;
+    END IF;
+    
+    -- Calculate total discount
+    total_discount := general_discount + secret_discount;
+    IF total_discount > 100 THEN
+        total_discount := 100;
+    END IF;
+    
+    -- Return discount info only if there's an active discount
+    IF total_discount > 0 THEN
+        RETURN QUERY
+        SELECT 
+            total_discount,
+            user_secret_code,
+            earliest_from,
+            latest_to;
+    END IF;
 END;
 $$ LANGUAGE plpgsql;

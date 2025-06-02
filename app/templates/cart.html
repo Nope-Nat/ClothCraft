@@ -44,7 +44,9 @@
                         {% if product.has_discount %}
                         <span class="badge bg-success">{{ "%.1f"|format(product.discount_percent) }}% OFF</span>
                         {% if product.discount_code %}
-                        <span class="badge bg-info">{{ product.discount_code }}</span>
+                        <span class="badge bg-info">Code: {{ product.discount_code }}</span>
+                        {% else %}
+                        <span class="badge bg-warning">Sale</span>
                         {% endif %}
                         {% endif %}
                     </div>
@@ -83,9 +85,15 @@
                     <span class="text-muted text-decoration-line-through">${{ "%.2f"|format(cart.total_regular_amount) }}</span>
                 </div>
                 <div class="d-flex justify-content-between text-success">
-                    <span>Discount:</span>
+                    <span>Total Savings:</span>
                     <span>-${{ "%.2f"|format(cart.total_savings) }}</span>
                 </div>
+                {% if cart.coupon_code %}
+                <div class="d-flex justify-content-between text-info small">
+                    <span>Includes coupon "{{ cart.coupon_code }}"</span>
+                    <span>✓</span>
+                </div>
+                {% endif %}
                 <hr>
                 {% endif %}
                 <div class="d-flex justify-content-between h5">
