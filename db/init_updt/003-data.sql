@@ -205,15 +205,19 @@ COPY product_details_history (id_product, description, created_at) FROM stdin;
 
 COPY product_image (id_product, img_path, "order", alt_desc) FROM stdin;
 1	/static/img/tshirts/basic.webp	1	Basic T-shirt front
+1	/static/img/example26.webp	1	Basic T-shirt front
 2	/static/img/shirts/casual_long.webp	1	Casual Shirt
 3	/static/img/jeans/straightfit.webp	1	Blue Jeans
 4	/static/img/shorts/cotton.webp	1	Cotton Shorts
+5	/static/img/example28.webp	1	Denim Jacket
 5	/static/img/jackets/denim.webp	1	Denim Jacket
 6	/static/img/tshirts/logo_white.webp	1	Logo T-shirt
 7	/static/img/shirts/slim_blue.webp	1	Slim Blue Shirt
 8	/static/img/tshirts/black.webp	1	Black T-shirt
 9	/static/img/shorts/denim.webp	1	Denim Shorts
 10	/static/img/jeans/skinny.webp	1	Skinny Jeans
+18	/static/img/example29.webp	1	Hoodie
+18	/static/img/example30.webp	1	Hoodie
 \.
 
 COPY price_history (id_product, price, created_at) FROM stdin;
@@ -234,7 +238,10 @@ COPY price_history (id_product, price, created_at) FROM stdin;
 15	48.99	2024-06-02 08:55:00
 16	24.99	2024-06-02 09:00:00
 17	79.99	2024-06-02 09:05:00
-18	45.00	2024-06-02 09:10:00
+18	70.00	2024-06-02 09:10:00
+18	45.00	2025-04-11 09:10:00
+18	60.00	2025-05-10 09:10:00
+18	80.00	2025-05-14 09:10:00
 19	89.99	2024-06-02 09:15:00
 20	55.50	2024-06-02 09:20:00
 21	18.99	2024-06-02 09:25:00
