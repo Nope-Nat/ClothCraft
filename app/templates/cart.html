@@ -7,6 +7,15 @@
     <h1>Your Shopping Cart</h1>
     
     {% if cart.products %}
+        <!-- Availability Warning -->
+        {% if not cart.can_checkout %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>Some items in your cart are no longer available in the requested quantities.</strong>
+            Please remove unavailable items or reduce quantities to proceed with checkout.
+        </div>
+        {% endif %}
+
         <!-- Coupon Section -->
         <div class="card mb-4">
             <div class="card-body">
@@ -30,45 +39,87 @@
 
         <!-- Cart Items -->
         {% for product in cart.products %}
-        <div class="card mb-3">
-            <div class="card-body">
+        <div class="card mb-3 {% if not product.is_available %}border-danger{% endif %}">
+            <div class="card-body {% if not product.is_available %}bg-light{% endif %}">
                 <div class="row align-items-center">
                     <div class="col-md-2">
                         {% if product.thumbnail_path %}
-                        <img src="{{ product.thumbnail_path }}" class="img-fluid" alt="{{ product.product_name }}">
+                        <img src="{{ product.thumbnail_path }}" class="img-fluid {% if not product.is_available %}opacity-50{% endif %}" alt="{{ product.product_name }}">
                         {% endif %}
                     </div>
-                    <div class="col-md-6">
-                        <h5>{{ product.product_name }}</h5>
+                    <div class="col-md-4">
+                        <h5 class="{% if not product.is_available %}text-muted{% endif %}">{{ product.product_name }}</h5>
                         <p class="text-muted">{{ product.variant_name }} - Size: {{ product.size }}</p>
-                        {% if product.has_discount %}
-                        <span class="badge bg-success">{{ "%.1f"|format(product.discount_percent) }}% OFF</span>
-                        {% if product.discount_code %}
-                        <span class="badge bg-info">Code: {{ product.discount_code }}</span>
+                        
+                        <!-- Availability Status -->
+                        {% if not product.is_available %}
+                        <div class="alert alert-danger py-2 px-3 mb-2">
+                            <small>
+                                <i class="fas fa-exclamation-circle me-1"></i>
+                                <strong>Limited Stock:</strong> Only {{ product.available_quantity }} available 
+                                ({{ product.shortage }} short of requested {{ product.quantity }})
+                            </small>
+                        </div>
                         {% else %}
-                        <span class="badge bg-warning">Sale</span>
+                        <small class="text-success">
+                            <i class="fas fa-check-circle me-1"></i>
+                            {{ product.available_quantity }} available
+                        </small>
                         {% endif %}
+
+                        {% if product.has_discount %}
+                        <div class="mt-1">
+                            <span class="badge bg-success">{{ "%.1f"|format(product.discount_percent) }}% OFF</span>
+                            {% if product.discount_code %}
+                            <span class="badge bg-info">Code: {{ product.discount_code }}</span>
+                            {% else %}
+                            <span class="badge bg-warning">Sale</span>
+                            {% endif %}
+                        </div>
                         {% endif %}
                     </div>
                     <div class="col-md-2">
                         <div class="text-center">
-                            <strong>Qty: {{ product.quantity }}</strong>
+                            <strong class="{% if not product.is_available %}text-danger{% endif %}">
+                                Qty: {{ product.quantity }}
+                            </strong>
                         </div>
                     </div>
                     <div class="col-md-2 text-end">
-                        {% if product.has_discount %}
+                        {% if product.has_discount and product.is_available %}
                         <div class="text-muted text-decoration-line-through small">
                             ${{ "%.2f"|format(product.regular_price * product.quantity) }}
                         </div>
                         {% endif %}
-                        <div class="fw-bold {% if product.has_discount %}text-success{% endif %}">
+                        <div class="fw-bold {% if product.has_discount and product.is_available %}text-success{% elif not product.is_available %}text-muted{% endif %}">
+                            {% if product.is_available %}
                             ${{ "%.2f"|format(product.discounted_price * product.quantity) }}
+                            {% else %}
+                            <span class="text-decoration-line-through">${{ "%.2f"|format(product.discounted_price * product.quantity) }}</span>
+                            {% endif %}
                         </div>
-                        {% if product.has_discount %}
+                        {% if product.has_discount and product.is_available %}
                         <div class="small text-success">
                             Save ${{ "%.2f"|format((product.regular_price - product.discounted_price) * product.quantity) }}
                         </div>
                         {% endif %}
+                    </div>
+                    <div class="col-md-2">
+                        <form method="POST" action="/cart/remove" class="d-flex align-items-center gap-2">
+                            <input type="hidden" name="variant_size_id" value="{{ product.id_variant_size }}">
+                            <input type="hidden" name="callback" value="/cart/">
+                            {% set delete_quantity = [1, product.quantity - product.available_quantity] | max %}
+                            <input type="number" 
+                                   name="quantity" 
+                                   class="form-control form-control-sm text-center" 
+                                   value="{{ delete_quantity }}" 
+                                   min="1" 
+                                   max="{{ product.quantity }}"
+                                   style="max-width: 60px;">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove from cart">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -101,10 +152,24 @@
                     <span class="text-success">${{ "%.2f"|format(cart.total_amount) }}</span>
                 </div>
                 <div class="d-flex justify-content-between text-muted">
-                    <span>Items:</span>
+                    <span>Available Items:</span>
                     <span>{{ cart.total_items }}</span>
                 </div>
-                <button class="btn btn-primary w-100 mt-3">Proceed to Checkout</button>
+                
+                {% if cart.can_checkout %}
+                <button class="btn btn-primary w-100 mt-3">
+                    <i class="fas fa-credit-card me-2"></i>
+                    Proceed to Checkout
+                </button>
+                {% else %}
+                <button class="btn btn-secondary w-100 mt-3" disabled>
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Fix Cart Issues to Checkout
+                </button>
+                <small class="text-muted d-block text-center mt-2">
+                    Remove or adjust unavailable items to continue
+                </small>
+                {% endif %}
             </div>
         </div>
     {% else %}
