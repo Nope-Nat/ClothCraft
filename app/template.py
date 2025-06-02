@@ -11,6 +11,8 @@ class CustomTemplates:
         request = context.get('request')
         if request:
             context['current_user'] = await get_current_user(request)
+            context['current_path'] = str(request.url.path)
+            context['current_url'] = str(request.url)
             # Add cart count here if you have a cart repository
             # context['cart_count'] = await get_cart_count(context['current_user'])
         
