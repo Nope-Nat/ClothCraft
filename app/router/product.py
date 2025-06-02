@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from datetime import datetime
+from repository.product_repository import ProductRepository
 from template import templates
 import os
 
@@ -23,57 +24,46 @@ def parse_optional_id(id_str: Optional[str]) -> Optional[int]:
 @router.get("/{id_product}", response_class=HTMLResponse)
 async def product_page(
     request: Request, id_product: int,
-    size: Optional[str] = None,
-    variant: Optional[str] = None,
+    id_size: Optional[str] = None,
+    id_variant: Optional[str] = None,
 ):
-    id_size = parse_optional_id(size)
-    id_variants_size = parse_optional_id(variant)
+    product_data = await ProductRepository.get_product(id_product)
+    category_id = product_data["id_category"]
+    category_data = await ProductRepository.get_category_hierarchy(category_id)
 
-    name = "Sample Product"
-    subcategories_list = [
-        {"id": 1, "name": "Subcategory 1"},
-        {"id": 2, "name": "Subcategory 2"},
-        {"id": 3, "name": "T-Shirt"}
-    ]
-    country = "USA"
-    sku_code = "SKU123456"
-    short_description = "This is a sample product description."
-
-    description = (
-        "# Heading 1\n"
-        "## Heading 2\n"
-        "### Heading 3\n"
-        "* Bullet point 1\n"
-        "    * Sub-bullet point 1\n"
-        "* Bullet point 2\n"
-        "**Bold text** and *italic text*.\n"
-        "[Link to example](https://example.com)\n"
-    )
-
-    images_paths = [
-        "static/img/example1.webp",
-        "static/img/example2.webp",
-        "static/img/example3.webp"
-    ]
+    id_size = parse_optional_id(id_size)
+    id_variant = parse_optional_id(id_variant)
 
     # Price and discount data
-    original_price = 99.99
+    original_price = product_data["current_price"]
     discount_percentage = 20
     discounted_price = round(original_price * (1 - discount_percentage / 100), 2)
     discount_start_date = "2025-05-01"
     discount_end_date = "2025-06-30"
     lowest_price_30_days = 75.99
     
-    product_variants = [
-        {"name": "Classic Red", "color": "#DC3545"},
-        {"name": "Ocean Blue", "color": "#0D6EFD"},
-        {"name": "Forest Green", "color": "#198754"},
-        {"name": "Midnight Black", "color": "#212529"}
-    ]
+    product_variants_raw = await ProductRepository.get_product_variants(id_product)
+    product_variants = []
+    for variant in product_variants_raw:
+        color_data = variant['color']
+        assert isinstance(color_data, bytes)
+        color_value = f"#{int.from_bytes(color_data, byteorder='big'):06X}"
+        product_variants.append({
+            "id": variant['id_variant'],
+            "name": variant['name'],
+            "color": color_value
+        })
     
+    id_sizing_format = 1 # TODO Allow the user to select the sizing format
+    variant_sizes = []
+    if id_variant is not None:
+        variant_sizes = get_product_variant_sizes = await ProductRepository.get_product_variant_sizes(
+            id_variant, id_sizing_format
+        )
+
     available_sizes = ["XS", "S", "M", "L", "XL", "XXL"]
 
-    html_description = markdown.markdown(description)
+    html_description = markdown.markdown(product_data["description"], extensions=['tables'])
 
     # Example tags with types for styling
     tags = [
@@ -84,16 +74,24 @@ async def product_page(
         "Limited Edition"
     ]
 
+    images_paths = [product_data["thumbnail_path"]] if product_data["thumbnail_path"] else []
+    if product_data.get("images_paths"):
+        images_paths.extend(product_data["images_paths"])
+    
+    images_alt_descriptions = [product_data["thumbnail_alt"]] if product_data.get("thumbnail_alt") else []
+    if product_data.get("images_alt_descriptions"):
+        images_alt_descriptions.extend(product_data["images_alt_descriptions"])
+
     return await templates.TemplateResponse("product.html", {
         "request": request,
         "id_product": id_product,
-        "name": name,
-        "subcategories_list": subcategories_list,
-        "country": country,
-        "sku_code": sku_code,
-        "short_description": short_description,
+        "name": product_data["name"],
+        "breadcrumbs": category_data["breadcrumbs"],
+        "sku_code": product_data["sku_code"],
+        "short_description": product_data["short_description"],
         "description": Markup(html_description),
         "images_paths": images_paths,
+        "images_alt_descriptions": images_alt_descriptions,
         "original_price": original_price,
         "discounted_price": discounted_price,
         "discount_percentage": discount_percentage,
@@ -101,8 +99,9 @@ async def product_page(
         "discount_end_date": discount_end_date,
         "lowest_price_30_days": lowest_price_30_days,
         "product_variants": product_variants,
+        "variant_sizes": variant_sizes,
         "available_sizes": available_sizes,
-        "selected_size": id_size,
-        "selected_variant": id_variants_size,
+        "id_size": id_size,
+        "id_variant": id_variant,
         "tags": tags
     })

@@ -70,6 +70,69 @@ class ProductRepository:
                 
             return {"breadcrumbs": breadcrumbs, "subcategories": subcategories}
 
+    async def get_product_variants(product_id: int):
+        async with db.get_connection() as conn:
+            query = """
+                SELECT id_variant, name, color
+                FROM variant
+                WHERE id_product = $1 AND active = true;
+            """
+            return await conn.fetch(query, product_id)
+
+    async def get_product_variant_sizes(id_variant: int, id_sizing_format: int):
+        async with db.get_connection() as conn:
+            query = """
+                SELECT s.id_size, sd.value
+                FROM variant_size vs
+                JOIN size s ON vs.id_size = s.id_size
+                JOIN size_data sd ON s.id_size = sd.id_size
+                WHERE vs.id_variant = $1 and sd.id_sizing_format = $2;
+            """
+            return await conn.fetch(query, id_variant, id_sizing_format)
+
+    @staticmethod
+    async def get_product(product_id: int):
+        async with db.get_connection() as conn:
+            query = """
+                SELECT
+                    p.id_product, p.name, p.id_category, c.name as category_name,
+                    p.sku_code,
+                    p.thumbnail_path,
+                    (
+                        SELECT array_agg(img_path ORDER BY "order")
+                        FROM product_image pi
+                        WHERE pi.id_product = p.id_product
+                    ) as images_paths,
+                    (
+                        SELECT array_agg(alt_desc ORDER BY "order")
+                        FROM product_image pi
+                        WHERE pi.id_product = p.id_product
+                    ) as images_alt_descriptions,
+                    p.short_description,
+                    (
+                        SELECT description
+                        FROM product_details_history pdh
+                        WHERE pdh.id_product = p.id_product
+                        ORDER BY pdh.created_at DESC
+                        LIMIT 1
+                    ) as description,
+                    (
+                        SELECT price 
+                        FROM price_history ph 
+                        WHERE ph.id_product = p.id_product 
+                        ORDER BY created_at DESC 
+                        LIMIT 1
+                    ) as current_price,
+                    array_agg(DISTINCT t.name) FILTER (WHERE t.id_tag IS NOT NULL) as tags
+                FROM product p
+                LEFT JOIN category c ON p.id_category = c.id_category
+                LEFT JOIN tag_product tp ON p.id_product = tp.id_product
+                LEFT JOIN tag t ON tp.id_tag = t.id_tag
+                WHERE p.id_product = $1
+                GROUP BY p.id_product, c.name;
+            """
+            return await conn.fetchrow(query, product_id)
+
     @staticmethod
     async def get_products(category_id: Optional[int] = None, tag_ids: List[int] = None, size_ids: List[int] = None):
         async with db.get_connection() as conn:

@@ -12,16 +12,14 @@
         <!-- Main Column -->
         <div class="main-column">
             <!-- Breadcrumb -->
-            <nav aria-label="breadcrumb" class="mb-4">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/products/" class="text-decoration-none text-muted">All Categories</a></li>
-                {% for subcategory in subcategories_list %}
-                <li class="breadcrumb-item"><a href="/products/?category={{ subcategory.id }}"
-                    class="text-decoration-none text-muted">{{ subcategory.name }}</a></li>
-                {% endfor %}
-            </ol>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/products/" class="text-decoration-none text-muted">All Categories</a></li>
+                    {% for crumb in breadcrumbs %}
+                    <li class="breadcrumb-item"><a href="/products/?category={{ crumb.id_category }}" class="text-decoration-none text-muted">{{ crumb.name }}</a></li>
+                    {% endfor %}
+                </ol>
             </nav>
-
 
             <div class="d-flex flex-wrap gap-1 mb-4">
                 {% for tag in tags %}
@@ -35,7 +33,7 @@
             <div class="product-images-container">
             <div class="product-images">
                 {% for image_path in images_paths %}
-                <img src="/{{ image_path }}" alt="{{ name }} - Image {{ loop.index }}">
+                <img src="{{ image_path }}" alt="{{ images_alt_descriptions[loop.index0] if images_alt_descriptions and loop.index0 < images_alt_descriptions|length else name ~ ' - Image ' ~ loop.index }}">
                 {% endfor %}
             </div>
             </div>
@@ -75,42 +73,45 @@
             </div>
             <!-- Product Variants -->
             <div class="variants-section mb-4">
-                <h5>Color</h5>
+                {% if product_variants %}
+                <h5>Colors and variants</h5>
                 <div class="row row-cols-2 g-2">
                     {% for variant in product_variants %}
-                        <div class="col">
-                            <button type="button" 
-                                    class="btn {% if loop.index == selected_variant %}btn-primary{% else %}btn-outline-secondary{% endif %} d-flex align-items-center justify-content-between variant-btn w-100"
-                                    style="--variant-color: {{ variant.color }};"
-                                    onclick="setVariantParam('{{ loop.index }}')">
-                                <span>{{ variant.name }}</span>
-                                <div class="color-indicator rounded-circle"></div>
-                            </button>
-                        </div>
+                    <div class="col">
+                        <button type="button"
+                            class="btn {% if variant.id == id_variant %}btn-primary{% else %}btn-outline-secondary{% endif %} d-flex align-items-center justify-content-between variant-btn w-100"
+                            style="--variant-color: {{ variant.color }};" onclick="setVariantParam('{{ variant.id }}')">
+                            <span>{{ variant.name }}</span>
+                            <div class="color-indicator rounded-circle"></div>
+                        </button>
+                    </div>
                     {% endfor %}
                 </div>
+                {% endif %}
             </div>
 
             <script>
-            function setVariantParam(variantId) {
+            function setVariantParam(provided_id_variant) {
                 const url = new URL(window.location);
-                url.searchParams.set('variant', variantId);
+                url.searchParams.set('id_variant', provided_id_variant);
                 window.location.href = url.toString();
             }
             </script>
 
             <!-- Size Selection -->
             <div class="size-section mb-4">
+                {% if variant_sizes %}
                 <h5>Size</h5>
                 <div class="btn-group d-flex flex-wrap gap-2" role="group">
-                    {% for size in available_sizes %}
+                    {% for size in variant_sizes %}
                         <button type="button" 
-                                class="btn {% if loop.index == selected_size %}btn-primary{% else %}btn-outline-secondary{% endif %} size-btn"
-                                onclick="setSizeParam('{{ loop.index }}')">
-                            {{ size }}
+                                class="btn {% if size.id_size == id_size %}btn-primary{% else %}btn-outline-secondary{% endif %} size-btn"
+                                onclick="setSizeParam('{{ size.id_size }}')">
+                            {{ size.value }} {{ size.id }}
                         </button>
                     {% endfor %}
                 </div>
+                {% endif %}
             </div>
 
             <!-- Add to Cart Button -->
@@ -122,9 +123,9 @@
             </div>
 
             <script>
-            function setSizeParam(sizeId) {
+            function setSizeParam(provided_id_size) {
                 const url = new URL(window.location);
-                url.searchParams.set('size', sizeId);
+                url.searchParams.set('id_size', provided_id_size);
                 window.location.href = url.toString();
             }
 
