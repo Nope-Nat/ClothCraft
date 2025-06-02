@@ -54,8 +54,8 @@
 
     .sidebar {
         position: sticky;
-        top: 1rem;
-        max-height: calc(100vh - 2rem);
+        top: calc(56px + 1rem); /* 56px is typical navbar height + 1rem spacing */
+        max-height: calc(100vh - 56px - 2rem); /* Adjust for navbar height */
         overflow-y: auto;
     }
 
@@ -76,6 +76,23 @@
 
     .sidebar::-webkit-scrollbar-thumb:hover {
         background: #555;
+    }
+
+    /* Responsive adjustments for different navbar heights */
+    @media (max-width: 991.98px) {
+        .sidebar {
+            top: calc(64px + 1rem); /* Slightly taller navbar on mobile */
+            max-height: calc(100vh - 64px - 2rem);
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .sidebar {
+            position: relative;
+            top: auto;
+            max-height: none;
+            overflow-y: visible;
+        }
     }
 </style>
 
