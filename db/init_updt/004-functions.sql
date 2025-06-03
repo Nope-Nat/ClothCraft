@@ -62,8 +62,8 @@ CREATE OR REPLACE FUNCTION get_product_discount_info(product_id INT, user_secret
 RETURNS TABLE(
     discount_percent FLOAT,
     discount_code VARCHAR,
-    discount_from TIMESTAMP,
-    discount_to TIMESTAMP
+    discount_from DATE,
+    discount_to DATE
 ) AS $$
 DECLARE
     general_discount FLOAT := 0;
@@ -112,8 +112,8 @@ BEGIN
         SELECT 
             total_discount,
             user_secret_code,
-            earliest_from,
-            latest_to;
+            earliest_from::DATE,
+            latest_to::DATE;
     END IF;
 END;
 $$ LANGUAGE plpgsql;
