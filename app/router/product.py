@@ -110,8 +110,6 @@ async def product_page(
             if result:
                 variant_size_id = result["id_variant_size"]
 
-    available_sizes = ["XS", "S", "M", "L", "XL", "XXL"]
-
     html_description = markdown.markdown(product_data["description"], extensions=['tables'])
 
     # Example tags with types for styling
@@ -130,6 +128,9 @@ async def product_page(
     images_alt_descriptions = [product_data["thumbnail_alt"]] if product_data.get("thumbnail_alt") else []
     if product_data.get("images_alt_descriptions"):
         images_alt_descriptions.extend(product_data["images_alt_descriptions"])
+
+    materials_info = await ProductRepository.get_product_materials_info(id_product)
+    print("Materials Info:", materials_info)
 
     return await templates.TemplateResponse("product.html", {
         "request": request,
@@ -154,5 +155,6 @@ async def product_page(
         "id_variant": id_variant,
         "id_format": id_format,
         "variant_size_id": variant_size_id,
-        "tags": tags
+        "tags": tags,
+        "materials_info": materials_info
     })

@@ -141,3 +141,38 @@ BEGIN
     RETURN COALESCE(min_price, 0);
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION get_product_materials_info(product_id INT)
+RETURNS TABLE(
+    material_id INT,
+    material_name VARCHAR,
+    material_percentage FLOAT,
+    material_description TEXT,
+    material_recyclable BOOLEAN,
+    material_weight_per_unit FLOAT,
+    material_origin_country_name VARCHAR(100),
+    material_origin_country_code char(3)
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        m.id_material as material_id,
+        mt.name AS material_name,
+        pm.percentage AS material_percentage,
+        mt.description AS material_description,
+        mt.recyclable AS material_recyclable,
+        mt.weight_per_unit AS material_weight_per_unit,
+        c.name AS material_origin_country_name,
+        c.short_code AS material_origin_country_code
+    FROM 
+        product_material pm
+    JOIN 
+        material m ON pm.id_material = m.id_material
+    JOIN 
+        material_type mt ON m.id_material = mt.id_material_type
+    JOIN
+        country c ON m.origin = c.id_country
+    WHERE 
+        pm.id_product = product_id;
+END;
+$$ LANGUAGE plpgsql;

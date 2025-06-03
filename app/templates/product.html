@@ -40,7 +40,47 @@
             <div class="description">
             {{ description }}
             </div>
+            <div class="materials-info">
+                <h5>Materials Information</h5>
+                {% if materials_info %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Material</th>
+                                <th>Description</th>
+                                <th>Percentage</th>
+                                <th>Weight (per unit)</th>
+                                <th>Origin</th>
+                                <th>Recyclable</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for material in materials_info %}
+                            <tr>
+                                <td>{{ material.material_name }}</td>
+                                <td>{{ material.material_description }}</td>
+                                <td>{{ material.material_percentage }}%</td>
+                                <td>{{ material.material_weight_per_unit }}</td>
+                                <td>{{ material.material_origin_country_name }}</td>
+                                <td>
+                                    {% if material.material_recyclable %}
+                                        <span class="badge bg-success">Yes</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">No</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No materials information available.</p>
+                {% endif %}
+            </div>
         </div>
+
 
         <!-- Sidebar Column -->
         <div class="sidebar-column">
