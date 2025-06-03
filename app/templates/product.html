@@ -23,7 +23,7 @@
 
             <div class="d-flex flex-wrap gap-1 mb-4">
                 {% for tag in tags %}
-                <span class="product-tag {% if 'New' in tag %}tag-new{% elif 'Best' in tag %}tag-bestseller{% elif 'Limited' in tag %}tag-limited{% endif %}">
+                <span class="product-tag {% if 'new' in tag %}tag-new{% elif 'best' in tag %}tag-bestseller{% elif 'limited' in tag %}tag-limited{% endif %}">
                     {{ tag }}
                 </span>
                 {% endfor %}

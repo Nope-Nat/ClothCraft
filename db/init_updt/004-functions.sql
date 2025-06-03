@@ -176,3 +176,22 @@ BEGIN
         pm.id_product = product_id;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION get_product_tags_info(product_id INT)
+RETURNS TABLE(
+    tag_id INT,
+    tag_name VARCHAR(100)
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        t.id_tag AS tag_id,
+        t.name AS tag_name
+    FROM 
+        tag_product tp
+    JOIN 
+        tag t ON tp.id_tag = t.id_tag
+    WHERE 
+        tp.id_product = product_id;
+END;
+$$ LANGUAGE plpgsql;

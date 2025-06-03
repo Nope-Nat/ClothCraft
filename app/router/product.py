@@ -112,15 +112,6 @@ async def product_page(
 
     html_description = markdown.markdown(product_data["description"], extensions=['tables'])
 
-    # Example tags with types for styling
-    tags = [
-        "New Arrival", 
-        "Best Seller", 
-        "Premium Quality", 
-        "Eco-Friendly", 
-        "Limited Edition"
-    ]
-
     images_paths = [product_data["thumbnail_path"]] if product_data["thumbnail_path"] else []
     if product_data.get("images_paths"):
         images_paths.extend(product_data["images_paths"])
@@ -131,6 +122,9 @@ async def product_page(
 
     materials_info = await ProductRepository.get_product_materials_info(id_product)
     print("Materials Info:", materials_info)
+
+    tags_info = await ProductRepository.get_product_tags_info(id_product)
+    tags = [ t["tag_name"] for t in tags_info ]
 
     return await templates.TemplateResponse("product.html", {
         "request": request,
@@ -156,5 +150,6 @@ async def product_page(
         "id_format": id_format,
         "variant_size_id": variant_size_id,
         "tags": tags,
-        "materials_info": materials_info
+        "materials_info": materials_info,
+        "tags_info": tags_info,
     })

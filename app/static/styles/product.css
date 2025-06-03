@@ -189,3 +189,15 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+.tag-badge {
+    background-color: #f8f9fa !important;
+    color: #495057 !important;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border: 1px solid #dee2e6;
+}
+
+.tag-badge:hover {
+    background-color: #e9ecef !important;
+    color: #343a40 !important;
+}
