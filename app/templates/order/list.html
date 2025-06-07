@@ -51,14 +51,13 @@
                             {% if order.current_status == OrderStatus.DELIVERED %}
                             <div class="mt-2">
                                 <!-- Debug info -->
-                                <small class="text-muted d-block mb-1">Debug: Order ID {{ order.id_order }}</small>
+                                <small class="text-muted d-block mb-1">Order ID: {{ order.id_order }}, User: {{ order.user_id }}</small>
                                 
-                                <form id="returnForm{{ order.id_order }}" 
-                                      action="/orders/{{ order.id_order }}/return" 
+                                <form action="/orders/{{ order.id_order }}/return" 
                                       method="POST" 
                                       class="d-inline">
-                                    <input type="hidden" name="order_id" value="{{ order.id_order }}">
-                                    <button type="submit" class="btn btn-sm btn-warning">
+                                    <input type="hidden" name="user_id" value="{{ order.user_id }}">
+                                    <button type="submit" class="btn btn-sm btn-primary">
                                         Request Return
                                     </button>
                                 </form>

@@ -180,10 +180,10 @@ class OrderRepository:
         try:
             async with db.get_connection() as conn:
                 result = await conn.fetchval(query, order_id, new_status)
-                print(f"Status update result: {result} for order {order_id} to status {new_status}")
+                print(f"Updated order {order_id} status to {new_status}, result: {result}")
                 return result is not None
         except Exception as e:
-            print(f"Database error updating order status: {str(e)}")
+            print(f"Error updating order status: {str(e)}")
             return False
 
 # Global repository instance
