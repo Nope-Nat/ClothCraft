@@ -1,7 +1,7 @@
 import os
 from typing import Optional
 from datetime import datetime, timedelta
-from fastapi import Request, Response
+from fastapi import HTTPException, Request, Response, status
 from model.auth_model import UserSessionData
 from repository.auth_repository import auth_repo
 
@@ -118,3 +118,24 @@ def get_session_cutoff_date(days: int = 30) -> datetime:
         cutoff = get_session_cutoff_date(7)
     """
     return datetime.now() - timedelta(days=days)
+
+async def verify_admin_access(request: Request):
+    """Verify that the current user is an admin. Raises appropriate exceptions if not."""
+    user_data = await get_current_user(request)
+    
+    if not require_admin(user_data):
+        if not user_data:
+            # Not authenticated - redirect to login
+            raise HTTPException(
+                status_code=status.HTTP_302_FOUND,
+                detail="Authentication required",
+                headers={"Location": "/auth/login"}
+            )
+        else:
+            # Authenticated but not admin - return 403
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Admin access required"
+            )
+    
+    return user_data

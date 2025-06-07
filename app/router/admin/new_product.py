@@ -1,5 +1,5 @@
 from typing import Optional
-from fastapi import APIRouter, HTTPException, Request, Form
+from fastapi import APIRouter, HTTPException, Request, Form, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from datetime import datetime
@@ -11,21 +11,32 @@ from markupsafe import Markup
 from db import db
 import markdown
 from fastapi.responses import JSONResponse
+from utils.auth_utils import verify_admin_access
 
 router = APIRouter(prefix="/admin/new_product")
 
-@router.get("/", response_class=HTMLResponse)
-async def product_page(request: Request):
+async def get_product_form_data():
+    """Get all the data needed for the product form template."""
     categories = await ProductRepository.get_all_categories()
     sizing_types = await ProductRepository.get_all_sizing_types()
     countries = await ProductRepository.get_all_countries()
-
-    return await templates.TemplateResponse("admin/new_product.html", {
-        "request": request,
+    
+    return {
         "categories": categories,
         "sizing_types": sizing_types,
         "countries": countries,
-    })
+    }
+
+@router.get("/", response_class=HTMLResponse)
+async def product_page(request: Request):
+    # Verify admin access
+    await verify_admin_access(request)
+    
+    # Get form data
+    template_data = await get_product_form_data()
+    template_data["request"] = request
+
+    return await templates.TemplateResponse("admin/new_product.html", template_data)
 
 @router.post("/", response_class=HTMLResponse)
 async def create_product(
@@ -40,6 +51,9 @@ async def create_product(
     initial_price: float = Form(...),
     initial_description: str = Form(...),
 ):
+    # Verify admin access
+    await verify_admin_access(request)
+    
     errors = []
     
     try:
@@ -52,15 +66,10 @@ async def create_product(
             errors.append("Price must be greater than 0")
             
         if errors:
-            categories = await ProductRepository.get_all_categories()
-            sizing_types = await ProductRepository.get_all_sizing_types()
-            countries = await ProductRepository.get_all_countries()
-            
-            return templates.TemplateResponse("admin/new_product.html", {
+            # Get form data and add form values for re-display
+            template_data = await get_product_form_data()
+            template_data.update({
                 "request": request,
-                "categories": categories,
-                "sizing_types": sizing_types,
-                "countries": countries,
                 "errors": errors,
                 "product_name": product_name,
                 "id_category": id_category,
@@ -72,6 +81,8 @@ async def create_product(
                 "initial_price": initial_price,
                 "initial_description": initial_description,
             })
+            
+            return templates.TemplateResponse("admin/new_product.html", template_data)
         
         # Create the product
         new_product_id = await ProductRepository.create_product(
@@ -90,17 +101,11 @@ async def create_product(
         return RedirectResponse(url=f"/product/{new_product_id}", status_code=303)
         
     except Exception as e:
-        categories = await ProductRepository.get_all_categories()
-        sizing_types = await ProductRepository.get_all_sizing_types() 
-        countries = await ProductRepository.get_all_countries()
-        
-        errors.append(f"Error creating product: {str(e)}")
-        return await templates.TemplateResponse("admin/new_product.html", {
+        # Get form data and add error + form values for re-display
+        template_data = await get_product_form_data()
+        template_data.update({
             "request": request,
-            "categories": categories,
-            "sizing_types": sizing_types,
-            "countries": countries,
-            "errors": errors,
+            "errors": [f"Error creating product: {str(e)}"],
             "product_name": product_name,
             "id_category": id_category,
             "id_sizing_type": id_sizing_type,
@@ -111,4 +116,6 @@ async def create_product(
             "initial_price": initial_price,
             "initial_description": initial_description,
         })
+        
+        return await templates.TemplateResponse("admin/new_product.html", template_data)
 
