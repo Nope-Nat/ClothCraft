@@ -6,7 +6,7 @@
 <form method="post" action="/admin/new_product/">
     <div>
         <label for="product_name">product_name:</label>
-        <input type="text" id="product_name" name="product_name" value="{{ product_name or '' }}" required>
+        <input type="text" id="product_name" name="product_name" value="{{ product_name or 'New Product' }}" required>
     </div>
     <div>
         <label for="id_category">id_category:</label>
@@ -14,7 +14,7 @@
             <option value="">id_category</option>
             {% for category in categories %}
                 <option value="{{ category.id_category }}" 
-                        {% if id_category == category.id_category %}selected{% endif %}>
+                        {% if id_category == category.id_category or (not id_category and loop.first) %}selected{% endif %}>
                     {{ category.id_category }} {{ category.name }}
                 </option>
             {% endfor %}
@@ -26,7 +26,7 @@
             <option value="">id_sizing_type</option>
             {% for sizing_type in sizing_types %}
                 <option value="{{ sizing_type.id_sizing_type }}" 
-                        {% if id_sizing_type == sizing_type.id_sizing_type %}selected{% endif %}>
+                        {% if id_sizing_type == sizing_type.id_sizing_type or (not id_sizing_type and loop.first) %}selected{% endif %}>
                     {{ sizing_type.id_sizing_type }} {{ sizing_type.name }}
                 </option>
             {% endfor %}
@@ -38,7 +38,7 @@
             <option value="">id_country</option>
             {% for country in countries %}
                 <option value="{{ country.id_country }}" 
-                        {% if id_country == country.id_country %}selected{% endif %}>
+                        {% if id_country == country.id_country or (not id_country and loop.first) %}selected{% endif %}>
                     {{ country.id_country }} {{ country.name }}
                 </option>
             {% endfor %}
@@ -46,23 +46,23 @@
     </div>
     <div>
         <label for="sku_code">sku_code:</label>
-        <input type="text" id="sku_code" name="sku_code" value="{{ sku_code or '' }}" required>
+        <input type="text" id="sku_code" name="sku_code" value="{{ sku_code or 'SKU12345678' }}" required>
     </div>
     <div>
         <label for="short_description">short_description:</label>
-        <textarea id="short_description" name="short_description" rows="2" cols="30" required>{{ short_description or '' }}</textarea>
+        <textarea id="short_description" name="short_description" rows="2" cols="30" required>{{ short_description or 'Product description' }}</textarea>
     </div>
     <div>
         <label for="thumbnail_path">thumbnail_path:</label>
-        <input type="text" id="thumbnail_path" name="thumbnail_path" value="{{ thumbnail_path or '' }}" required>
+        <input type="text" id="thumbnail_path" name="thumbnail_path" value="{{ thumbnail_path or '/static/img/no_image.png' }}" required>
     </div>
     <div>
         <label for="initial_price">initial_price:</label>
-        <input type="number" id="initial_price" name="initial_price" step="0.01" min="0" value="{{ initial_price or '' }}" required>
+        <input type="number" id="initial_price" name="initial_price" step="0.01" min="0" value="{{ initial_price or '100' }}" required>
     </div>
     <div>
         <label for="initial_description">initial_description:</label>
-        <textarea id="initial_description" name="initial_description" rows="8" cols="40" required>{{ initial_description or '' }}</textarea>
+        <textarea id="initial_description" name="initial_description" rows="8" cols="40" required>{{ initial_description or 'Detailed product description' }}</textarea>
     </div>
     <div>
         <label>Tags:</label>
@@ -78,7 +78,6 @@
                 </div>
             {% endfor %}
         </div>
-        <small>Select one or more tags that apply to this product. You can leave this empty if no tags apply.</small>
     </div>
     <button type="submit">Create Product</button>
 </form>

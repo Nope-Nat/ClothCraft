@@ -45,12 +45,6 @@ class ProductManagementRepository:
                     new_product_id, initial_description
                 )
                 
-                # Insert product image
-                await conn.execute(
-                    "INSERT INTO product_image(id_product, img_path, \"order\") VALUES ($1, $2, 1)",
-                    new_product_id, thumbnail_path
-                )
-                
                 # Insert product tags if any are selected
                 if tag_ids:
                     tag_query = """
