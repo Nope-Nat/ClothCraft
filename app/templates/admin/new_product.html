@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Create Product</h1>
+
+<form method="post" action="/admin/new_product/">
+    <div>
+        <label for="product_name">product_name:</label>
+        <input type="text" id="product_name" name="product_name" value="{{ product_name or '' }}" required>
+    </div>
+    <div>
+        <label for="id_category">id_category:</label>
+        <select id="id_category" name="id_category" required>
+            <option value="">id_category</option>
+            {% for category in categories %}
+                <option value="{{ category.id_category }}" 
+                        {% if id_category == category.id_category %}selected{% endif %}>
+                    {{ category.id_category }} {{ category.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <label for="id_sizing_type">id_sizing_type:</label>
+        <select id="id_sizing_type" name="id_sizing_type" required>
+            <option value="">id_sizing_type</option>
+            {% for sizing_type in sizing_types %}
+                <option value="{{ sizing_type.id_sizing_type }}" 
+                        {% if id_sizing_type == sizing_type.id_sizing_type %}selected{% endif %}>
+                    {{ sizing_type.id_sizing_type }} {{ sizing_type.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <label for="id_country">id_country:</label>
+        <select id="id_country" name="id_country" required>
+            <option value="">id_country</option>
+            {% for country in countries %}
+                <option value="{{ country.id_country }}" 
+                        {% if id_country == country.id_country %}selected{% endif %}>
+                    {{ country.id_country }} {{ country.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <label for="sku_code">sku_code:</label>
+        <input type="text" id="sku_code" name="sku_code" value="{{ sku_code or '' }}" required>
+    </div>
+    <div>
+        <label for="short_description">short_description:</label>
+        <textarea id="short_description" name="short_description" rows="2" cols="30" required>{{ short_description or '' }}</textarea>
+    </div>
+    <div>
+        <label for="thumbnail_path">thumbnail_path:</label>
+        <input type="text" id="thumbnail_path" name="thumbnail_path" value="{{ thumbnail_path or '' }}" required>
+    </div>
+    <div>
+        <label for="initial_price">initial_price:</label>
+        <input type="number" id="initial_price" name="initial_price" step="0.01" min="0" value="{{ initial_price or '' }}" required>
+    </div>
+    <div>
+        <label for="initial_description">initial_description:</label>
+        <textarea id="initial_description" name="initial_description" rows="8" cols="40" required>{{ initial_description or '' }}</textarea>
+    </div>
+    <button type="submit">Create Product</button>
+</form>
+
+{% if errors %}
+<div class="errors">
+    {% for error in errors %}
+    <p>{{ error }}</p>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

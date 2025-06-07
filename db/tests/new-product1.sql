@@ -21,17 +21,6 @@ BEGIN
     RETURNING id_variant INTO new_variant_id;
 
     INSERT INTO variant_size (id_variant, id_size) VALUES (new_variant_id, 6);
-
-    DECLARE
-        variant_size_sizing_type INT;
-        product_sizing_type INT;
-    BEGIN
-        SELECT id_sizing_type INTO variant_size_sizing_type FROM size WHERE id_size = 6;
-        RAISE INFO 'Sizing type for size 6: %', variant_size_sizing_type;
-
-        SELECT id_sizing_type INTO product_sizing_type FROM product WHERE id_product = new_product_id;
-        RAISE INFO 'Sizing type for product %: %', new_product_id, product_sizing_type;
-    END;
 END $$;
 COMMIT;
 
@@ -59,15 +48,6 @@ BEGIN
 
     INSERT INTO variant_size (id_variant, id_size) VALUES (new_variant_id, 1);
 
-    DECLARE
-        variant_size_sizing_type INT;
-        product_sizing_type INT;
-    BEGIN
-        SELECT id_sizing_type INTO variant_size_sizing_type FROM size WHERE id_size = 1;
-        RAISE INFO 'Sizing type for size 1: %', variant_size_sizing_type;
-
-        SELECT id_sizing_type INTO product_sizing_type FROM product WHERE id_product = new_product_id;
-        RAISE INFO 'Sizing type for product %: %', new_product_id, product_sizing_type;
-    END;
+    INSERT INTO tag_product(id_product, id_tag) VALUES (new_product_id, 1);
 END $$;
 COMMIT;

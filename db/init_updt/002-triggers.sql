@@ -80,8 +80,6 @@ BEGIN
   WHERE v.id_variant = NEW.id_variant
   LIMIT 1;
 
-  RAISE NOTICE 'Variant size sizing type: %, Product sizing type: %', variant_size_sizing_type, product_sizing_type;
-
   if variant_size_sizing_type != product_sizing_type THEN
     RAISE EXCEPTION
       'Variant size % with id_variant % has a different sizing type (% vs %), but it should match the product sizing type.',
