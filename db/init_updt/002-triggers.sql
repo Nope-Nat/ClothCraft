@@ -57,3 +57,50 @@ CREATE TRIGGER trg_product_material_delete
   ON product_material
   FOR EACH ROW
   EXECUTE FUNCTION trg_product_material_check_sum();
+
+
+CREATE OR REPLACE FUNCTION trg_variant_size_sizing_type_coherence()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  variant_size_sizing_type INT;
+  product_sizing_type INT;
+BEGIN
+  SELECT id_sizing_type
+    INTO variant_size_sizing_type
+  FROM "size" s
+  WHERE id_size = NEW.id_size
+  LIMIT 1;
+
+  SELECT id_sizing_type
+    INTO product_sizing_type
+  FROM variant v
+  LEFT JOIN product p USING (id_product)
+  WHERE v.id_variant = NEW.id_variant
+  LIMIT 1;
+
+  RAISE NOTICE 'Variant size sizing type: %, Product sizing type: %', variant_size_sizing_type, product_sizing_type;
+
+  if variant_size_sizing_type != product_sizing_type THEN
+    RAISE EXCEPTION
+      'Variant size % with id_variant % has a different sizing type (% vs %), but it should match the product sizing type.',
+      NEW.id_size, NEW.id_variant, variant_size_sizing_type, product_sizing_type;
+
+      RETURN NULL;
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER trg_variant_size_insert
+  BEFORE INSERT
+  ON variant_size
+  FOR EACH ROW
+  EXECUTE FUNCTION trg_variant_size_sizing_type_coherence();
+CREATE TRIGGER trg_variant_size_update
+  BEFORE UPDATE
+  ON variant_size
+  FOR EACH ROW
+  EXECUTE FUNCTION trg_variant_size_sizing_type_coherence();
