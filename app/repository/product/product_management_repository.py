@@ -1,3 +1,4 @@
+from typing import List, Optional
 from db import db
 
 class ProductManagementRepository:
@@ -13,9 +14,10 @@ class ProductManagementRepository:
         thumbnail_path: str,
         product_name: str,
         initial_price: float,
-        initial_description: str
+        initial_description: str,
+        tag_ids: Optional[List[int]] = None
     ):
-        """Create a new product with initial price, description, and image."""
+        """Create a new product with initial price, description, image, and tags."""
         async with db.get_connection() as conn:
             async with conn.transaction():
                 # Insert the main product
@@ -48,5 +50,13 @@ class ProductManagementRepository:
                     "INSERT INTO product_image(id_product, img_path, \"order\") VALUES ($1, $2, 1)",
                     new_product_id, thumbnail_path
                 )
+                
+                # Insert product tags if any are selected
+                if tag_ids:
+                    tag_query = """
+                        INSERT INTO tag_product(id_product, id_tag) VALUES ($1, $2)
+                    """
+                    for tag_id in tag_ids:
+                        await conn.execute(tag_query, new_product_id, tag_id)
                 
                 return new_product_id

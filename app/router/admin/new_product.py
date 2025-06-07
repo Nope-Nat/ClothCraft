@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from fastapi import APIRouter, HTTPException, Request, Form, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -20,11 +20,13 @@ async def get_product_form_data():
     categories = await ProductRepository.get_all_categories()
     sizing_types = await ProductRepository.get_all_sizing_types()
     countries = await ProductRepository.get_all_countries()
+    tags = await ProductRepository.get_all_tags()
     
     return {
         "categories": categories,
         "sizing_types": sizing_types,
         "countries": countries,
+        "tags": tags,
     }
 
 @router.get("/", response_class=HTMLResponse)
@@ -50,6 +52,7 @@ async def create_product(
     thumbnail_path: str = Form(...),
     initial_price: float = Form(...),
     initial_description: str = Form(...),
+    selected_tags: List[int] = Form(default=[]),
 ):
     # Verify admin access
     await verify_admin_access(request)
@@ -57,14 +60,6 @@ async def create_product(
     errors = []
     
     try:
-        # Validate required fields
-        if not product_name or len(product_name.strip()) < 1:
-            errors.append("Product name is required")
-        if not sku_code or len(sku_code.strip()) < 1:
-            errors.append("SKU code is required")
-        if initial_price <= 0:
-            errors.append("Price must be greater than 0")
-            
         if errors:
             # Get form data and add form values for re-display
             template_data = await get_product_form_data()
@@ -80,6 +75,7 @@ async def create_product(
                 "thumbnail_path": thumbnail_path,
                 "initial_price": initial_price,
                 "initial_description": initial_description,
+                "selected_tags": selected_tags,
             })
             
             return templates.TemplateResponse("admin/new_product.html", template_data)
@@ -94,7 +90,8 @@ async def create_product(
             thumbnail_path=thumbnail_path.strip() if thumbnail_path else '/static/img/no_image.png',
             product_name=product_name.strip(),
             initial_price=initial_price,
-            initial_description=initial_description.strip()
+            initial_description=initial_description.strip(),
+            tag_ids=selected_tags
         )
         
         # Redirect to the product page
@@ -115,6 +112,7 @@ async def create_product(
             "thumbnail_path": thumbnail_path,
             "initial_price": initial_price,
             "initial_description": initial_description,
+            "selected_tags": selected_tags,
         })
         
         return await templates.TemplateResponse("admin/new_product.html", template_data)

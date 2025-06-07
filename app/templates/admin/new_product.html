@@ -64,13 +64,29 @@
         <label for="initial_description">initial_description:</label>
         <textarea id="initial_description" name="initial_description" rows="8" cols="40" required>{{ initial_description or '' }}</textarea>
     </div>
+    <div>
+        <label>Tags:</label>
+        <div style="max-height: 150px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin: 5px 0;">
+            {% for tag in tags %}
+                <div style="margin: 5px 0;">
+                    <input type="checkbox" 
+                           id="tag_{{ tag.id_tag }}" 
+                           name="selected_tags" 
+                           value="{{ tag.id_tag }}"
+                           {% if selected_tags and tag.id_tag in selected_tags %}checked{% endif %}>
+                    <label for="tag_{{ tag.id_tag }}">{{ tag.name }}</label>
+                </div>
+            {% endfor %}
+        </div>
+        <small>Select one or more tags that apply to this product. You can leave this empty if no tags apply.</small>
+    </div>
     <button type="submit">Create Product</button>
 </form>
 
 {% if errors %}
 <div class="errors">
     {% for error in errors %}
-    <p>{{ error }}</p>
+    <p style="color: red;">{{ error }}</p>
     {% endfor %}
 </div>
 {% endif %}
