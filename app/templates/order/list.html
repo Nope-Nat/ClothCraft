@@ -6,6 +6,20 @@
 <div class="container my-5">
     <div class="row">
         <div class="col-12">
+            {% if request.query_params.get('success') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ request.query_params.get('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+
+            {% if request.query_params.get('error') %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ request.query_params.get('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+
             <h1 class="mb-4">My Orders</h1>
             
             {% if orders %}
@@ -24,16 +38,32 @@
                         </div>
                         <div class="text-end">
                             <span class="badge 
-                                {% if order.current_status == 'delivered' %}bg-success
-                                {% elif order.current_status == 'shipped' %}bg-info
-                                {% elif order.current_status == 'paid' %}bg-primary
-                                {% elif order.current_status == 'cancelled' %}bg-danger
+                                {% if order.current_status == OrderStatus.DELIVERED %}bg-success
+                                {% elif order.current_status == OrderStatus.SHIPPED %}bg-info
+                                {% elif order.current_status == OrderStatus.PAID %}bg-primary
+                                {% elif order.current_status == OrderStatus.CANCELLED %}bg-danger
                                 {% elif order.current_status.startswith('return') %}bg-warning
                                 {% else %}bg-secondary
                                 {% endif %} 
                                 fs-6 mb-2">
                                 {{ order.current_status.replace('_', ' ').title() }}
                             </span>
+                            {% if order.current_status == OrderStatus.DELIVERED %}
+                            <div class="mt-2">
+                                <!-- Debug info -->
+                                <small class="text-muted d-block mb-1">Debug: Order ID {{ order.id_order }}</small>
+                                
+                                <form id="returnForm{{ order.id_order }}" 
+                                      action="/orders/{{ order.id_order }}/return" 
+                                      method="POST" 
+                                      class="d-inline">
+                                    <input type="hidden" name="order_id" value="{{ order.id_order }}">
+                                    <button type="submit" class="btn btn-sm btn-warning">
+                                        Request Return
+                                    </button>
+                                </form>
+                            </div>
+                            {% endif %}
                             <div class="h5 mb-0">${{ "%.2f"|format(order.total_amount + order.shipping_price) }}</div>
                         </div>
                     </div>
@@ -107,4 +137,37 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function handleReturn(event, orderId) {
+    event.preventDefault();
+    const form = event.target;
+    
+    try {
+        const response = await fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams(new FormData(form))
+        });
+
+        if (response.redirected) {
+            window.location.href = response.url;
+        } else {
+            const data = await response.text();
+            if (response.ok) {
+                window.location.href = '/orders?success=OK';
+            } else {
+                window.location.href = `/orders?error=${data}`;
+            }
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        window.location.href = `/orders?error=Failed to process request`;
+    }
+}
+</script>
 {% endblock %}

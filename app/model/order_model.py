@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 from enum import Enum
+from uuid import UUID
 
 class OrderStatus(str, Enum):
     PAID = "paid"
@@ -25,6 +26,7 @@ class OrderProduct(BaseModel):
 
 class OrderSummary(BaseModel):
     id_order: int
+    user_id: UUID 
     shipping_price: float
     payed_at: Optional[datetime]
     cancelled_at: Optional[datetime]
