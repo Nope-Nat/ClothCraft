@@ -38,11 +38,77 @@
     <p>No variants found for this product.</p>
 {% endif %}
 
-{% if errors %}
-<div class="errors">
-    {% for error in errors %}
-    <p style="color: red;">{{ error }}</p>
-    {% endfor %}
-</div>
-{% endif %}
+<h2>Product Materials</h2>
+<form method="post" action="/admin/modify_product/{{ id_product }}/update_materials" style="border: 1px solid #ddd; padding: 15px; margin: 10px 0;">
+    <div id="materials-container">
+        {% for material in product_materials %}
+        <div class="material-row" style="margin: 10px 0; display: flex; gap: 10px; align-items: center;">
+            <select name="material_{{ loop.index0 }}" required>
+                {% for available_material in all_materials %}
+                <option value="{{ available_material.id_material }}" 
+                    {% if available_material.id_material == material.id_material %}selected{% endif %}>
+                    {{ available_material.id_material }} - {{ available_material.material_name }}
+                </option>
+                {% endfor %}
+            </select>
+            <input type="number" name="percentage_{{ loop.index0 }}" value="{{ material.percentage }}" 
+                   step="0.1" min="0" max="100" required style="width: 80px;">
+            <span>%</span>
+            <button type="button" onclick="removeMaterialRow(this)">Remove</button>
+        </div>
+        {% endfor %}
+        {% if not product_materials %}
+        <div class="material-row" style="margin: 10px 0; display: flex; gap: 10px; align-items: center;">
+            <select name="material_0" required>
+                <option value="">Select material...</option>
+                {% for material in all_materials %}
+                <option value="{{ material.id_material }}">{{ material.id_material }} - {{ material.material_name }}</option>
+                {% endfor %}
+            </select>
+            <input type="number" name="percentage_0" value="100" step="0.1" min="0" max="100" required style="width: 80px;">
+            <span>%</span>
+            <button type="button" onclick="removeMaterialRow(this)">Remove</button>
+        </div>
+        {% endif %}
+    </div>
+    <button type="button" onclick="addMaterialRow()">Add Material</button>
+    <button type="submit">Update Materials</button>
+</form>
+
+<script>
+function addMaterialRow() {
+    const container = document.getElementById('materials-container');
+    const rowCount = container.children.length;
+    const newRow = document.createElement('div');
+    newRow.className = 'material-row';
+    newRow.style.cssText = 'margin: 10px 0; display: flex; gap: 10px; align-items: center;';
+    newRow.innerHTML = `
+        <select name="material_${rowCount}" required>
+            <option value="">Select material...</option>
+            {% for material in all_materials %}
+            <option value="{{ material.id_material }}">{{ material.id_material }} - {{ material.material_name }}</option>
+            {% endfor %}
+        </select>
+        <input type="number" name="percentage_${rowCount}" value="0" step="0.1" min="0" max="100" required style="width: 80px;">
+        <span>%</span>
+        <button type="button" onclick="removeMaterialRow(this)">Remove</button>
+    `;
+    container.appendChild(newRow);
+}
+
+function removeMaterialRow(button) {
+    const container = document.getElementById('materials-container');
+    if (container.children.length > 1) {
+        button.parentElement.remove();
+        // Renumber the remaining rows
+        Array.from(container.children).forEach((row, index) => {
+            const select = row.querySelector('select');
+            const input = row.querySelector('input');
+            select.name = `material_${index}`;
+            input.name = `percentage_${index}`;
+        });
+    }
+}
+</script>
+
 {% endblock %}

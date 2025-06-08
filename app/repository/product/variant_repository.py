@@ -126,3 +126,45 @@ class VariantRepository:
                 VALUES ($1, $2, $3, true)
             """
             await conn.execute(query, product_id, name, color_bytes)
+
+    @staticmethod
+    async def get_product_materials(product_id: int):
+        """Get current materials for a product with material type names."""
+        async with db.get_connection() as conn:
+            query = """
+                SELECT pm.id_material, pm.percentage, mt.name as material_name
+                FROM product_material pm
+                JOIN material m ON pm.id_material = m.id_material
+                JOIN material_type mt ON m.id_material_type = mt.id_material_type
+                WHERE pm.id_product = $1
+                ORDER BY pm.percentage DESC
+            """
+            return await conn.fetch(query, product_id)
+
+    @staticmethod
+    async def get_all_materials():
+        """Get all available materials with their type names."""
+        async with db.get_connection() as conn:
+            query = """
+                SELECT m.id_material, mt.name as material_name
+                FROM material m
+                JOIN material_type mt ON m.id_material_type = mt.id_material_type
+                ORDER BY mt.name
+            """
+            return await conn.fetch(query)
+
+    @staticmethod
+    async def update_product_materials(product_id: int, materials_data: list):
+        """Update product materials. materials_data is list of (id_material, percentage)."""
+        async with db.get_connection() as conn:
+            async with conn.transaction():
+                # Delete existing materials
+                await conn.execute("DELETE FROM product_material WHERE id_product = $1", product_id)
+                
+                # Insert new materials
+                for id_material, percentage in materials_data:
+                    if percentage > 0:  # Only insert materials with positive percentage
+                        await conn.execute(
+                            "INSERT INTO product_material (id_product, id_material, percentage) VALUES ($1, $2, $3)",
+                            product_id, id_material, percentage
+                        )
