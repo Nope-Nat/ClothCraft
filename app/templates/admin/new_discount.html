@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Create New Discount{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Create New Discount</h1>
+                <a href="/admin/discounts" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Discounts
+                </a>
+            </div>
+
+            <div class="row">
+                <!-- Form Column -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Discount Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="discountForm" method="POST" action="/admin/discounts/new">
+                                <!-- Basic Details -->
+                                <div class="mb-3">
+                                    <label for="percentage" class="form-label">Discount Percentage</label>
+                                    <div class="input-group">
+                                        <input type="number" 
+                                               class="form-control" 
+                                               id="percentage" 
+                                               name="percentage" 
+                                               min="1" 
+                                               max="100" 
+                                               step="0.01" 
+                                               required>
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="coupon_code" class="form-label">Coupon Code</label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="coupon_code" 
+                                           name="coupon_code"
+                                           placeholder="Leave empty for general discount">
+                                    <div class="form-text">Optional. If provided, customers must enter this code to get the discount.</div>
+                                </div>
+
+                                <!-- Date Range -->
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="from_date" class="form-label">Valid From</label>
+                                        <input type="datetime-local" 
+                                               class="form-control" 
+                                               id="from_date" 
+                                               name="from_date" 
+                                               required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="to_date" class="form-label">Valid To</label>
+                                        <input type="datetime-local" 
+                                               class="form-control" 
+                                               id="to_date" 
+                                               name="to_date">
+                                        <div class="form-text">Leave empty for permanent discount</div>
+                                    </div>
+                                </div>
+
+                                <hr>
+
+                                <!-- Product Selection -->
+                                <h6 class="mb-3">Product Selection</h6>
+                                
+                                <!-- Categories -->
+                                <div class="mb-3">
+                                    <label class="form-label">Categories</label>
+                                    <div class="border rounded p-2" style="max-height: 150px; overflow-y: auto;">
+                                        {% for category in categories %}
+                                        <div class="form-check">
+                                            <input class="form-check-input selection-input" 
+                                                   type="checkbox" 
+                                                   value="{{ category.id_category }}" 
+                                                   id="category_{{ category.id_category }}"
+                                                   name="categories">
+                                            <label class="form-check-label" for="category_{{ category.id_category }}">
+                                                {{ category.name }}
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <!-- Tags -->
+                                <div class="mb-3">
+                                    <label class="form-label">Tags</label>
+                                    <div class="border rounded p-2" style="max-height: 150px; overflow-y: auto;">
+                                        {% for tag in tags %}
+                                        <div class="form-check">
+                                            <input class="form-check-input selection-input" 
+                                                   type="checkbox" 
+                                                   value="{{ tag.id_tag }}" 
+                                                   id="tag_{{ tag.id_tag }}"
+                                                   name="tags">
+                                            <label class="form-check-label" for="tag_{{ tag.id_tag }}">
+                                                {{ tag.name }}
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <!-- Products -->
+                                <div class="mb-3">
+                                    <label class="form-label">Individual Products</label>
+                                    <input type="text" 
+                                           class="form-control mb-2" 
+                                           id="productSearch" 
+                                           placeholder="Search products...">
+                                    <div class="border rounded p-2" 
+                                         style="max-height: 200px; overflow-y: auto;" 
+                                         id="productsList">
+                                        {% for product in products %}
+                                        <div class="form-check product-item" 
+                                             data-name="{{ product.name.lower() }}"
+                                             data-category="{{ product.category_name.lower() if product.category_name }}">
+                                            <input class="form-check-input selection-input" 
+                                                   type="checkbox" 
+                                                   value="{{ product.id_product }}" 
+                                                   id="product_{{ product.id_product }}"
+                                                   name="products">
+                                            <label class="form-check-label" for="product_{{ product.id_product }}">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        {{ product.name }}
+                                                        {% if not product.active %}
+                                                        <span class="badge bg-danger ms-1">Inactive</span>
+                                                        {% endif %}
+                                                    </div>
+                                                    <small class="text-muted ms-3">
+                                                        {{ product.category_name }} - ${{ "%.2f"|format(product.current_price or 0) }}
+                                                    </small>
+                                                </div>
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <hr>
+
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-save me-2"></i>Create Discount
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview Column -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Affected Products Preview</h5>
+                            <span class="badge bg-primary" id="productCount">0 products</span>
+                        </div>
+                        <div class="card-body">
+                            <div id="previewContainer">
+                                <div class="text-center text-muted py-5">
+                                    <i class="fas fa-eye fa-3x mb-3"></i>
+                                    <p>Select categories, tags, or products to see preview</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let previewTimeout;
+
+// Initialize form
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default from date to now
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    document.getElementById('from_date').value = now.toISOString().slice(0, 16);
+    
+    // Add event listeners
+    document.querySelectorAll('.selection-input').forEach(input => {
+        input.addEventListener('change', updatePreview);
+    });
+    
+    // Product search functionality
+    document.getElementById('productSearch').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const productItems = document.querySelectorAll('.product-item');
+        
+        productItems.forEach(item => {
+            const name = item.getAttribute('data-name');
+            const category = item.getAttribute('data-category') || '';
+            
+            if (name.includes(searchTerm) || category.includes(searchTerm)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+    
+    // Form submission
+    document.getElementById('discountForm').addEventListener('submit', function(e) {
+        // Remove the preventDefault and alert - let form submit normally
+        const selectedCategories = document.querySelectorAll('input[name="categories"]:checked').length;
+        const selectedTags = document.querySelectorAll('input[name="tags"]:checked').length;
+        const selectedProducts = document.querySelectorAll('input[name="products"]:checked').length;
+        
+        if (selectedCategories === 0 && selectedTags === 0 && selectedProducts === 0) {
+            e.preventDefault();
+            alert('Please select at least one category, tag, or product before creating the discount.');
+            return false;
+        }
+        
+        // Form will submit normally if validation passes
+    });
+});
+
+function updatePreview() {
+    clearTimeout(previewTimeout);
+    previewTimeout = setTimeout(fetchPreview, 300);
+}
+
+async function fetchPreview() {
+    const form = document.getElementById('discountForm');
+    const formData = new FormData(form);
+    
+    try {
+        const response = await fetch('/admin/discounts/preview', {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (response.ok) {
+            const html = await response.text();
+            document.getElementById('previewContainer').innerHTML = html;
+            
+            // Update product count
+            const productCards = document.querySelectorAll('#previewContainer .product-preview-item');
+            const count = productCards.length;
+            document.getElementById('productCount').textContent = `${count} product${count !== 1 ? 's' : ''}`;
+        } else {
+            console.error('Failed to fetch preview');
+        }
+    } catch (error) {
+        console.error('Error fetching preview:', error);
+    }
+}
+</script>
+{% endblock %}

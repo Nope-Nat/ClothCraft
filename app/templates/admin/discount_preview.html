@@ -1,0 +1,55 @@
+{% if affected_products %}
+<div class="row g-2">
+    {% for product in affected_products %}
+    <div class="col-12">
+        <div class="card product-preview-item border-0 shadow-sm">
+            <div class="card-body py-2">
+                <div class="d-flex align-items-center">
+                    {% if product.thumbnail_path %}
+                    <img src="{{ product.thumbnail_path }}" 
+                         alt="{{ product.name }}" 
+                         class="me-3 rounded" 
+                         style="width: 40px; height: 40px; object-fit: cover;">
+                    {% else %}
+                    <div class="me-3 rounded bg-light d-flex align-items-center justify-content-center" 
+                         style="width: 40px; height: 40px;">
+                        <i class="fas fa-image text-muted"></i>
+                    </div>
+                    {% endif %}
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">{{ product.name }}</h6>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">{{ product.category_name }}</small>
+                            <span class="fw-bold">${{ "%.2f"|format(product.current_price or 0) }}</span>
+                        </div>
+                        {% if product.tags %}
+                        <div class="mt-1">
+                            {% for tag in product.tags[:3] %}
+                            <span class="badge bg-secondary me-1" style="font-size: 0.7rem;">{{ tag }}</span>
+                            {% endfor %}
+                            {% if product.tags|length > 3 %}
+                            <span class="text-muted small">+{{ product.tags|length - 3 }} more</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if affected_products|length >= 50 %}
+<div class="alert alert-info mt-3">
+    <i class="fas fa-info-circle me-2"></i>
+    Showing first 50 products. Total may be higher.
+</div>
+{% endif %}
+
+{% else %}
+<div class="text-center text-muted py-5">
+    <i class="fas fa-search fa-3x mb-3"></i>
+    <p>No products match the current selection</p>
+</div>
+{% endif %}
