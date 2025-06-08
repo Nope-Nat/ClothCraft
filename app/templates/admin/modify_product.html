@@ -2,10 +2,41 @@
 
 {% block content %}
 <h1>Modify product {{ id_product }}</h1>
+<p><a href="/product/{{ id_product }}" target="_blank">View product page</a></p>
 
-<form method="post" action="/admin/modify_product/">
-    <button type="submit">Save</button>
+<h2>Add New Variant</h2>
+<form method="post" action="/admin/modify_product/{{ id_product }}/add_variant" style="border: 1px solid #ddd; padding: 15px; margin: 10px 0;">
+    <label>Name: <input type="text" name="name" required></label><br><br>
+    <label>Color: <input type="color" name="color" required></label><br><br>
+    <button type="submit">Add Variant</button>
 </form>
+
+<h2>Product Variants</h2>
+{% if variant_data %}
+    {% for item in variant_data %}
+    <div style="border: 1px solid #ccc; margin: 10px 0; padding: 15px;">
+        <h3>{{ item.variant.name }} - Color: #{{ item.variant.color.hex() }}</h3>
+        
+        {% if item.available_sizes %}
+        <h4>Add Size:</h4>
+        <form method="post" action="/admin/modify_product/{{ id_product }}/add_size" style="margin: 10px 0;">
+            <input type="hidden" name="id_variant" value="{{ item.variant.id_variant }}">
+            <select name="id_size" required>
+                <option value="">Select size...</option>
+                {% for size in item.available_sizes %}
+                <option value="{{ size.id_size }}">{{ size.format_name }} {{ size.size_name }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Add Size</button>
+        </form>
+        {% else %}
+        <p>All compatible sizes already added to this variant.</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+{% else %}
+    <p>No variants found for this product.</p>
+{% endif %}
 
 {% if errors %}
 <div class="errors">

@@ -75,3 +75,54 @@ class VariantRepository:
                 ORDER BY s."order"
             """
             return await conn.fetch(query, id_variant, format_id)
+
+    @staticmethod
+    async def get_variant_existing_sizes(id_variant: int):
+        """Get sizes already assigned to a variant."""
+        async with db.get_connection() as conn:
+            query = """
+                SELECT vs.id_size
+                FROM variant_size vs
+                WHERE vs.id_variant = $1
+            """
+            result = await conn.fetch(query, id_variant)
+            return [row['id_size'] for row in result]
+
+    @staticmethod
+    async def get_compatible_sizes_for_product(product_id: int):
+        """Get all sizes compatible with product's sizing type."""
+        async with db.get_connection() as conn:
+            query = """
+                SELECT s.id_size, sd.value as size_name, sf.value as format_name
+                FROM size s
+                JOIN size_data sd ON s.id_size = sd.id_size
+                JOIN sizing_format sf ON sd.id_sizing_format = sf.id_sizing_format
+                WHERE s.id_sizing_type = (
+                    SELECT id_sizing_type FROM product WHERE id_product = $1
+                )
+                ORDER BY s."order", sf.value
+            """
+            return await conn.fetch(query, product_id)
+
+    @staticmethod
+    async def add_size_to_variant(id_variant: int, id_size: int):
+        """Add a size to a variant if not already exists."""
+        async with db.get_connection() as conn:
+            query = """
+                INSERT INTO variant_size (id_variant, id_size)
+                VALUES ($1, $2)
+                ON CONFLICT DO NOTHING
+            """
+            await conn.execute(query, id_variant, id_size)
+
+    @staticmethod
+    async def add_variant(product_id: int, name: str, color: str):
+        """Add a new variant to a product."""
+        async with db.get_connection() as conn:
+            # Convert hex color to bytes
+            color_bytes = bytes.fromhex(color.lstrip('#'))
+            query = """
+                INSERT INTO variant (id_product, name, color, active)
+                VALUES ($1, $2, $3, true)
+            """
+            await conn.execute(query, product_id, name, color_bytes)
