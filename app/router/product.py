@@ -5,6 +5,7 @@ from fastapi.templating import Jinja2Templates
 from datetime import datetime
 from repository.product_repository import ProductRepository
 from template import templates
+from utils.auth_utils import get_current_user, require_admin
 import os
 
 from markupsafe import Markup
@@ -29,6 +30,9 @@ async def product_page(
     id_variant: Optional[str] = None,
     id_format: Optional[str] = None,
 ):
+    user_data = await get_current_user(request)
+    is_admin = require_admin(user_data)
+    
     product_data = await ProductRepository.get_product(id_product)
     category_id = product_data["id_category"]
     category_data = await ProductRepository.get_category_hierarchy(category_id)
@@ -37,7 +41,6 @@ async def product_page(
     id_variant = parse_optional_id(id_variant)
     id_format = parse_optional_id(id_format)
 
-    # Price and discount data
     discount_data = await ProductRepository.get_product_discount_info(id_product)
     if not discount_data:
         discount_data = {
@@ -121,8 +124,6 @@ async def product_page(
         images_alt_descriptions.extend(product_data["images_alt_descriptions"])
 
     materials_info = await ProductRepository.get_product_materials_info(id_product)
-    print("Materials Info:", materials_info)
-
     tags_info = await ProductRepository.get_product_tags_info(id_product)
     tags = [ t["tag_name"] for t in tags_info ]
 
@@ -152,4 +153,5 @@ async def product_page(
         "tags": tags,
         "materials_info": materials_info,
         "tags_info": tags_info,
+        "is_admin": is_admin,
     })

@@ -21,6 +21,15 @@
                 </ol>
             </nav>
 
+            <!-- Admin Edit Button -->
+            {% if is_admin %}
+            <div class="mb-3">
+                <a href="/admin/modify_product/{{ id_product }}" class="btn btn-warning btn-sm">
+                    Edit Product
+                </a>
+            </div>
+            {% endif %}
+
             <div class="d-flex flex-wrap gap-1 mb-4">
                 {% for tag in tags %}
                 <span class="product-tag {% if 'new' in tag %}tag-new{% elif 'best' in tag %}tag-bestseller{% elif 'limited' in tag %}tag-limited{% endif %}">
@@ -239,7 +248,6 @@
             function setVariantParam(provided_id_variant) {
                 const url = new URL(window.location);
                 url.searchParams.set('id_variant', provided_id_variant);
-                // Reset size and format when variant changes
                 url.searchParams.delete('id_size');
                 url.searchParams.delete('id_format');
                 window.location.href = url.toString();
@@ -248,7 +256,6 @@
             function setFormatParam(provided_id_format) {
                 const url = new URL(window.location);
                 url.searchParams.set('id_format', provided_id_format);
-                // Reset size when format changes
                 url.searchParams.delete('id_size');
                 window.location.href = url.toString();
             }

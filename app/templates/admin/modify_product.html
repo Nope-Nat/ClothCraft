@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Modify product {{ id_product }}</h1>
+
+<form method="post" action="/admin/modify_product/">
+    <button type="submit">Save</button>
+</form>
+
+{% if errors %}
+<div class="errors">
+    {% for error in errors %}
+    <p style="color: red;">{{ error }}</p>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
