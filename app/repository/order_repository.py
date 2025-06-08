@@ -9,15 +9,7 @@ class OrderRepository:
     async def get_user_orders(self, user_id: UUID) -> List[OrderSummary]:
         """Get all orders for a specific user"""
         query = """
-            WITH latest_status AS (
-                SELECT DISTINCT ON (oh.id_order) 
-                    oh.id_order,
-                    oh.status,
-                    oh.created_at as status_updated_at
-                FROM order_history oh
-                ORDER BY oh.id_order, oh.created_at DESC
-            ),
-            order_totals AS (
+            WITH order_totals AS (
                 SELECT 
                     op.id_order,
                     SUM(op.quantity * ph.price) as total_amount
@@ -45,11 +37,11 @@ class OrderRepository:
                 o.shippment_tracking_number::text,
                 o.return_tracking_number::text,
                 o.secret_code,
-                ls.status as current_status,
-                ls.status_updated_at,
+                osv.status as current_status,
+                osv.created_at as status_updated_at,
                 COALESCE(ot.total_amount, 0) as total_amount
             FROM "order" o
-            LEFT JOIN latest_status ls ON o.id_order = ls.id_order
+            LEFT JOIN order_status_view osv ON o.id_order = osv.id_order
             LEFT JOIN order_totals ot ON o.id_order = ot.id_order
             WHERE o.id_user = $1
             ORDER BY o.payed_at DESC NULLS LAST, o.id_order DESC
@@ -74,15 +66,6 @@ class OrderRepository:
     async def get_order(self, order_id: int) -> Optional[OrderSummary]:
         """Get a specific order by ID"""
         query = """
-            WITH latest_status AS (
-                SELECT DISTINCT ON (oh.id_order) 
-                    oh.id_order,
-                    oh.status,
-                    oh.created_at as status_updated_at
-                FROM order_history oh
-                WHERE oh.id_order = $1
-                ORDER BY oh.id_order, oh.created_at DESC
-            )
             SELECT 
                 o.id_order,
                 o.id_user,
@@ -92,8 +75,8 @@ class OrderRepository:
                 o.shippment_tracking_number::text,
                 o.return_tracking_number::text,
                 o.secret_code,
-                ls.status as current_status,
-                ls.status_updated_at,
+                osv.status as current_status,
+                osv.created_at as status_updated_at,
                 COALESCE(
                     (SELECT SUM(op.quantity * ph.price)
                     FROM order_product op
@@ -111,7 +94,7 @@ class OrderRepository:
                     WHERE op.id_order = o.id_order
                     ), 0) as total_amount
             FROM "order" o
-            LEFT JOIN latest_status ls ON o.id_order = ls.id_order
+            LEFT JOIN order_status_view osv ON o.id_order = osv.id_order
             WHERE o.id_order = $1
         """
         async with db.get_connection() as conn:
@@ -173,8 +156,9 @@ class OrderRepository:
     async def update_order_status(self, order_id: int, new_status: str) -> bool:
         """Update order status"""
         query = """
-            INSERT INTO order_history (id_order, status, created_at)
-            VALUES ($1, $2::order_status, NOW())
+            UPDATE order_status_view 
+            SET status = $2::order_status 
+            WHERE id_order = $1
             RETURNING id_order;
         """
         try:
