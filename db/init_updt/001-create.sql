@@ -262,6 +262,13 @@ CREATE TABLE storage_delivery_part (
   -- no explicit primary key
 );
 
+-- Table for tracking current storage quantities
+CREATE TABLE IF NOT EXISTS storage_quantity (
+    id_variant INTEGER PRIMARY KEY REFERENCES variant(id_variant),
+    quantity INTEGER NOT NULL DEFAULT 0 CHECK (quantity >= 0),
+    last_updated TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
 -- ================================================
 -- 10) PRODUCT-MATERIAL (with cross-row constraint enforced via trigger)
 -- ================================================

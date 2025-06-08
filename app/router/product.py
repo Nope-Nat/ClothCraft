@@ -1,12 +1,14 @@
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from datetime import datetime
 from repository.product_repository import ProductRepository
 from template import templates
 from utils.auth_utils import get_current_user, require_admin
 import os
+from fastapi import Form, Depends
+from utils.auth_utils import admin_required
 
 from markupsafe import Markup
 from db import db
@@ -22,6 +24,7 @@ def parse_optional_id(id_str: Optional[str]) -> Optional[int]:
     except (ValueError, TypeError):
         return None
 
+# First route handler
 @router.get("/{id_product}", response_class=HTMLResponse)
 async def product_page(
     request: Request,
@@ -155,3 +158,30 @@ async def product_page(
         "tags_info": tags_info,
         "is_admin": is_admin,
     })
+
+# Second route handler - fix indentation by moving it out of product_page
+@router.post("/{id_product}/add-to-storage")
+async def add_to_storage(
+    request: Request,
+    id_product: int,
+    variant_id: int = Form(...),
+    quantity: int = Form(...),
+    user_data: dict = Depends(admin_required)
+):
+    try:
+        async with db.get_connection() as conn:
+            await conn.execute(
+                """
+                SELECT add_storage_delivery_part(
+                    $1::integer,
+                    $2::integer
+                )
+                """,
+                variant_id, quantity
+            )
+        return RedirectResponse(
+            url=f"/product/{id_product}",
+            status_code=303
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
