@@ -81,7 +81,16 @@
                                     </div>
                                     <div class="text-end">
                                         <div>Qty: {{ product.quantity }}</div>
+                                        {% if product.regular_price > product.discounted_price %}
+                                        <div class="text-muted text-decoration-line-through small">
+                                            ${{ "%.2f"|format(product.regular_price) }} each
+                                        </div>
+                                        <div class="text-success fw-bold">
+                                            ${{ "%.2f"|format(product.price) }} each
+                                        </div>
+                                        {% else %}
                                         <div class="text-muted">${{ "%.2f"|format(product.price) }} each</div>
+                                        {% endif %}
                                     </div>
                                 </div>
                                 {% endfor %}
@@ -90,10 +99,26 @@
                             <div class="col-md-4">
                                 <div class="bg-light p-3 rounded">
                                     <h6 class="mb-3">Order Summary</h6>
+                                    {% set order_details = order.order_calculation %}
+                                    {% if order_details and order_details.total_savings > 0 %}
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Subtotal:</span>
+                                        <span>${{ "%.2f"|format(order_details.subtotal_regular) }}</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Discount:</span>
+                                        <span>-${{ "%.2f"|format(order_details.total_savings) }}</span>
+                                    </div>
+                                    <!-- <div class="d-flex justify-content-between mb-2">
+                                        <span>Discounted Subtotal:</span>
+                                        <span>${{ "%.2f"|format(order.total_amount) }}</span>
+                                    </div> -->
+                                    {% else %}
                                     <div class="d-flex justify-content-between mb-2">
                                         <span>Subtotal:</span>
                                         <span>${{ "%.2f"|format(order.total_amount) }}</span>
                                     </div>
+                                    {% endif %}
                                     <div class="d-flex justify-content-between mb-2">
                                         <span>Shipping:</span>
                                         <span>${{ "%.2f"|format(order.shipping_price) }}</span>

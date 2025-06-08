@@ -29,20 +29,28 @@ class OrderRepository:
         """
         async with db.get_connection() as conn:
             rows = await conn.fetch(query, user_id)
-            return [OrderSummary(
-                id_order=row['id_order'],
-                user_id=row['id_user'],
-                shipping_price=row['shipping_price'],
-                payed_at=row['payed_at'],
-                cancelled_at=row['cancelled_at'],
-                shippment_tracking_number=row['shippment_tracking_number'],
-                return_tracking_number=row['return_tracking_number'],
-                secret_code=row['secret_code'],
-                current_status=row['current_status'],
-                status_updated_at=row['status_updated_at'],
-                total_amount=row['total_amount'],
-                products=await self._get_order_products(row['id_order'])
-            ) for row in rows]
+            orders = []
+            
+            for row in rows:
+                order_calculation = await self._get_order_calculation(row['id_order'])
+                order_summary = OrderSummary(
+                    id_order=row['id_order'],
+                    user_id=row['id_user'],
+                    shipping_price=row['shipping_price'],
+                    payed_at=row['payed_at'],
+                    cancelled_at=row['cancelled_at'],
+                    shippment_tracking_number=row['shippment_tracking_number'],
+                    return_tracking_number=row['return_tracking_number'],
+                    secret_code=row['secret_code'],
+                    current_status=row['current_status'],
+                    status_updated_at=row['status_updated_at'],
+                    total_amount=row['total_amount'],
+                    products=await self._get_order_products(row['id_order'])
+                )
+                order_summary.order_calculation = order_calculation
+                orders.append(order_summary)
+            
+            return orders
 
     async def get_order(self, order_id: int) -> Optional[OrderSummary]:
         """Get a specific order by ID"""
@@ -68,8 +76,9 @@ class OrderRepository:
             row = await conn.fetchrow(query, order_id)
             if not row:
                 return None
-                
-            return OrderSummary(
+            
+            order_calculation = await self._get_order_calculation(row['id_order'])
+            order_summary = OrderSummary(
                 id_order=row['id_order'],
                 user_id=row['id_user'],
                 shipping_price=row['shipping_price'],
@@ -83,6 +92,21 @@ class OrderRepository:
                 total_amount=row['total_amount'],
                 products=await self._get_order_products(row['id_order'])
             )
+            order_summary.order_calculation = order_calculation
+            return order_summary
+
+    async def _get_order_calculation(self, order_id: int):
+        """Get order calculation details for discount display"""
+        query = """
+            SELECT * FROM get_order_total_at_timestamp($1, (
+                SELECT COALESCE(payed_at, NOW()) 
+                FROM "order" 
+                WHERE id_order = $1
+            ))
+        """
+        async with db.get_connection() as conn:
+            row = await conn.fetchrow(query, order_id)
+            return row if row else None
 
     async def _get_order_products(self, order_id: int) -> List[OrderProduct]:
         """Get products for a specific order with proper discount calculations"""
@@ -101,7 +125,9 @@ class OrderRepository:
                 color=row['color'],
                 size=row['size_value'],
                 quantity=row['quantity'],
-                price=row['discounted_price']
+                price=row['discounted_price'],
+                regular_price=row['regular_price'],
+                discounted_price=row['discounted_price']
             ) for row in rows]
 
     async def update_order_status(self, order_id: int, new_status: str) -> bool:
