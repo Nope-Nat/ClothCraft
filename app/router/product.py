@@ -58,7 +58,7 @@ async def product_page(
     discount_end_date = discount_data["discount_to"]
     lowest_price_30_days = (await ProductRepository.get_min_price_30_days(id_product))["min_price"]
     
-    product_variants_raw = await ProductRepository.get_product_variants(id_product)
+    product_variants_raw = await ProductRepository.get_product_variants(id_product, include_inactive=is_admin)
     product_variants = []
     for variant in product_variants_raw:
         color_data = variant['color']
@@ -67,12 +67,14 @@ async def product_page(
         product_variants.append({
             "id": variant['id_variant'],
             "name": variant['name'],
-            "color": color_value
+            "color": color_value,
+            "active": variant['active']
         })
     
-    # Ensure default variant is selected
-    if id_variant is None and product_variants:
-        id_variant = product_variants[0]["id"]
+    # Ensure default variant is selected (only from active variants if not admin)
+    available_variants = product_variants if is_admin else [v for v in product_variants if v['active']]
+    if id_variant is None and available_variants:
+        id_variant = available_variants[0]["id"]
     
     # Get available sizing formats for the product
     available_formats = []

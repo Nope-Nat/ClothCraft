@@ -122,15 +122,23 @@
             </div>
             <!-- Product Variants -->
             <div class="variants-section mb-4">
-                {% if product_variants %}
+                {% set available_variants = product_variants if is_admin else product_variants|selectattr('active', 'equalto', true)|list %}
+                {% if available_variants %}
                 <h5>Colors and variants</h5>
                 <div class="row row-cols-2 g-2">
-                    {% for variant in product_variants %}
+                    {% for variant in available_variants %}
                     <div class="col">
                         <button type="button"
-                            class="btn {% if variant.id == id_variant %}btn-primary{% else %}btn-outline-secondary{% endif %} d-flex align-items-center justify-content-between variant-btn w-100"
-                            style="--variant-color: {{ variant.color }};" onclick="setVariantParam('{{ variant.id }}')">
-                            <span>{{ variant.name }}</span>
+                            class="btn {% if variant.id == id_variant %}btn-primary{% else %}btn-outline-secondary{% endif %} d-flex align-items-center justify-content-between variant-btn w-100 {% if is_admin and not variant.active %}opacity-50{% endif %}"
+                            style="--variant-color: {{ variant.color }};" 
+                            onclick="setVariantParam('{{ variant.id }}')"
+                            {% if is_admin and not variant.active %}disabled{% endif %}>
+                            <span>
+                                {{ variant.name }}
+                                {% if is_admin and not variant.active %}
+                                <small class="text-muted">(Inactive)</small>
+                                {% endif %}
+                            </span>
                             <div class="color-indicator rounded-circle"></div>
                         </button>
                     </div>
