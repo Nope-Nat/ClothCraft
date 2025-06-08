@@ -1,6 +1,5 @@
-![Baner](banner.png)
+![Baner](docs/baner.png)
 
-# ClothCraft - online clothing store
 This is a full-stack web application built from scratch using FastAPI. All data is stored in a PostgreSQL database, and the frontend is built with Bootstrap and Jinja2 templates. The application features user authentication, product management, and a shopping cart system.
 
 ## Authors
