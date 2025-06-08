@@ -180,9 +180,11 @@ async def purchase_cart(request: Request):
         )
     
     try:
-        # Generate tracking number and order secret code
+        # Generate tracking number
         tracking_number = uuid.uuid4()
-        order_secret_code = f"ORDER_{uuid.uuid4().hex[:8].upper()}"
+        
+        # Get coupon code from cookies (this is the secret_code for discounts)
+        coupon_code = request.cookies.get("coupon_code")
         
         # Call PostgreSQL purchase function
         async with db.get_connection() as conn:
@@ -190,7 +192,7 @@ async def purchase_cart(request: Request):
                 "SELECT success, order_id FROM purchase_cart($1, $2, $3)",
                 current_user.user_id,
                 tracking_number,
-                order_secret_code
+                coupon_code
             )
             
             if result and result['success']:

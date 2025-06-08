@@ -38,7 +38,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION purchase_cart(
     user_id UUID,
     shipping_tracking_number UUID,
-    order_secret_code VARCHAR
+    coupon_code VARCHAR DEFAULT NULL
 )
 RETURNS TABLE(
     success BOOLEAN,
@@ -98,7 +98,7 @@ BEGIN
         NULL,   -- Not cancelled
         shipping_tracking_number,
         NULL,   -- No return tracking yet
-        order_secret_code
+        coupon_code  -- Use the coupon code instead of generated secret
     ) RETURNING id_order INTO new_order_id;
     
     -- Step 6: Add order history entry
