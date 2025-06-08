@@ -4,6 +4,24 @@
 <h1>Modify product {{ id_product }}</h1>
 <p><a href="/product/{{ id_product }}" target="_blank">View product page</a></p>
 
+<h2>Product Description</h2>
+<form method="post" action="/admin/modify_product/{{ id_product }}/update_description" style="border: 1px solid #ddd; padding: 15px; margin: 10px 0;">
+    <div style="margin: 10px 0;">
+        <label for="description">Description:</label><br>
+        <textarea id="description" name="description" rows="10" cols="80" required>{{ current_description or '' }}</textarea>
+    </div>
+    <button type="submit">Update Description</button>
+</form>
+
+<h2>Product Price</h2>
+<form method="post" action="/admin/modify_product/{{ id_product }}/update_price" style="border: 1px solid #ddd; padding: 15px; margin: 10px 0;">
+    <div style="margin: 10px 0;">
+        <label for="price">Price ($):</label>
+        <input type="number" id="price" name="price" step="0.01" min="0" value="{{ current_price or 0 }}" required>
+    </div>
+    <button type="submit">Update Price</button>
+</form>
+
 <h2>Add New Variant</h2>
 <form method="post" action="/admin/modify_product/{{ id_product }}/add_variant" style="border: 1px solid #ddd; padding: 15px; margin: 10px 0;">
     <label>Name: <input type="text" name="name" required></label><br><br>
