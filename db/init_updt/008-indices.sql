@@ -46,7 +46,3 @@ CREATE INDEX idx_product_active_created_date ON product(created_at DESC) WHERE a
 CREATE INDEX idx_variant_active_product ON variant(id_product) WHERE active = true;
 CREATE INDEX idx_variant_active_name ON variant(name) WHERE active = true;
 CREATE INDEX idx_variant_active_created ON variant(created_at DESC) WHERE active = true;
-
--- Composite partial index for active product-variant combinations
-CREATE INDEX idx_variant_product_both_active ON variant(id_product, id_variant) 
-WHERE active = true AND id_product IN (SELECT id_product FROM product WHERE active = true);
