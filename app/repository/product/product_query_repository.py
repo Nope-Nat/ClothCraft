@@ -49,7 +49,7 @@ class ProductQueryRepository:
             return await conn.fetchrow(query, product_id)
 
     @staticmethod
-    async def get_products(category_id: Optional[int] = None, tag_ids: List[int] = None, size_ids: List[int] = None, include_inactive: bool = False):
+    async def get_products(category_id: Optional[int] = None, tag_ids: List[int] = None, size_ids: List[int] = None, include_inactive: bool = False, limit: Optional[int] = None):
         """Get products with optional filtering by category, tags, and sizes."""
         conditions = []
         params = []
@@ -83,6 +83,9 @@ class ProductQueryRepository:
             param_counter += len(size_ids)
         
         where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
+        limit_clause = f"LIMIT ${param_counter}" if limit else ""
+        if limit:
+            params.append(limit)
         
         query = f"""
             SELECT 
@@ -111,28 +114,9 @@ class ProductQueryRepository:
             {where_clause}
             GROUP BY p.id_product, p.name, p.active, p.thumbnail_path, c.name, ppv.price
             ORDER BY p.created_at DESC
+            {limit_clause}
         """
         
         async with db.get_connection() as conn:
             rows = await conn.fetch(query, *params)
             return [dict(row) for row in rows]
-
-    @staticmethod
-    async def get_recent_products(limit: int = 10):
-        """Get recently added products for home page."""
-        async with db.get_connection() as conn:
-            query = """
-                SELECT p.id_product, p.name, p.thumbnail_path, p.short_description, c.name as category_name,
-                    (SELECT price 
-                    FROM price_history ph 
-                    WHERE ph.id_product = p.id_product 
-                    ORDER BY created_at DESC 
-                    LIMIT 1) as current_price,
-                    p.created_at
-                FROM product p
-                LEFT JOIN category c ON p.id_category = c.id_category
-                WHERE p.active = true
-                ORDER BY p.created_at DESC
-                LIMIT $1
-            """
-            return await conn.fetch(query, limit)

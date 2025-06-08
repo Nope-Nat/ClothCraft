@@ -181,7 +181,14 @@
                                     <h5 class="card-title fw-bold">{{ product.name }}</h5>
                                     <p class="card-text text-muted flex-grow-1">{{ product.short_description }}</p>
                                     <div class="d-flex justify-content-between align-items-center mt-auto">
-                                        <span class="h5 mb-0 text-primary fw-bold">${{ "%.2f"|format(product.current_price) }}</span>
+                                        <div class="fw-bold">
+                                            {% if product.discounted_price < product.current_price %}
+                                                <span class="text-success">${{ "%.2f"|format(product.discounted_price) }}</span>
+                                                <span class="text-muted text-decoration-line-through ms-2">${{ "%.2f"|format(product.current_price) }}</span>
+                                            {% else %}
+                                                <span class="text-dark">${{ "%.2f"|format(product.current_price) }}</span>
+                                            {% endif %}
+                                        </div>
                                         <a href="/product/{{ product.id_product }}" class="btn btn-outline-primary btn-sm">
                                             View Details
                                         </a>

@@ -13,7 +13,7 @@ from router.admin.admin import router as admin_router
 from router.admin.new_product import router as new_product_router
 from router.admin.modify_product import router as modify_product_router
 from db import db
-from repository.product_repository import ProductRepository
+from repository.product.product_query_repository import ProductQueryRepository
 from template import templates
 import asyncio
 import logging
@@ -70,7 +70,7 @@ async def shutdown_event():
 
 @app.get("/")
 async def root(request: Request):
-    recent_products = await ProductRepository.get_recent_products(limit=12)
+    recent_products = await ProductQueryRepository.get_products(limit=12)
     return await templates.TemplateResponse("home.html", {
         "request": request, 
         "recent_products": recent_products
