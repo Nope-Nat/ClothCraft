@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Manage Orders{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            {% if request.query_params.get('success') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ request.query_params.get('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+
+            {% if request.query_params.get('error') %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ request.query_params.get('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Manage Orders</h1>
+                <a href="/admin" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Admin Panel
+                </a>
+            </div>
+
+            <!-- Status Filter -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get" class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label for="status" class="form-label">Filter by Status:</label>
+                            <select name="status" id="status" class="form-select">
+                                <option value="">All Orders</option>
+                                {% for status in available_statuses %}
+                                <option value="{{ status }}" {% if status == selected_status %}selected{% endif %}>
+                                    {{ status.replace('_', ' ').title() }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary">Filter</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            {% if orders %}
+                <div class="row">
+                    <div class="col-12">
+                        <p class="text-muted mb-3">{{ orders|length }} order(s) found</p>
+                    </div>
+                </div>
+
+                {% for order in orders %}
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-header">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <h6 class="mb-1">Order #{{ order.id_order }}</h6>
+                                <small class="text-muted">
+                                    {{ order.username }}
+                                    {% if order.payed_at %}
+                                        | {{ order.payed_at.strftime("%b %d, %Y") }}
+                                    {% endif %}
+                                </small>
+                            </div>
+                            <div class="col-md-3">
+                                <span class="badge 
+                                    {% if order.current_status == 'delivered' %}bg-success
+                                    {% elif order.current_status == 'shipped' %}bg-info
+                                    {% elif order.current_status == 'paid' %}bg-primary
+                                    {% elif order.current_status == 'cancelled' %}bg-danger
+                                    {% elif order.current_status.startswith('return') %}bg-warning
+                                    {% else %}bg-secondary
+                                    {% endif %} 
+                                    fs-6">
+                                    {{ order.current_status.replace('_', ' ').title() }}
+                                </span>
+                            </div>
+                            <div class="col-md-3">
+                                <form method="post" action="/admin/orders/{{ order.id_order }}/update-status" class="d-flex gap-2">
+                                    <select name="new_status" class="form-select form-select-sm" required>
+                                        {% for status in available_statuses %}
+                                        <option value="{{ status }}" {% if status == order.current_status %}selected{% endif %}>
+                                            {{ status.replace('_', ' ').title() }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                    <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                                </form>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <div class="h6 mb-1">${{ "%.2f"|format(order.total_amount + order.shipping_price) }}</div>
+                                <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#order-{{ order.id_order }}" aria-expanded="false">
+                                    <i class="fas fa-chevron-down"></i> Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="collapse" id="order-{{ order.id_order }}">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h6 class="mb-3">Items Ordered:</h6>
+                                    {% for product in order.products %}
+                                    <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                                        <div>
+                                            <strong>{{ product.product_name }}</strong>
+                                            <small class="text-muted d-block">
+                                                {{ product.variant_name }} - {{ product.color }} - Size: {{ product.size_value }}
+                                            </small>
+                                        </div>
+                                        <div class="text-end">
+                                            <div>Qty: {{ product.quantity }}</div>
+                                            {% if product.regular_price > product.discounted_price %}
+                                            <div class="text-muted text-decoration-line-through small">
+                                                ${{ "%.2f"|format(product.regular_price) }} each
+                                            </div>
+                                            <div class="text-success fw-bold">
+                                                ${{ "%.2f"|format(product.discounted_price) }} each
+                                            </div>
+                                            {% else %}
+                                            <div class="text-muted">${{ "%.2f"|format(product.discounted_price) }} each</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <div class="bg-light p-3 rounded">
+                                        <h6 class="mb-3">Order Summary</h6>
+                                        {% set order_details = order.get('order_calculation') %}
+                                        {% if order_details and order_details.total_savings > 0 %}
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>Subtotal:</span>
+                                            <span>${{ "%.2f"|format(order_details.subtotal_regular) }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-2 text-success">
+                                            <span>Discount:</span>
+                                            <span>-${{ "%.2f"|format(order_details.total_savings) }}</span>
+                                        </div>
+                                        {% else %}
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>Subtotal:</span>
+                                            <span>${{ "%.2f"|format(order.total_amount) }}</span>
+                                        </div>
+                                        {% endif %}
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>Shipping:</span>
+                                            <span>${{ "%.2f"|format(order.shipping_price) }}</span>
+                                        </div>
+                                        <hr>
+                                        <div class="d-flex justify-content-between fw-bold">
+                                            <span>Total:</span>
+                                            <span>${{ "%.2f"|format(order.total_amount + order.shipping_price) }}</span>
+                                        </div>
+                                        
+                                        {% if order.shippment_tracking_number %}
+                                        <div class="mt-3">
+                                            <small class="text-muted d-block">Tracking Number:</small>
+                                            <code class="small">{{ order.shippment_tracking_number }}</code>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {% if order.secret_code %}
+                                        <div class="mt-2">
+                                            <small class="text-muted d-block">Applied Coupon:</small>
+                                            <code class="small">{{ order.secret_code }}</code>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {% if order.payed_at %}
+                                        <div class="mt-2">
+                                            <small class="text-muted d-block">Order Date:</small>
+                                            <small>{{ order.payed_at.strftime("%B %d, %Y at %I:%M %p") }}</small>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-box text-muted mb-3" style="font-size: 4rem;"></i>
+                    <h3 class="text-muted">No Orders Found</h3>
+                    {% if selected_status %}
+                    <p class="text-muted mb-4">No orders found with status "{{ selected_status.replace('_', ' ').title() }}".</p>
+                    <a href="/admin/orders" class="btn btn-primary">View All Orders</a>
+                    {% else %}
+                    <p class="text-muted mb-4">No orders have been placed yet.</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

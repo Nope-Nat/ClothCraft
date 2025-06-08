@@ -147,5 +147,85 @@ class OrderRepository:
             print(f"Error updating order status: {str(e)}")
             return False
 
+    async def get_all_orders(self, status_filter: Optional[str] = None) -> List[dict]:
+        """Get all orders for admin with optional status filtering"""
+        query = """
+            SELECT 
+                o.id_order,
+                o.id_user,
+                u.username,
+                o.shipping_price,
+                o.payed_at,
+                o.cancelled_at,
+                o.shippment_tracking_number::text,
+                o.return_tracking_number::text,
+                o.secret_code,
+                osv.status as current_status,
+                osv.created_at as status_updated_at,
+                COALESCE(ot.subtotal_discounted, 0) as total_amount
+            FROM "order" o
+            LEFT JOIN "user" u ON o.id_user = u.id_user
+            LEFT JOIN order_status_view osv ON o.id_order = osv.id_order
+            LEFT JOIN LATERAL get_order_total_at_timestamp(o.id_order, COALESCE(o.payed_at, NOW())) ot ON true
+        """
+        
+        params = []
+        if status_filter and status_filter.strip():
+            query += " WHERE osv.status = $1"
+            params.append(status_filter)
+        
+        query += " ORDER BY o.payed_at DESC NULLS LAST, o.id_order DESC"
+        
+        async with db.get_connection() as conn:
+            rows = await conn.fetch(query, *params)
+            orders = []
+            
+            for row in rows:
+                # Get order calculation details
+                order_calculation = await self._get_order_calculation(row['id_order'])
+                
+                # Get order products for each order
+                products_query = """
+                    SELECT * FROM calculate_order_price_at_timestamp($1, (
+                        SELECT COALESCE(payed_at, NOW()) 
+                        FROM "order" 
+                        WHERE id_order = $1
+                    ))
+                """
+                products_rows = await conn.fetch(products_query, row['id_order'])
+                
+                order_dict = dict(row)
+                order_dict['products'] = [dict(p) for p in products_rows]
+                order_dict['order_calculation'] = order_calculation
+                orders.append(order_dict)
+            
+            return orders
+
+    async def get_available_statuses(self) -> List[str]:
+        """Get all available order statuses"""
+        query = """
+            SELECT DISTINCT status 
+            FROM order_status_view 
+            ORDER BY status
+        """
+        
+        async with db.get_connection() as conn:
+            rows = await conn.fetch(query)
+            return [row['status'] for row in rows]
+
+    async def update_order_status_admin(self, order_id: int, new_status: str) -> bool:
+        """Update order status (admin function)"""
+        query = """
+            INSERT INTO order_history (id_order, status, created_at)
+            VALUES ($1, $2::order_status, NOW())
+        """
+        try:
+            async with db.get_connection() as conn:
+                await conn.execute(query, order_id, new_status)
+                return True
+        except Exception as e:
+            print(f"Error updating order status: {str(e)}")
+            return False
+
 # Global repository instance
 order_repo = OrderRepository()
