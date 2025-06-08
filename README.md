@@ -81,7 +81,7 @@ This project focused on extensive database design and implementation. It contain
 Everything can be found [here](/db/init_updt/)
 
 ### Database schema
-![Database schema](docs/diagram.png)
+![Database schema](docs/diagram.jpeg)
 
 ## Data origin
 Most of the data was generated using OpenAI API, with some additional data manually added to ensure a realistic dataset. The data includes:
@@ -92,6 +92,6 @@ Most of the data was generated using OpenAI API, with some additional data manua
 - orders
 - shopping carts
 - product categories
+- materials
 - tags
 - product images (also generated using SoraAI)
-
