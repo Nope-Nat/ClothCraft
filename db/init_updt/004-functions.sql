@@ -122,23 +122,22 @@ CREATE OR REPLACE FUNCTION get_min_price_30_days(product_id INT)
 RETURNS FLOAT AS $$
 DECLARE
     min_price FLOAT;
-    greatest_timestamp_older_than_30_days TIMESTAMP;
 BEGIN
-    SELECT created_at
-    INTO greatest_timestamp_older_than_30_days
-    FROM price_history ph
-    WHERE ph.id_product = product_id
-        AND created_at < (NOW() - interval '30 days')
-    ORDER BY created_at DESC
-    LIMIT 1;
-
+    -- Simply get the minimum price within the last 30 days
     SELECT MIN(price)
     INTO min_price
     FROM price_history ph
     WHERE ph.id_product = product_id
-      AND ph.created_at >= greatest_timestamp_older_than_30_days;
+      AND ph.created_at >= (NOW() - interval '30 days');
     
-    RETURN COALESCE(min_price, 0);
+    RETURN COALESCE(min_price, (
+        -- If no prices in last 30 days, get the most recent price
+        SELECT price
+        FROM price_history ph
+        WHERE ph.id_product = product_id
+        ORDER BY created_at DESC
+        LIMIT 1
+    ));
 END;
 $$ LANGUAGE plpgsql;
 
