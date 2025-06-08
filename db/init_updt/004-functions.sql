@@ -2,6 +2,7 @@
 DROP FUNCTION IF EXISTS get_product_regular_price(INT);
 DROP FUNCTION IF EXISTS get_product_discounted_price(INT, VARCHAR);
 DROP FUNCTION IF EXISTS get_product_discount_info(INT, VARCHAR);
+DROP FUNCTION IF EXISTS add_storage_delivery_part(INT, INT, TIMESTAMP);
 
 -- Function to get the current regular price for a product
 CREATE OR REPLACE FUNCTION get_product_regular_price(product_id INT)
@@ -192,5 +193,49 @@ BEGIN
         tag t ON tp.id_tag = t.id_tag
     WHERE 
         tp.id_product = product_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Add this function definition with your other database functions
+CREATE OR REPLACE FUNCTION add_storage_delivery_part(
+    p_variant_id INTEGER,
+    p_quantity INTEGER
+) RETURNS void AS $$
+DECLARE
+    v_delivery_id INTEGER;
+    v_variant_size_id INTEGER;
+BEGIN
+    -- First get the variant_size_id
+    SELECT id_variant_size INTO v_variant_size_id
+    FROM variant_size
+    WHERE id_variant = p_variant_id
+    LIMIT 1;
+
+    IF v_variant_size_id IS NULL THEN
+        RAISE EXCEPTION 'No variant size found for variant id %', p_variant_id;
+    END IF;
+
+    -- Create new delivery record
+    INSERT INTO storage_delivery (delivered_at)
+    VALUES (NOW())
+    RETURNING id_storage_delivery INTO v_delivery_id;
+
+    -- Create delivery part record
+    INSERT INTO storage_delivery_part (
+        id_delivery,
+        id_variant_size,
+        quantity
+    ) VALUES (
+        v_delivery_id,
+        v_variant_size_id,
+        p_quantity
+    );
+
+    -- Update storage quantity
+    INSERT INTO storage_quantity (id_variant, quantity)
+    VALUES (p_variant_id, p_quantity)
+    ON CONFLICT (id_variant) 
+    DO UPDATE SET quantity = storage_quantity.quantity + EXCLUDED.quantity,
+                  last_updated = NOW();
 END;
 $$ LANGUAGE plpgsql;

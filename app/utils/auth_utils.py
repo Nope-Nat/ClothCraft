@@ -139,3 +139,28 @@ async def verify_admin_access(request: Request):
             )
     
     return user_data
+
+from fastapi import HTTPException, Request, Depends
+from typing import Optional
+# ...existing code...
+
+async def admin_required(request: Request) -> dict:
+    """
+    Dependency that ensures the user is logged in and is an admin.
+    Raises HTTPException if not authorized.
+    """
+    user_data = await get_current_user(request)
+    
+    if not user_data:
+        raise HTTPException(
+            status_code=401,
+            detail="Not authenticated"
+        )
+    
+    if not require_admin(user_data):
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required"
+        )
+    
+    return user_data

@@ -165,7 +165,7 @@
                     {% for size in variant_sizes %}
                     <button type="button" 
                             class="btn {% if size.id_size == id_size %}btn-primary{% elif not size.in_stock %}btn-outline-secondary{% else %}btn-outline-secondary{% endif %} flex-shrink-0"
-                            onclick="{% if size.in_stock %}setSizeParam('{{ size.id_size }}'){% endif %}"
+                            {% if size.in_stock %}onclick="setSizeParam('{{ size.id_size }}')" {% endif %}
                             {% if not size.in_stock %}disabled{% endif %}
                             style="min-width: 60px; white-space: nowrap;">
                         <div class="d-flex justify-content-between align-items-center">
@@ -243,6 +243,48 @@
                     {% endif %}
                 </form>
             </div>
+
+            <!-- Add to Storage Button and Modal -->
+            {% if is_admin %}
+            <div class="mt-3">
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addToStorageModal">
+                    <i class="bi bi-box-seam"></i> Add to Storage
+                </button>
+            </div>
+
+            <!-- Add this modal at the end of your template, before the closing body tag -->
+            <div class="modal fade" id="addToStorageModal" tabindex="-1" aria-labelledby="addToStorageModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addToStorageModalLabel">Add to Storage</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form method="POST" action="/product/{{ id_product }}/add-to-storage">
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="storageQuantity" class="form-label">Quantity</label>
+                                    <input type="number" class="form-control" id="storageQuantity" name="quantity" 
+                                           min="1" value="1" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="storageVariant" class="form-label">Variant</label>
+                                    <select class="form-select" id="storageVariant" name="variant_id" required>
+                                        {% for variant in product_variants %}
+                                        <option value="{{ variant.id }}">{{ variant.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Add to Storage</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
 
             <script>
             function setVariantParam(provided_id_variant) {
