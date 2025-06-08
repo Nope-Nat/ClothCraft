@@ -41,7 +41,8 @@ BEGIN
 
     INSERT INTO product_image(id_product, img_path, "order") VALUES (new_product_id, '/static/img/no_image.png', 1);
 
-    INSERT INTO product_material(id_product, id_material, percentage) VALUES (new_product_id, 1, 100);
+    INSERT INTO product_material(id_product, id_material, percentage) VALUES (new_product_id, 1, 90);
+    INSERT INTO product_material(id_product, id_material, percentage) VALUES (new_product_id, 2, 10);
 
     INSERT INTO variant (id_product, name, color, active) VALUES (new_product_id, 'Variant 1', '\xFF0000'::BYTEA, true)
     RETURNING id_variant INTO new_variant_id;

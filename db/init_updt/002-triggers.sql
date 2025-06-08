@@ -12,49 +12,42 @@ LANGUAGE plpgsql
 AS $$
 DECLARE
   total_pct NUMERIC;
+  affected_product INT;
 BEGIN
+  -- Determine which product to check based on operation
+  IF TG_OP = 'DELETE' THEN
+    affected_product := OLD.id_product;
+  ELSE
+    affected_product := NEW.id_product;
+  END IF;
+
   -- Compute the sum of percentages for this product
   SELECT COALESCE(SUM(percentage), 0)
     INTO total_pct
   FROM product_material
-  WHERE id_product = NEW.id_product;
-
-  -- If this is a DELETE, subtract OLD.percentage instead of adding NEW
-  IF TG_OP = 'DELETE' THEN
-    total_pct := total_pct - OLD.percentage;
-  ELSIF TG_OP = 'UPDATE' THEN
-    -- On update, remove OLD, add NEW
-    total_pct := total_pct - OLD.percentage + NEW.percentage;
-  END IF;
+  WHERE id_product = affected_product;
 
   -- Enforce that the sum is exactly 100.0
   IF total_pct <> 100.0 THEN
     RAISE EXCEPTION
       'Total percentage for product % must be exactly 100.0, but found %.',
-      NEW.id_product, total_pct;
+      affected_product, total_pct;
   END IF;
 
   RETURN NULL;
 END;
 $$;
 
--- 2) Attach the trigger to product_material for INSERT, UPDATE, DELETE
+-- 2) Create a single deferred constraint trigger that fires once per transaction
 -- ------------------------------------------------
-CREATE TRIGGER trg_product_material_insert
-  AFTER INSERT
-  ON product_material
-  FOR EACH ROW
-  EXECUTE FUNCTION trg_product_material_check_sum();
+DROP TRIGGER IF EXISTS trg_product_material_insert ON product_material;
+DROP TRIGGER IF EXISTS trg_product_material_update ON product_material;
+DROP TRIGGER IF EXISTS trg_product_material_delete ON product_material;
 
-CREATE TRIGGER trg_product_material_update
-  AFTER UPDATE
+CREATE CONSTRAINT TRIGGER trg_product_material_check
+  AFTER INSERT OR UPDATE OR DELETE
   ON product_material
-  FOR EACH ROW
-  EXECUTE FUNCTION trg_product_material_check_sum();
-
-CREATE TRIGGER trg_product_material_delete
-  AFTER DELETE
-  ON product_material
+  DEFERRABLE INITIALLY DEFERRED
   FOR EACH ROW
   EXECUTE FUNCTION trg_product_material_check_sum();
 
