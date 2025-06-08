@@ -4,7 +4,7 @@
 <div class="container mt-4">
     <h1 class="mb-4">Create Product</h1>
 
-    <form method="post" action="/admin/new_product/" class="needs-validation" novalidate>
+    <form method="post" action="/admin/new_product/" class="needs-validation" enctype="multipart/form-data" novalidate>
         <div class="row g-3">
             <div class="col-md-6">
                 <div class="form-floating mb-3">
@@ -76,10 +76,35 @@
             </div>
 
             <div class="col-12">
-                <div class="form-floating mb-3">
-                    <input type="text" class="form-control" id="thumbnail_path" name="thumbnail_path" 
-                           value="{{ thumbnail_path or '/static/img/no_image.png' }}" required>
-                    <label for="thumbnail_path">Thumbnail Path</label>
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Product Image</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="thumbnail_file" class="form-label">Upload Thumbnail Image</label>
+                            <input type="file" class="form-control" id="thumbnail_file" name="thumbnail_file" 
+                                   accept="image/*" onchange="previewImage(this)">
+                            <div class="form-text">Upload a product image (JPEG, PNG, WebP supported)</div>
+                        </div>
+                        
+                        <div class="text-center mb-3">
+                            <strong>OR</strong>
+                        </div>
+                        
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="thumbnail_path" name="thumbnail_path" 
+                                   value="{{ thumbnail_path or '/static/img/no_image.png' }}">
+                            <label for="thumbnail_path">Thumbnail Path (URL)</label>
+                            <div class="form-text">Manually specify image path (will be ignored if file is uploaded)</div>
+                        </div>
+                        
+                        <!-- Image Preview -->
+                        <div class="mt-3">
+                            <img id="imagePreview" src="{{ thumbnail_path or '/static/img/no_image.png' }}" 
+                                 alt="Preview" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -135,4 +160,24 @@
     </div>
     {% endif %}
 </div>
+
+<script>
+function previewImage(input) {
+    const preview = document.getElementById('imagePreview');
+    const pathInput = document.getElementById('thumbnail_path');
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+        };
+        
+        reader.readAsDataURL(input.files[0]);
+        
+        // Clear the path input when file is selected
+        pathInput.value = '';
+    }
+}
+</script>
 {% endblock %}

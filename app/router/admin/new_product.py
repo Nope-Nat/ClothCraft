@@ -1,5 +1,5 @@
 from typing import Optional, List
-from fastapi import APIRouter, HTTPException, Request, Form, status
+from fastapi import APIRouter, Request, Form, HTTPException, status, File, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from datetime import datetime
@@ -12,6 +12,9 @@ from db import db
 import markdown
 from fastapi.responses import JSONResponse
 from utils.auth_utils import verify_admin_access
+import hashlib
+import time
+from pathlib import Path
 
 router = APIRouter(prefix="/admin/new_product")
 
@@ -53,56 +56,17 @@ async def create_product(
     initial_price: float = Form(...),
     initial_description: str = Form(...),
     selected_tags: List[int] = Form(default=[]),
+    thumbnail_file: Optional[UploadFile] = File(None)
 ):
-    # Verify admin access
+    """Create a new product with optional image upload"""
     await verify_admin_access(request)
     
-    errors = []
-    
-    try:
-        if errors:
-            # Get form data and add form values for re-display
-            template_data = await get_product_form_data()
-            template_data.update({
-                "request": request,
-                "errors": errors,
-                "product_name": product_name,
-                "id_category": id_category,
-                "id_sizing_type": id_sizing_type,
-                "id_country": id_country,
-                "sku_code": sku_code,
-                "short_description": short_description,
-                "thumbnail_path": thumbnail_path,
-                "initial_price": initial_price,
-                "initial_description": initial_description,
-                "selected_tags": selected_tags,
-            })
-            
-            return templates.TemplateResponse("admin/new_product.html", template_data)
-        
-        # Create the product
-        new_product_id = await ProductRepository.create_product(
-            id_category=id_category,
-            id_sizing_type=id_sizing_type,
-            id_country=id_country,
-            sku_code=sku_code.strip(),
-            short_description=short_description.strip(),
-            thumbnail_path=thumbnail_path.strip() if thumbnail_path else '/static/img/no_image.png',
-            product_name=product_name.strip(),
-            initial_price=initial_price,
-            initial_description=initial_description.strip(),
-            tag_ids=selected_tags
-        )
-        
-        # Redirect to the product page
-        return RedirectResponse(url=f"/product/{new_product_id}", status_code=303)
-        
-    except Exception as e:
-        # Get form data and add error + form values for re-display
+    # Get form data for potential re-display on error
+    async def get_template_data_with_error(error_msg: str):
         template_data = await get_product_form_data()
         template_data.update({
             "request": request,
-            "errors": [f"Error creating product: {str(e)}"],
+            "errors": [error_msg],
             "product_name": product_name,
             "id_category": id_category,
             "id_sizing_type": id_sizing_type,
@@ -114,6 +78,79 @@ async def create_product(
             "initial_description": initial_description,
             "selected_tags": selected_tags,
         })
+        return template_data
+    
+    try:
+        final_thumbnail_path = thumbnail_path
         
-        return await templates.TemplateResponse("admin/new_product.html", template_data)
+        # Handle image upload if provided
+        if thumbnail_file and thumbnail_file.filename:
+            try:
+                # Validate file type
+                allowed_types = {'image/jpeg', 'image/png', 'image/webp', 'image/jpg'}
+                if thumbnail_file.content_type not in allowed_types:
+                    template_data = await get_template_data_with_error("Invalid file type. Please upload JPEG, PNG, or WebP images only.")
+                    return templates.TemplateResponse("admin/new_product.html", template_data)
+                
+                # Read file content
+                file_content = await thumbnail_file.read()
+                
+                # Generate unique filename using hash + timestamp
+                file_hash = hashlib.sha256(file_content + str(time.time()).encode()).hexdigest()[:16]
+                file_extension = thumbnail_file.filename.split('.')[-1].lower()
+                if file_extension not in ['jpg', 'jpeg', 'png', 'webp']:
+                    file_extension = 'jpg'
+                
+                filename = f"{file_hash}.{file_extension}"
+                
+                # Ensure the static/img directory exists
+                img_dir = Path("static/img")
+                img_dir.mkdir(parents=True, exist_ok=True)
+                
+                # Save file
+                file_path = img_dir / filename
+                with open(file_path, "wb") as f:
+                    f.write(file_content)
+                
+                # Update thumbnail path to use uploaded file
+                final_thumbnail_path = f"/static/img/{filename}"
+                
+            except Exception as e:
+                template_data = await get_template_data_with_error(f"Failed to upload image: {str(e)}")
+                return templates.TemplateResponse("admin/new_product.html", template_data)
+        
+        # Validate form inputs
+        if not product_name.strip():
+            template_data = await get_template_data_with_error("Product name is required")
+            return templates.TemplateResponse("admin/new_product.html", template_data)
+        
+        if not sku_code.strip() or len(sku_code.strip()) < 8:
+            template_data = await get_template_data_with_error("SKU code must be at least 8 characters long")
+            return templates.TemplateResponse("admin/new_product.html", template_data)
+        
+        if initial_price <= 0:
+            template_data = await get_template_data_with_error("Initial price must be greater than 0")
+            return templates.TemplateResponse("admin/new_product.html", template_data)
+        
+        # Create the product
+        new_product_id = await ProductRepository.create_product(
+            id_category=id_category,
+            id_sizing_type=id_sizing_type,
+            id_country=id_country,
+            sku_code=sku_code.strip(),
+            short_description=short_description.strip(),
+            thumbnail_path=final_thumbnail_path.strip() if final_thumbnail_path else '/static/img/no_image.png',
+            product_name=product_name.strip(),
+            initial_price=initial_price,
+            initial_description=initial_description.strip(),
+            tag_ids=selected_tags
+        )
+        
+        # Redirect to the product page
+        return RedirectResponse(url=f"/product/{new_product_id}", status_code=303)
+        
+    except Exception as e:
+        # Get form data and add error + form values for re-display
+        template_data = await get_template_data_with_error(f"Error creating product: {str(e)}")
+        return templates.TemplateResponse("admin/new_product.html", template_data)
 
