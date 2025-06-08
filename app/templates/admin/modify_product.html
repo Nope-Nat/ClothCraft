@@ -9,6 +9,40 @@
 
     <div class="card mb-4">
         <div class="card-header">
+            <h5 class="card-title mb-0">Product Description</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" action="/admin/modify_product/{{ id_product }}/update_description">
+                <div class="form-floating mb-3">
+                    <textarea class="form-control" id="description" name="description" rows="10" style="height: 200px;" required>{{ current_description or '' }}</textarea>
+                    <label for="description">Description</label>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Description</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Product Price</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" action="/admin/modify_product/{{ id_product }}/update_price" class="row g-3">
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" value="{{ current_price or 0 }}" required>
+                        <label for="price">Price ($)</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">Update Price</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
             <h5 class="card-title mb-0">Add New Variant</h5>
         </div>
         <div class="card-body">

@@ -21,6 +21,15 @@ async def product_page(request: Request, id_product: int):
     product_materials = await VariantRepository.get_product_materials(id_product)
     all_materials = await VariantRepository.get_all_materials()
     
+    # Get current description and price from views
+    async with db.get_connection() as conn:
+        current_desc = await conn.fetchval(
+            "SELECT description FROM product_details_view WHERE id_product = $1", id_product
+        )
+        current_price = await conn.fetchval(
+            "SELECT price FROM product_price_view WHERE id_product = $1", id_product
+        )
+    
     variant_data = []
     for variant in variants:
         existing_sizes = await VariantRepository.get_variant_existing_sizes(variant['id_variant'])
@@ -36,6 +45,8 @@ async def product_page(request: Request, id_product: int):
         "variant_data": variant_data,
         "product_materials": product_materials,
         "all_materials": all_materials,
+        "current_description": current_desc,
+        "current_price": current_price,
     })
 
 @router.post("/{id_product}/add_size")
@@ -74,6 +85,36 @@ async def update_materials(request: Request, id_product: int):
         
     except Exception as e:
         # For now, just redirect back - could add query parameter for error display
+        return RedirectResponse(url=f"/admin/modify_product/{id_product}?error={str(e)}", status_code=status.HTTP_303_SEE_OTHER)
+    
+    return RedirectResponse(url=f"/admin/modify_product/{id_product}", status_code=status.HTTP_303_SEE_OTHER)
+
+@router.post("/{id_product}/update_description")
+async def update_description(request: Request, id_product: int, description: str = Form()):
+    await verify_admin_access(request)
+    
+    try:
+        async with db.get_connection() as conn:
+            await conn.execute(
+                "UPDATE product_details_view SET description = $1 WHERE id_product = $2",
+                description, id_product
+            )
+    except Exception as e:
+        return RedirectResponse(url=f"/admin/modify_product/{id_product}?error={str(e)}", status_code=status.HTTP_303_SEE_OTHER)
+    
+    return RedirectResponse(url=f"/admin/modify_product/{id_product}", status_code=status.HTTP_303_SEE_OTHER)
+
+@router.post("/{id_product}/update_price")
+async def update_price(request: Request, id_product: int, price: float = Form()):
+    await verify_admin_access(request)
+    
+    try:
+        async with db.get_connection() as conn:
+            await conn.execute(
+                "UPDATE product_price_view SET price = $1 WHERE id_product = $2",
+                price, id_product
+            )
+    except Exception as e:
         return RedirectResponse(url=f"/admin/modify_product/{id_product}?error={str(e)}", status_code=status.HTTP_303_SEE_OTHER)
     
     return RedirectResponse(url=f"/admin/modify_product/{id_product}", status_code=status.HTTP_303_SEE_OTHER)
