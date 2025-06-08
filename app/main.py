@@ -11,6 +11,7 @@ from router.orders import router as orders_router
 from router.cart import router as cart_router
 from router.admin.admin import router as admin_router
 from router.admin.new_product import router as new_product_router
+from router.admin.modify_product import router as modify_product_router
 from db import db
 from repository.product_repository import ProductRepository
 from template import templates
@@ -40,6 +41,7 @@ app.include_router(orders_router)
 app.include_router(cart_router)
 app.include_router(admin_router)
 app.include_router(new_product_router)
+app.include_router(modify_product_router)
 
 @app.on_event("startup")
 async def startup_event():
