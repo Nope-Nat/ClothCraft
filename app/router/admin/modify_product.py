@@ -16,7 +16,7 @@ router = APIRouter(prefix="/admin/modify_product")
 async def product_page(request: Request, id_product: int):
     await verify_admin_access(request)
     
-    variants = await VariantRepository.get_product_variants(id_product)
+    variants = await VariantRepository.get_product_variants(id_product, include_inactive=True)
     compatible_sizes = await VariantRepository.get_compatible_sizes_for_product(id_product)
     product_materials = await VariantRepository.get_product_materials(id_product)
     all_materials = await VariantRepository.get_all_materials()
@@ -145,6 +145,21 @@ async def toggle_active(request: Request, id_product: int):
             await conn.execute(
                 "UPDATE product SET active = NOT active WHERE id_product = $1",
                 id_product
+            )
+    except Exception as e:
+        return RedirectResponse(url=f"/admin/modify_product/{id_product}?error={str(e)}", status_code=status.HTTP_303_SEE_OTHER)
+    
+    return RedirectResponse(url=f"/admin/modify_product/{id_product}", status_code=status.HTTP_303_SEE_OTHER)
+
+@router.post("/{id_product}/toggle_variant_active")
+async def toggle_variant_active(request: Request, id_product: int, id_variant: int = Form()):
+    await verify_admin_access(request)
+    
+    try:
+        async with db.get_connection() as conn:
+            await conn.execute(
+                "UPDATE variant SET active = NOT active WHERE id_variant = $1",
+                id_variant
             )
     except Exception as e:
         return RedirectResponse(url=f"/admin/modify_product/{id_product}?error={str(e)}", status_code=status.HTTP_303_SEE_OTHER)

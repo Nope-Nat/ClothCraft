@@ -22,4 +22,8 @@ class ProductRepository(
     a unified interface for product operations while maintaining backwards
     compatibility with existing code.
     """
-    pass
+    
+    @staticmethod
+    async def get_product_variants(product_id: int, include_inactive: bool = False):
+        """Get variants for a product, excluding inactive variants by default."""
+        return await VariantRepository.get_product_variants(product_id, include_inactive)

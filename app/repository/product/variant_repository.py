@@ -4,15 +4,29 @@ class VariantRepository:
     """Repository for product variant and sizing operations."""
     
     @staticmethod
-    async def get_product_variants(product_id: int):
-        """Get all active variants for a product."""
+    async def get_product_variants(product_id: int, include_inactive: bool = False):
+        """Get all variants for a specific product."""
         async with db.get_connection() as conn:
-            query = """
-                SELECT id_variant, name, color
-                FROM variant
-                WHERE id_product = $1 AND active = true;
+            conditions = ["id_product = $1"]
+            if not include_inactive:
+                conditions.append("active = true")
+            
+            where_clause = " AND ".join(conditions)
+            
+            query = f"""
+                SELECT 
+                    id_variant, 
+                    id_product, 
+                    name, 
+                    color, 
+                    active,
+                    created_at
+                FROM variant 
+                WHERE {where_clause}
+                ORDER BY created_at
             """
-            return await conn.fetch(query, product_id)
+            rows = await conn.fetch(query, product_id)
+            return [dict(row) for row in rows]
 
     @staticmethod
     async def get_product_sizing_formats(product_id: int):

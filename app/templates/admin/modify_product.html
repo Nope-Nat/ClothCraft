@@ -186,17 +186,33 @@
                 <div class="row">
                 {% for item in variant_data %}
                     <div class="col-md-6 mb-3">
-                        <div class="card">
-                            <div class="card-header">
-                                <h6 class="card-title mb-0">
-                                    {{ item.variant.name }}
-                                    <span class="badge" style="background-color: '{{ item.variant.color.hex() }}';">
-                                        {{ item.variant.color.hex() }}
+                        <div class="card {% if not item.variant.active %}opacity-75{% endif %}">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title mb-0 {% if not item.variant.active %}text-muted{% endif %}">
+                                        {{ item.variant.name }}
+                                        <span class="badge" style="background-color: '{{ item.variant.color.hex() }}';">
+                                            {{ item.variant.color.hex() }}
+                                        </span>
+                                        {% if not item.variant.active %}
+                                        <small class="text-danger">(Inactive)</small>
+                                        {% endif %}
+                                    </h6>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <span class="badge {{ 'bg-success' if item.variant.active else 'bg-danger' }} fs-6">
+                                        {{ 'Active' if item.variant.active else 'Inactive' }}
                                     </span>
-                                </h6>
+                                    <form method="post" action="/admin/modify_product/{{ id_product }}/toggle_variant_active" class="d-inline">
+                                        <input type="hidden" name="id_variant" value="{{ item.variant.id_variant }}">
+                                        <button type="submit" class="btn {{ 'btn-outline-danger' if item.variant.active else 'btn-outline-success' }} btn-sm">
+                                            {{ 'Deactivate' if item.variant.active else 'Activate' }}
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                             <div class="card-body">
-                                {% if item.available_sizes %}
+                                {% if item.available_sizes and item.variant.active %}
                                     <form method="post" action="/admin/modify_product/{{ id_product }}/add_size" class="row g-2">
                                         <input type="hidden" name="id_variant" value="{{ item.variant.id_variant }}">
                                         <div class="col-8">
@@ -211,6 +227,8 @@
                                             <button type="submit" class="btn btn-primary w-100">Add</button>
                                         </div>
                                     </form>
+                                {% elif not item.variant.active %}
+                                    <p class="text-muted mb-0">Variant is inactive</p>
                                 {% else %}
                                     <p class="text-muted mb-0">All sizes added</p>
                                 {% endif %}
