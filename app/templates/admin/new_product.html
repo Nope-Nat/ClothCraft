@@ -1,92 +1,138 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Create Product</h1>
+<div class="container mt-4">
+    <h1 class="mb-4">Create Product</h1>
 
-<form method="post" action="/admin/new_product/">
-    <div>
-        <label for="product_name">product_name:</label>
-        <input type="text" id="product_name" name="product_name" value="{{ product_name or 'New Product' }}" required>
-    </div>
-    <div>
-        <label for="id_category">id_category:</label>
-        <select id="id_category" name="id_category" required>
-            <option value="">id_category</option>
-            {% for category in categories %}
-                <option value="{{ category.id_category }}" 
-                        {% if id_category == category.id_category or (not id_category and loop.first) %}selected{% endif %}>
-                    {{ category.id_category }} {{ category.name }}
-                </option>
-            {% endfor %}
-        </select>
-    </div>
-    <div>
-        <label for="id_sizing_type">id_sizing_type:</label>
-        <select id="id_sizing_type" name="id_sizing_type" required>
-            <option value="">id_sizing_type</option>
-            {% for sizing_type in sizing_types %}
-                <option value="{{ sizing_type.id_sizing_type }}" 
-                        {% if id_sizing_type == sizing_type.id_sizing_type or (not id_sizing_type and loop.first) %}selected{% endif %}>
-                    {{ sizing_type.id_sizing_type }} {{ sizing_type.name }}
-                </option>
-            {% endfor %}
-        </select>
-    </div>
-    <div>
-        <label for="id_country">id_country:</label>
-        <select id="id_country" name="id_country" required>
-            <option value="">id_country</option>
-            {% for country in countries %}
-                <option value="{{ country.id_country }}" 
-                        {% if id_country == country.id_country or (not id_country and loop.first) %}selected{% endif %}>
-                    {{ country.id_country }} {{ country.name }}
-                </option>
-            {% endfor %}
-        </select>
-    </div>
-    <div>
-        <label for="sku_code">sku_code:</label>
-        <input type="text" id="sku_code" name="sku_code" value="{{ sku_code or 'SKU12345678' }}" required>
-    </div>
-    <div>
-        <label for="short_description">short_description:</label>
-        <textarea id="short_description" name="short_description" rows="2" cols="30" required>{{ short_description or 'Product description' }}</textarea>
-    </div>
-    <div>
-        <label for="thumbnail_path">thumbnail_path:</label>
-        <input type="text" id="thumbnail_path" name="thumbnail_path" value="{{ thumbnail_path or '/static/img/no_image.png' }}" required>
-    </div>
-    <div>
-        <label for="initial_price">initial_price:</label>
-        <input type="number" id="initial_price" name="initial_price" step="0.01" min="0" value="{{ initial_price or '100' }}" required>
-    </div>
-    <div>
-        <label for="initial_description">initial_description:</label>
-        <textarea id="initial_description" name="initial_description" rows="8" cols="40" required>{{ initial_description or 'Detailed product description' }}</textarea>
-    </div>
-    <div>
-        <label>Tags:</label>
-        <div style="max-height: 150px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin: 5px 0;">
-            {% for tag in tags %}
-                <div style="margin: 5px 0;">
-                    <input type="checkbox" 
-                           id="tag_{{ tag.id_tag }}" 
-                           name="selected_tags" 
-                           value="{{ tag.id_tag }}"
-                           {% if selected_tags and tag.id_tag in selected_tags %}checked{% endif %}>
-                    <label for="tag_{{ tag.id_tag }}">{{ tag.name }}</label>
+    <form method="post" action="/admin/new_product/" class="needs-validation" novalidate>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" id="product_name" name="product_name" 
+                           value="{{ product_name or 'New Product' }}" required>
+                    <label for="product_name">Product Name</label>
                 </div>
-            {% endfor %}
-        </div>
-    </div>
-    <button type="submit">Create Product</button>
-</form>
+            </div>
 
-{% if errors %}
-<div class="errors">
-    {% for error in errors %}
-    <p style="color: red;">{{ error }}</p>
-    {% endfor %}
+            <div class="col-md-6">
+                <div class="form-floating mb-3">
+                    <select class="form-select" id="id_category" name="id_category" required>
+                        <option value="">Select Category</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id_category }}" 
+                                    {% if id_category == category.id_category or (not id_category and loop.first) %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <label for="id_category">Category</label>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-floating mb-3">
+                    <select class="form-select" id="id_sizing_type" name="id_sizing_type" required>
+                        <option value="">Select Sizing Type</option>
+                        {% for sizing_type in sizing_types %}
+                            <option value="{{ sizing_type.id_sizing_type }}"
+                                    {% if id_sizing_type == sizing_type.id_sizing_type or (not id_sizing_type and loop.first) %}selected{% endif %}>
+                                {{ sizing_type.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <label for="id_sizing_type">Sizing Type</label>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-floating mb-3">
+                    <select class="form-select" id="id_country" name="id_country" required>
+                        <option value="">Select Country</option>
+                        {% for country in countries %}
+                            <option value="{{ country.id_country }}"
+                                    {% if id_country == country.id_country or (not id_country and loop.first) %}selected{% endif %}>
+                                {{ country.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <label for="id_country">Country</label>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" id="sku_code" name="sku_code" 
+                           value="{{ sku_code or 'SKU12345678' }}" required>
+                    <label for="sku_code">SKU Code</label>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-floating mb-3">
+                    <input type="number" class="form-control" id="initial_price" name="initial_price" 
+                           step="0.01" min="0" value="{{ initial_price or '100' }}" required>
+                    <label for="initial_price">Initial Price</label>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" id="thumbnail_path" name="thumbnail_path" 
+                           value="{{ thumbnail_path or '/static/img/no_image.png' }}" required>
+                    <label for="thumbnail_path">Thumbnail Path</label>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="form-floating mb-3">
+                    <textarea class="form-control" id="short_description" name="short_description" 
+                              style="height: 100px" required>{{ short_description or 'Product description' }}</textarea>
+                    <label for="short_description">Short Description</label>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="form-floating mb-3">
+                    <textarea class="form-control" id="initial_description" name="initial_description" 
+                              style="height: 200px" required>{{ initial_description or 'Detailed product description' }}</textarea>
+                    <label for="initial_description">Detailed Description</label>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Tags</h5>
+                    </div>
+                    <div class="card-body" style="max-height: 200px; overflow-y: auto;">
+                        {% for tag in tags %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" 
+                                   id="tag_{{ tag.id_tag }}" 
+                                   name="selected_tags" 
+                                   value="{{ tag.id_tag }}"
+                                   {% if selected_tags and tag.id_tag in selected_tags %}checked{% endif %}>
+                            <label class="form-check-label" for="tag_{{ tag.id_tag }}">
+                                {{ tag.name }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Create Product</button>
+            </div>
+        </div>
+    </form>
+
+    {% if errors %}
+    <div class="alert alert-danger mt-3">
+        {% for error in errors %}
+        <p class="mb-0">{{ error }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
 </div>
-{% endif %}
 {% endblock %}
