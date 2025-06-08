@@ -6,10 +6,11 @@
             <div class="card-body py-2">
                 <div class="d-flex align-items-center">
                     {% if product.thumbnail_path %}
-                    <img src="{{ product.thumbnail_path }}" 
+                    <img src="{{ product.thumbnail_path or '/static/img/no_image.png' }}" 
                          alt="{{ product.name }}" 
                          class="me-3 rounded" 
-                         style="width: 40px; height: 40px; object-fit: cover;">
+                         style="width: 40px; height: 40px; object-fit: cover;"
+                         onerror="this.src='/static/img/no_image.png';">
                     {% else %}
                     <div class="me-3 rounded bg-light d-flex align-items-center justify-content-center" 
                          style="width: 40px; height: 40px;">

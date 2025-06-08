@@ -43,9 +43,10 @@
             <div class="card-body {% if not product.is_available %}bg-light{% endif %}">
                 <div class="row align-items-center">
                     <div class="col-md-2">
-                        {% if product.thumbnail_path %}
-                        <img src="{{ product.thumbnail_path }}" class="img-fluid {% if not product.is_available %}opacity-50{% endif %}" alt="{{ product.product_name }}">
-                        {% endif %}
+                        <img src="{{ product.thumbnail_path or '/static/img/no_image.png' }}" 
+                             class="img-fluid {% if not product.is_available %}opacity-50{% endif %}" 
+                             alt="{{ product.product_name }}"
+                             onerror="this.src='/static/img/no_image.png';">
                     </div>
                     <div class="col-md-4">
                         <h5 class="{% if not product.is_available %}text-muted{% endif %}">{{ product.product_name }}</h5>

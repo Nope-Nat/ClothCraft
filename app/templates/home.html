@@ -162,14 +162,11 @@
                         <div class="col-md-4">
                             <div class="card h-100 shadow-sm border-0">
                                 <div class="position-relative overflow-hidden" style="height: 250px;">
-                                    {% if product.thumbnail_path %}
-                                    <img src="{{ product.thumbnail_path }}" class="card-img-top h-100 w-100" 
-                                         style="object-fit: cover;" alt="{{ product.name }}">
-                                    {% else %}
-                                    <div class="d-flex align-items-center justify-content-center h-100 bg-light">
-                                        <i class="fas fa-image text-muted" style="font-size: 3rem;"></i>
-                                    </div>
-                                    {% endif %}
+                                    <img src="{{ product.thumbnail_path or '/static/img/no_image.png' }}" 
+                                         class="card-img-top h-100 w-100" 
+                                         style="object-fit: cover;" 
+                                         alt="{{ product.name }}"
+                                         onerror="this.src='/static/img/no_image.png';">
                                     <div class="position-absolute top-0 end-0 m-2">
                                         <span class="badge bg-primary">New</span>
                                     </div>
