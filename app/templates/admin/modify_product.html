@@ -1,97 +1,159 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Modify product {{ id_product }}</h1>
-<p><a href="/product/{{ id_product }}" target="_blank">View product page</a></p>
+<div class="container mt-4">
+    <h1 class="mb-3">Modify product {{ id_product }}</h1>
+    <p><a href="/product/{{ id_product }}" class="btn btn-outline-secondary btn-sm" target="_blank">
+        <i class="bi bi-box-arrow-up-right"></i> View product page
+    </a></p>
 
-<h2>Add New Variant</h2>
-<form method="post" action="/admin/modify_product/{{ id_product }}/add_variant" style="border: 1px solid #ddd; padding: 15px; margin: 10px 0;">
-    <label>Name: <input type="text" name="name" required></label><br><br>
-    <label>Color: <input type="color" name="color" required></label><br><br>
-    <button type="submit">Add Variant</button>
-</form>
-
-<h2>Product Variants</h2>
-{% if variant_data %}
-    {% for item in variant_data %}
-    <div style="border: 1px solid #ccc; margin: 10px 0; padding: 15px;">
-        <h3>{{ item.variant.name }} - Color: #{{ item.variant.color.hex() }}</h3>
-        
-        {% if item.available_sizes %}
-        <h4>Add Size:</h4>
-        <form method="post" action="/admin/modify_product/{{ id_product }}/add_size" style="margin: 10px 0;">
-            <input type="hidden" name="id_variant" value="{{ item.variant.id_variant }}">
-            <select name="id_size" required>
-                <option value="">Select size...</option>
-                {% for size in item.available_sizes %}
-                <option value="{{ size.id_size }}">{{ size.format_name }} {{ size.size_name }}</option>
-                {% endfor %}
-            </select>
-            <button type="submit">Add Size</button>
-        </form>
-        {% else %}
-        <p>All compatible sizes already added to this variant.</p>
-        {% endif %}
-    </div>
-    {% endfor %}
-{% else %}
-    <p>No variants found for this product.</p>
-{% endif %}
-
-<h2>Product Materials</h2>
-<form method="post" action="/admin/modify_product/{{ id_product }}/update_materials" style="border: 1px solid #ddd; padding: 15px; margin: 10px 0;">
-    <div id="materials-container">
-        {% for material in product_materials %}
-        <div class="material-row" style="margin: 10px 0; display: flex; gap: 10px; align-items: center;">
-            <select name="material_{{ loop.index0 }}" required>
-                {% for available_material in all_materials %}
-                <option value="{{ available_material.id_material }}" 
-                    {% if available_material.id_material == material.id_material %}selected{% endif %}>
-                    {{ available_material.id_material }} - {{ available_material.material_name }}
-                </option>
-                {% endfor %}
-            </select>
-            <input type="number" name="percentage_{{ loop.index0 }}" value="{{ material.percentage }}" 
-                   step="0.1" min="0" max="100" required style="width: 80px;">
-            <span>%</span>
-            <button type="button" onclick="removeMaterialRow(this)">Remove</button>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Add New Variant</h5>
         </div>
-        {% endfor %}
-        {% if not product_materials %}
-        <div class="material-row" style="margin: 10px 0; display: flex; gap: 10px; align-items: center;">
-            <select name="material_0" required>
-                <option value="">Select material...</option>
-                {% for material in all_materials %}
-                <option value="{{ material.id_material }}">{{ material.id_material }} - {{ material.material_name }}</option>
-                {% endfor %}
-            </select>
-            <input type="number" name="percentage_0" value="100" step="0.1" min="0" max="100" required style="width: 80px;">
-            <span>%</span>
-            <button type="button" onclick="removeMaterialRow(this)">Remove</button>
+        <div class="card-body">
+            <form method="post" action="/admin/modify_product/{{ id_product }}/add_variant">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" name="name" id="variantName" required>
+                            <label for="variantName">Variant Name</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="color" class="form-control form-control-color w-100" name="color" id="variantColor" required>
+                            <label for="variantColor">Color</label>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Add Variant</button>
+                    </div>
+                </div>
+            </form>
         </div>
-        {% endif %}
     </div>
-    <button type="button" onclick="addMaterialRow()">Add Material</button>
-    <button type="submit">Update Materials</button>
-</form>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Product Variants</h5>
+        </div>
+        <div class="card-body">
+            {% if variant_data %}
+                <div class="row">
+                {% for item in variant_data %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">
+                                    {{ item.variant.name }}
+                                    <span class="badge" style="background-color: '{{ item.variant.color.hex() }}';">
+                                        {{ item.variant.color.hex() }}
+                                    </span>
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                {% if item.available_sizes %}
+                                    <form method="post" action="/admin/modify_product/{{ id_product }}/add_size" class="row g-2">
+                                        <input type="hidden" name="id_variant" value="{{ item.variant.id_variant }}">
+                                        <div class="col-8">
+                                            <select name="id_size" class="form-select" required>
+                                                <option value="">Select size...</option>
+                                                {% for size in item.available_sizes %}
+                                                <option value="{{ size.id_size }}">{{ size.format_name }} {{ size.size_name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-4">
+                                            <button type="submit" class="btn btn-primary w-100">Add</button>
+                                        </div>
+                                    </form>
+                                {% else %}
+                                    <p class="text-muted mb-0">All sizes added</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted mb-0">No variants found for this product.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Product Materials</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" action="/admin/modify_product/{{ id_product }}/update_materials">
+                <div id="materials-container">
+                    {% for material in product_materials %}
+                    <div class="material-row row g-2 mb-2">
+                        <div class="col-8">
+                            <select name="material_{{ loop.index0 }}" class="form-select" required>
+                                {% for available_material in all_materials %}
+                                <option value="{{ available_material.id_material }}" 
+                                    {% if available_material.id_material == material.id_material %}selected{% endif %}>
+                                    {{ available_material.material_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-3">
+                            <div class="input-group">
+                                <input type="number" class="form-control" name="percentage_{{ loop.index0 }}" 
+                                       value="{{ material.percentage }}" step="0.1" min="0" max="100" required>
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+                        <div class="col-1">
+                            <button type="button" class="btn btn-outline-danger" onclick="removeMaterialRow(this)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="mt-3">
+                    <button type="button" class="btn btn-outline-secondary" onclick="addMaterialRow()">
+                        <i class="bi bi-plus-circle"></i> Add Material
+                    </button>
+                    <button type="submit" class="btn btn-primary">Update Materials</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <script>
 function addMaterialRow() {
     const container = document.getElementById('materials-container');
     const rowCount = container.children.length;
     const newRow = document.createElement('div');
-    newRow.className = 'material-row';
-    newRow.style.cssText = 'margin: 10px 0; display: flex; gap: 10px; align-items: center;';
+    newRow.className = 'material-row row g-2 mb-2';
     newRow.innerHTML = `
-        <select name="material_${rowCount}" required>
-            <option value="">Select material...</option>
-            {% for material in all_materials %}
-            <option value="{{ material.id_material }}">{{ material.id_material }} - {{ material.material_name }}</option>
-            {% endfor %}
-        </select>
-        <input type="number" name="percentage_${rowCount}" value="0" step="0.1" min="0" max="100" required style="width: 80px;">
-        <span>%</span>
-        <button type="button" onclick="removeMaterialRow(this)">Remove</button>
+        <div class="col-8">
+            <select name="material_${rowCount}" class="form-select" required>
+                <option value="">Select material...</option>
+                {% for material in all_materials %}
+                <option value="{{ material.id_material }}">{{ material.material_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-3">
+            <div class="input-group">
+                <input type="number" class="form-control" name="percentage_${rowCount}" 
+                       value="0" step="0.1" min="0" max="100" required>
+                <span class="input-group-text">%</span>
+            </div>
+        </div>
+        <div class="col-1">
+            <button type="button" class="btn btn-outline-danger" onclick="removeMaterialRow(this)">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
     `;
     container.appendChild(newRow);
 }
@@ -99,8 +161,7 @@ function addMaterialRow() {
 function removeMaterialRow(button) {
     const container = document.getElementById('materials-container');
     if (container.children.length > 1) {
-        button.parentElement.remove();
-        // Renumber the remaining rows
+        button.closest('.material-row').remove();
         Array.from(container.children).forEach((row, index) => {
             const select = row.querySelector('select');
             const input = row.querySelector('input');
@@ -110,5 +171,4 @@ function removeMaterialRow(button) {
     }
 }
 </script>
-
 {% endblock %}
