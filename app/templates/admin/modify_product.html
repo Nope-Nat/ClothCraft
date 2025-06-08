@@ -24,6 +24,53 @@
 
     <div class="card mb-4">
         <div class="card-header">
+            <h5 class="card-title mb-0">Description History</h5>
+        </div>
+        <div class="card-body">
+            {% if description_history %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description Preview</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entry in description_history %}
+                            <tr>
+                                <td>{{ entry.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    <div class="text-truncate" style="max-width: 300px;">
+                                        {{ entry.description[:100] }}{% if entry.description|length > 100 %}...{% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#desc-{{ loop.index }}">
+                                        View Full
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="collapse" id="desc-{{ loop.index }}">
+                                <td colspan="3">
+                                    <div class="bg-light p-3 rounded">
+                                        <pre class="mb-0">{{ entry.description }}</pre>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted mb-0">No description history found.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
             <h5 class="card-title mb-0">Product Price</h5>
         </div>
         <div class="card-body">
@@ -38,6 +85,52 @@
                     <button type="submit" class="btn btn-primary">Update Price</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Price History</h5>
+        </div>
+        <div class="card-body">
+            {% if price_history %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Price</th>
+                                <th>Change</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entry in price_history %}
+                            <tr>
+                                <td>{{ entry.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>${{ "%.2f"|format(entry.price) }}</td>
+                                <td>
+                                    {% if not loop.last %}
+                                        {% set prev_price = price_history[loop.index].price %}
+                                        {% set change = entry.price - prev_price %}
+                                        {% if change > 0 %}
+                                            <span class="badge bg-success">+${{ "%.2f"|format(change) }}</span>
+                                        {% elif change < 0 %}
+                                            <span class="badge bg-danger">${{ "%.2f"|format(change) }}</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">No change</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="badge bg-primary">Initial</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted mb-0">No price history found.</p>
+            {% endif %}
         </div>
     </div>
 

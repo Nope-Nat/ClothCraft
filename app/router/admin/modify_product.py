@@ -21,13 +21,22 @@ async def product_page(request: Request, id_product: int):
     product_materials = await VariantRepository.get_product_materials(id_product)
     all_materials = await VariantRepository.get_all_materials()
     
-    # Get current description and price from views
     async with db.get_connection() as conn:
         current_desc = await conn.fetchval(
             "SELECT description FROM product_details_view WHERE id_product = $1", id_product
         )
         current_price = await conn.fetchval(
             "SELECT price FROM product_price_view WHERE id_product = $1", id_product
+        )
+        
+        description_history = await conn.fetch(
+            "SELECT description, created_at FROM product_details_history WHERE id_product = $1 ORDER BY created_at DESC",
+            id_product
+        )
+        
+        price_history = await conn.fetch(
+            "SELECT price, created_at FROM price_history WHERE id_product = $1 ORDER BY created_at DESC",
+            id_product
         )
     
     variant_data = []
@@ -47,6 +56,8 @@ async def product_page(request: Request, id_product: int):
         "all_materials": all_materials,
         "current_description": current_desc,
         "current_price": current_price,
+        "description_history": description_history,
+        "price_history": price_history,
     })
 
 @router.post("/{id_product}/add_size")
