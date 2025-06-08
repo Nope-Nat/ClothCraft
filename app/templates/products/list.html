@@ -166,17 +166,27 @@
                 {% for product in products %}
                 <div class="col">
                     <a href="/product/{{ product.id_product }}" class="text-decoration-none text-dark">
-                        <div class="card product-card border-0 shadow-sm h-100">
+                        <div class="card product-card border-0 shadow-sm h-100 {% if is_admin and not product.active %}opacity-75{% endif %}">
+                            {% if is_admin and not product.active %}
+                            <div class="position-absolute top-0 start-0 z-3 m-2">
+                                <span class="badge bg-danger">INACTIVE</span>
+                            </div>
+                            {% endif %}
                             <div class="product-image-container">
                                 {% if product.thumbnail_path %}
                                 <img src="{{ product.thumbnail_path }}" 
                                      alt="{{ product.name }}"
-                                     class="product-image">
+                                     class="product-image {% if is_admin and not product.active %}opacity-50{% endif %}">
                                 {% endif %}
                             </div>
                             <div class="card-body d-flex flex-column">
                                 <small class="text-muted">{{ product.category_name }}</small>
-                                <h5 class="card-title h6 mb-2">{{ product.name }}</h5>
+                                <h5 class="card-title h6 mb-2 {% if is_admin and not product.active %}text-muted{% endif %}">
+                                    {{ product.name }}
+                                    {% if is_admin and not product.active %}
+                                    <small class="text-danger">(Inactive)</small>
+                                    {% endif %}
+                                </h5>
                                 <div class="card-text fw-bold mb-3">
                                     {% if product.discounted_price < product.current_price %}
                                         <span class="text-success">${{ "%.2f"|format(product.discounted_price) }}</span>

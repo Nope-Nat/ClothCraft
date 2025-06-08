@@ -29,6 +29,10 @@ async def product_page(request: Request, id_product: int):
             "SELECT price FROM product_price_view WHERE id_product = $1", id_product
         )
         
+        product_info = await conn.fetchrow(
+            "SELECT name, active FROM product WHERE id_product = $1", id_product
+        )
+        
         description_history = await conn.fetch(
             "SELECT description, created_at FROM product_details_history WHERE id_product = $1 ORDER BY created_at DESC",
             id_product
@@ -58,6 +62,8 @@ async def product_page(request: Request, id_product: int):
         "current_price": current_price,
         "description_history": description_history,
         "price_history": price_history,
+        "product_name": product_info['name'],
+        "product_active": product_info['active'],
     })
 
 @router.post("/{id_product}/add_size")
@@ -124,6 +130,21 @@ async def update_price(request: Request, id_product: int, price: float = Form())
             await conn.execute(
                 "UPDATE product_price_view SET price = $1 WHERE id_product = $2",
                 price, id_product
+            )
+    except Exception as e:
+        return RedirectResponse(url=f"/admin/modify_product/{id_product}?error={str(e)}", status_code=status.HTTP_303_SEE_OTHER)
+    
+    return RedirectResponse(url=f"/admin/modify_product/{id_product}", status_code=status.HTTP_303_SEE_OTHER)
+
+@router.post("/{id_product}/toggle_active")
+async def toggle_active(request: Request, id_product: int):
+    await verify_admin_access(request)
+    
+    try:
+        async with db.get_connection() as conn:
+            await conn.execute(
+                "UPDATE product SET active = NOT active WHERE id_product = $1",
+                id_product
             )
     except Exception as e:
         return RedirectResponse(url=f"/admin/modify_product/{id_product}?error={str(e)}", status_code=status.HTTP_303_SEE_OTHER)

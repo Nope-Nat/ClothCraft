@@ -49,67 +49,73 @@ class ProductQueryRepository:
             return await conn.fetchrow(query, product_id)
 
     @staticmethod
-    async def get_products(category_id: Optional[int] = None, tag_ids: List[int] = None, size_ids: List[int] = None):
+    async def get_products(category_id: Optional[int] = None, tag_ids: List[int] = None, size_ids: List[int] = None, include_inactive: bool = False):
         """Get products with optional filtering by category, tags, and sizes."""
+        conditions = []
+        params = []
+        param_counter = 1
+        
+        if not include_inactive:
+            conditions.append("p.active = true")
+        
+        if category_id:
+            conditions.append(f"p.id_category = ${param_counter}")
+            params.append(category_id)
+            param_counter += 1
+        
+        if tag_ids:
+            placeholders = ",".join([f"${i}" for i in range(param_counter, param_counter + len(tag_ids))])
+            conditions.append(f"p.id_product IN (SELECT tp.id_product FROM tag_product tp WHERE tp.id_tag IN ({placeholders}))")
+            params.extend(tag_ids)
+            param_counter += len(tag_ids)
+        
+        if size_ids:
+            placeholders = ",".join([f"${i}" for i in range(param_counter, param_counter + len(size_ids))])
+            conditions.append(f"""
+                p.id_product IN (
+                    SELECT DISTINCT v.id_product 
+                    FROM variant v 
+                    JOIN variant_size vs ON v.id_variant = vs.id_variant 
+                    WHERE vs.id_size IN ({placeholders})
+                )
+            """)
+            params.extend(size_ids)
+            param_counter += len(size_ids)
+        
+        where_clause = "WHERE " + " AND ".join(conditions) if conditions else ""
+        
+        query = f"""
+            SELECT 
+                p.id_product,
+                p.name,
+                p.active,
+                p.thumbnail_path,
+                c.name as category_name,
+                ppv.price as current_price,
+                COALESCE(
+                    ppv.price * (1 - COALESCE(
+                        (SELECT MAX(dh.discount) 
+                         FROM discount_history dh 
+                         WHERE dh.id_product = p.id_product 
+                           AND dh."from" <= NOW() 
+                           AND (dh."to" IS NULL OR dh."to" >= NOW())
+                           AND dh.secret_code IS NULL), 0) / 100),
+                    ppv.price
+                ) as discounted_price,
+                array_agg(DISTINCT t.name) FILTER (WHERE t.name IS NOT NULL) as tags
+            FROM product p
+            LEFT JOIN category c ON p.id_category = c.id_category
+            LEFT JOIN product_price_view ppv ON p.id_product = ppv.id_product
+            LEFT JOIN tag_product tp ON p.id_product = tp.id_product
+            LEFT JOIN tag t ON tp.id_tag = t.id_tag
+            {where_clause}
+            GROUP BY p.id_product, p.name, p.active, p.thumbnail_path, c.name, ppv.price
+            ORDER BY p.created_at DESC
+        """
+        
         async with db.get_connection() as conn:
-            base_query = """
-                SELECT 
-                    p.id_product, 
-                    p.name, 
-                    p.thumbnail_path, 
-                    c.name as category_name,
-                    get_product_regular_price(p.id_product) as current_price,
-                    get_product_discounted_price(p.id_product, NULL) as discounted_price,
-                    array_agg(DISTINCT t.name) FILTER (WHERE t.id_tag IS NOT NULL) as tags,
-                    array_agg(DISTINCT concat(sf.value, ' ', f.value)) 
-                        FILTER (WHERE sf.id_sizing_format IS NOT NULL) as sizes
-                FROM product p
-                LEFT JOIN category c ON p.id_category = c.id_category
-                LEFT JOIN tag_product tp ON p.id_product = tp.id_product
-                LEFT JOIN tag t ON tp.id_tag = t.id_tag
-                LEFT JOIN variant v ON v.id_product = p.id_product
-                LEFT JOIN variant_size vs ON vs.id_variant = v.id_variant
-                LEFT JOIN size s ON vs.id_size = s.id_size
-                LEFT JOIN size_data sf ON s.id_size = sf.id_size
-                LEFT JOIN sizing_format f ON sf.id_sizing_format = f.id_sizing_format
-            """
-
-            conditions = ["p.active = true"]
-            params = []
-            param_count = 1
-
-            if category_id is not None:
-                conditions.append(f"""
-                    p.id_category IN (
-                        WITH RECURSIVE category_tree AS (
-                            SELECT id_category FROM category WHERE id_category = ${param_count}
-                            UNION ALL
-                            SELECT c.id_category FROM category c
-                            JOIN category_tree ct ON c.parent_category = ct.id_category
-                        )
-                        SELECT id_category FROM category_tree
-                    )
-                """)
-                params.append(category_id)
-                param_count += 1
-
-            if tag_ids and len(tag_ids) > 0:
-                conditions.append(f"p.id_product IN (SELECT id_product FROM tag_product WHERE id_tag = ANY(${param_count}))")
-                params.append(tag_ids)
-                param_count += 1
-
-            if size_ids and len(size_ids) > 0:
-                conditions.append(f"p.id_product IN (SELECT DISTINCT p.id_product FROM product p JOIN variant v ON v.id_product = p.id_product JOIN variant_size vs ON vs.id_variant = v.id_variant WHERE vs.id_size = ANY(${param_count}))")
-                params.append(size_ids)
-
-            query = f"""
-                {base_query}
-                WHERE {' AND '.join(conditions)}
-                GROUP BY p.id_product, p.name, p.thumbnail_path, c.name
-                ORDER BY c.name, p.name
-            """
-            
-            return await conn.fetch(query, *params)
+            rows = await conn.fetch(query, *params)
+            return [dict(row) for row in rows]
 
     @staticmethod
     async def get_recent_products(limit: int = 10):

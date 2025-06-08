@@ -4,6 +4,7 @@ from fastapi.templating import Jinja2Templates
 from typing import Optional, List
 from repository.product_repository import ProductRepository
 from template import templates
+from utils.auth_utils import get_current_user, require_admin
 
 router = APIRouter(prefix="/products", tags=["products"])
 
@@ -23,6 +24,9 @@ async def list_products(
             except ValueError:
                 pass
 
+        current_user = await get_current_user(request)
+        is_admin = require_admin(current_user)
+
         category_data = await ProductRepository.get_category_hierarchy(category_id)
         
         all_tags = await ProductRepository.get_all_tags()
@@ -36,7 +40,7 @@ async def list_products(
         if sizes:
             selected_sizes = [int(size) for size in sizes.split(',') if size.strip().isdigit()]
         
-        products = await ProductRepository.get_products(category_id, selected_tags, selected_sizes)
+        products = await ProductRepository.get_products(category_id, selected_tags, selected_sizes, include_inactive=is_admin)
         
         return await templates.TemplateResponse("products/list.html", {
             "request": request,
@@ -47,7 +51,8 @@ async def list_products(
             "all_sizes": all_sizes,
             "selected_category": category_id,
             "selected_tags": selected_tags,
-            "selected_sizes": selected_sizes
+            "selected_sizes": selected_sizes,
+            "is_admin": is_admin
         })
             
     except Exception as e:
