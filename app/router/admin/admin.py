@@ -6,6 +6,7 @@ from datetime import datetime
 from utils.auth_utils import verify_admin_access
 from repository.product_repository import ProductRepository
 from repository.order_repository import order_repo
+from repository.discount_repository import discount_repo
 from template import templates
 import os
 
@@ -56,3 +57,37 @@ async def update_order_status(request: Request, order_id: int, new_status: str =
             return RedirectResponse(url="/admin/orders?error=Failed to update order status", status_code=303)
     except Exception as e:
         return RedirectResponse(url=f"/admin/orders?error=Failed to update order status: {str(e)}", status_code=303)
+
+@router.get("/discounts", response_class=HTMLResponse)
+async def admin_discounts_page(request: Request, coupon_code: Optional[str] = None, status: Optional[str] = None):
+    """Admin discounts management page with filtering"""
+    await verify_admin_access(request)
+    
+    # Get all discounts with optional filtering
+    discounts = await discount_repo.get_discounts_with_filters(coupon_code, status)
+    
+    return await templates.TemplateResponse("admin/discounts.html", {
+        "request": request,
+        "discounts": discounts,
+        "selected_coupon_code": coupon_code,
+        "selected_status": status
+    })
+
+@router.get("/discounts/{discount_id}", response_class=HTMLResponse)
+async def admin_discount_details(request: Request, discount_id: int):
+    """View detailed information about a specific discount"""
+    await verify_admin_access(request)
+    
+    # Get discount details
+    discount = await discount_repo.get_discount_details(discount_id)
+    if not discount:
+        return RedirectResponse(url="/admin/discounts?error=Discount not found", status_code=303)
+    
+    # Get affected products
+    affected_products = await discount_repo.get_discount_affected_products(discount_id)
+    
+    return await templates.TemplateResponse("admin/discount_details.html", {
+        "request": request,
+        "discount": discount,
+        "affected_products": affected_products
+    })

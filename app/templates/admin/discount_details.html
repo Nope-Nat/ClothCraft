@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Discount Details{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Discount Details</h1>
+                <a href="/admin/discounts" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Discounts
+                </a>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Discount Information</h5>
+                            <span class="badge 
+                                {% if discount.status == 'active' %}bg-success
+                                {% elif discount.status == 'expired' %}bg-danger
+                                {% elif discount.status == 'future' %}bg-warning
+                                {% else %}bg-secondary
+                                {% endif %} 
+                                fs-6">
+                                {{ discount.status.title() }}
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row">
+                                <dt class="col-sm-4">Discount:</dt>
+                                <dd class="col-sm-8">
+                                    <span class="h4 text-primary">{{ discount.discount }}%</span>
+                                </dd>
+
+                                <dt class="col-sm-4">Type:</dt>
+                                <dd class="col-sm-8">
+                                    {% if discount.secret_code %}
+                                        <span class="badge bg-warning">Coupon Code</span>
+                                    {% else %}
+                                        <span class="badge bg-info">General Discount</span>
+                                    {% endif %}
+                                </dd>
+
+                                {% if discount.secret_code %}
+                                <dt class="col-sm-4">Coupon Code:</dt>
+                                <dd class="col-sm-8">
+                                    <code class="bg-light p-2 rounded d-block">{{ discount.secret_code }}</code>
+                                </dd>
+                                {% endif %}
+
+                                <dt class="col-sm-4">Valid From:</dt>
+                                <dd class="col-sm-8">{{ discount.from.strftime('%B %d, %Y at %I:%M %p') }}</dd>
+
+                                <dt class="col-sm-4">Valid To:</dt>
+                                <dd class="col-sm-8">
+                                    {% if discount.to %}
+                                        {{ discount.to.strftime('%B %d, %Y at %I:%M %p') }}
+                                    {% else %}
+                                        <strong class="text-success">Forever</strong>
+                                    {% endif %}
+                                </dd>
+
+                                <dt class="col-sm-4">Duration:</dt>
+                                <dd class="col-sm-8">
+                                    {% if discount.to %}
+                                        {% set duration = (discount.to - discount.from).days %}
+                                        {{ duration }} day(s)
+                                    {% else %}
+                                        <strong class="text-success">Permanent</strong>
+                                    {% endif %}
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Affected Products ({{ affected_products|length }})</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if affected_products %}
+                            <div class="list-group list-group-flush">
+                                {% for product in affected_products %}
+                                <div class="list-group-item d-flex align-items-center">
+                                    {% if product.thumbnail_path %}
+                                    <img src="{{ product.thumbnail_path }}" alt="{{ product.name }}" 
+                                         class="me-3 rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                                    {% endif %}
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">{{ product.name }}</h6>
+                                        <small class="text-muted">
+                                            {% if product.current_price %}
+                                            Regular: ${{ "%.2f"|format(product.current_price) }}
+                                            | Discounted: ${{ "%.2f"|format(product.current_price * (1 - product.discount / 100)) }}
+                                            {% else %}
+                                            Price not available
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                    <a href="/product/{{ product.id_product }}" 
+                                       class="btn btn-outline-primary btn-sm" target="_blank">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <p class="text-muted mb-0">No products found for this discount.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

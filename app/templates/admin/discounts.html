@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Manage Discounts{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            {% if request.query_params.get('success') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ request.query_params.get('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+
+            {% if request.query_params.get('error') %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ request.query_params.get('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Manage Discounts</h1>
+                <a href="/admin" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Admin Panel
+                </a>
+            </div>
+
+            <!-- Filters -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get" class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label for="coupon_code" class="form-label">Filter by Coupon Code:</label>
+                            <input type="text" name="coupon_code" id="coupon_code" class="form-control" 
+                                   value="{{ selected_coupon_code or '' }}" placeholder="Enter coupon code...">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="status" class="form-label">Filter by Status:</label>
+                            <select name="status" id="status" class="form-select">
+                                <option value="">All Discounts</option>
+                                <option value="active" {% if selected_status == 'active' %}selected{% endif %}>Active</option>
+                                <option value="expired" {% if selected_status == 'expired' %}selected{% endif %}>Expired</option>
+                                <option value="future" {% if selected_status == 'future' %}selected{% endif %}>Future</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary">Filter</button>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="/admin/discounts" class="btn btn-outline-secondary w-100">Clear</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            {% if discounts %}
+                <div class="row">
+                    <div class="col-12">
+                        <p class="text-muted mb-3">{{ discounts|length }} discount(s) found</p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    {% for discount in discounts %}
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span class="badge 
+                                    {% if discount.status == 'active' %}bg-success
+                                    {% elif discount.status == 'expired' %}bg-danger
+                                    {% elif discount.status == 'future' %}bg-warning
+                                    {% else %}bg-secondary
+                                    {% endif %} 
+                                    fs-6">
+                                    {{ discount.status.title() }}
+                                </span>
+                                <span class="fw-bold text-primary">-{{ discount.discount }}%</span>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title">{{ discount.discount_name }}</h6>
+                                
+                                {% if discount.secret_code %}
+                                <div class="mb-2">
+                                    <small class="text-muted">Coupon Code:</small>
+                                    <div><code class="bg-light p-1 rounded">{{ discount.secret_code }}</code></div>
+                                </div>
+                                {% else %}
+                                <div class="mb-2">
+                                    <span class="badge bg-info">General Discount</span>
+                                </div>
+                                {% endif %}
+                                
+                                <div class="mb-2">
+                                    <small class="text-muted">Valid:</small>
+                                    <div class="small">
+                                        From: {{ discount.from.strftime('%Y-%m-%d %H:%M') }}
+                                        <br>
+                                        To: {% if discount.to %}{{ discount.to.strftime('%Y-%m-%d %H:%M') }}{% else %}<strong>Forever</strong>{% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-2">
+                                    <small class="text-info">
+                                        <i class="fas fa-info-circle"></i>
+                                        Affects {{ discount.products_count }} product(s)
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <a href="/admin/discounts/{{ discount.id_discount }}" class="btn btn-outline-primary btn-sm w-100">
+                                    <i class="fas fa-eye me-1"></i>View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-percent text-muted mb-3" style="font-size: 4rem;"></i>
+                    <h3 class="text-muted">No Discounts Found</h3>
+                    {% if selected_coupon_code or selected_status %}
+                    <p class="text-muted mb-4">No discounts match your current filters.</p>
+                    <a href="/admin/discounts" class="btn btn-primary">View All Discounts</a>
+                    {% else %}
+                    <p class="text-muted mb-4">No discounts have been created yet.</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
