@@ -9,25 +9,6 @@ class OrderRepository:
     async def get_user_orders(self, user_id: UUID) -> List[OrderSummary]:
         """Get all orders for a specific user"""
         query = """
-            WITH order_totals AS (
-                SELECT 
-                    op.id_order,
-                    SUM(op.quantity * ph.price) as total_amount
-                FROM order_product op
-                JOIN "order" o ON op.id_order = o.id_order
-                JOIN variant_size vs ON op.id_variant_size = vs.id_variant_size
-                JOIN variant v ON vs.id_variant = v.id_variant
-                JOIN product p ON v.id_product = p.id_product
-                JOIN LATERAL (
-                    SELECT price 
-                    FROM price_history ph2 
-                    WHERE ph2.id_product = p.id_product 
-                    AND ph2.created_at <= COALESCE(o.payed_at, NOW())
-                    ORDER BY ph2.created_at DESC 
-                    LIMIT 1
-                ) ph ON true
-                GROUP BY op.id_order
-            )
             SELECT 
                 o.id_order,
                 o.id_user,
@@ -39,10 +20,10 @@ class OrderRepository:
                 o.secret_code,
                 osv.status as current_status,
                 osv.created_at as status_updated_at,
-                COALESCE(ot.total_amount, 0) as total_amount
+                COALESCE(ot.subtotal_discounted, 0) as total_amount
             FROM "order" o
             LEFT JOIN order_status_view osv ON o.id_order = osv.id_order
-            LEFT JOIN order_totals ot ON o.id_order = ot.id_order
+            LEFT JOIN LATERAL get_order_total_at_timestamp(o.id_order, COALESCE(o.payed_at, NOW())) ot ON true
             WHERE o.id_user = $1
             ORDER BY o.payed_at DESC NULLS LAST, o.id_order DESC
         """
@@ -77,24 +58,10 @@ class OrderRepository:
                 o.secret_code,
                 osv.status as current_status,
                 osv.created_at as status_updated_at,
-                COALESCE(
-                    (SELECT SUM(op.quantity * ph.price)
-                    FROM order_product op
-                    JOIN variant_size vs ON op.id_variant_size = vs.id_variant_size
-                    JOIN variant v ON vs.id_variant = v.id_variant
-                    JOIN product p ON v.id_product = p.id_product
-                    JOIN LATERAL (
-                        SELECT price 
-                        FROM price_history ph2 
-                        WHERE ph2.id_product = p.id_product 
-                        AND ph2.created_at <= COALESCE(o.payed_at, NOW())
-                        ORDER BY ph2.created_at DESC 
-                        LIMIT 1
-                    ) ph ON true
-                    WHERE op.id_order = o.id_order
-                    ), 0) as total_amount
+                COALESCE(ot.subtotal_discounted, 0) as total_amount
             FROM "order" o
             LEFT JOIN order_status_view osv ON o.id_order = osv.id_order
+            LEFT JOIN LATERAL get_order_total_at_timestamp(o.id_order, COALESCE(o.payed_at, NOW())) ot ON true
             WHERE o.id_order = $1
         """
         async with db.get_connection() as conn:
@@ -118,29 +85,13 @@ class OrderRepository:
             )
 
     async def _get_order_products(self, order_id: int) -> List[OrderProduct]:
-        """Get products for a specific order"""
+        """Get products for a specific order with proper discount calculations"""
         query = """
-            SELECT 
-                p.name as product_name,
-                v.name as variant_name,
-                encode(v.color, 'hex') as color,
-                sd.value as size,
-                op.quantity,
-                ph.price
-            FROM order_product op
-            JOIN variant_size vs ON op.id_variant_size = vs.id_variant_size
-            JOIN variant v ON vs.id_variant = v.id_variant
-            JOIN product p ON v.id_product = p.id_product
-            JOIN size s ON vs.id_size = s.id_size
-            JOIN size_data sd ON s.id_size = sd.id_size
-            JOIN LATERAL (
-                SELECT price 
-                FROM price_history ph2 
-                WHERE ph2.id_product = p.id_product 
-                ORDER BY ph2.created_at DESC 
-                LIMIT 1
-            ) ph ON true
-            WHERE op.id_order = $1
+            SELECT * FROM calculate_order_price_at_timestamp($1, (
+                SELECT COALESCE(payed_at, NOW()) 
+                FROM "order" 
+                WHERE id_order = $1
+            ))
         """
         async with db.get_connection() as conn:
             rows = await conn.fetch(query, order_id)
@@ -148,9 +99,9 @@ class OrderRepository:
                 product_name=row['product_name'],
                 variant_name=row['variant_name'],
                 color=row['color'],
-                size=row['size'],
+                size=row['size_value'],
                 quantity=row['quantity'],
-                price=row['price']
+                price=row['discounted_price']
             ) for row in rows]
 
     async def update_order_status(self, order_id: int, new_status: str) -> bool:
