@@ -130,6 +130,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Function to get cart total for shipping calculation
+-- DEPRECATED it is buggy and should not be used anymore
 CREATE OR REPLACE FUNCTION get_cart_total(user_id UUID, secret_code VARCHAR DEFAULT NULL)
 RETURNS FLOAT AS $$
 DECLARE
