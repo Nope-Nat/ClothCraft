@@ -59,9 +59,23 @@ class ProductQueryRepository:
             conditions.append("p.active = true")
         
         if category_id:
-            conditions.append(f"p.id_category = ${param_counter}")
+            conditions.append(f"""
+                p.id_category IN (
+                    WITH RECURSIVE category_tree AS (
+                        SELECT id_category FROM category WHERE id_category = ${param_counter}
+                        UNION ALL
+                        SELECT c.id_category FROM category c
+                        JOIN category_tree ct ON c.parent_category = ct.id_category
+                    )
+                    SELECT id_category FROM category_tree
+                )
+            """)
             params.append(category_id)
             param_counter += 1
+        # if category_id:
+        #     conditions.append(f"p.id_category = ${param_counter}")
+        #     params.append(category_id)
+        #     param_counter += 1
         
         if tag_ids:
             placeholders = ",".join([f"${i}" for i in range(param_counter, param_counter + len(tag_ids))])
